@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "printf.h": "c",
+        "errno.h": "c",
+        "keyboard.h": "c"
+    }
+}
