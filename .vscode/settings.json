@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "waitque.h": "c",
+        "keyboard.h": "c",
+        "cpu.h": "c",
+        "lib.h": "c",
+        "schedule.h": "c",
+        "printk.h": "c",
+        "memory.h": "c"
+    }
+}
