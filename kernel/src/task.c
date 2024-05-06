@@ -274,9 +274,6 @@ uint64_t copy_thread(uint64_t clone_flags, uint64_t stack_start, uint64_t stack_
     {
         thd->rip = (uint64_t)ret_system_call;
     }
-    color_printk(color, BLACK, "current user ret addr:%#018lx,rsp:%#018lx\n", regs->r10, regs->r11);
-    color_printk(color, BLACK, "new user ret addr:%#018lx,rsp:%#018lx\n", childregs->r10, childregs->r11);
-
     return 0;
 }
 void exit_thread(struct task_struct *task)
@@ -375,6 +372,8 @@ void _switch_to_(struct task_struct *prev, struct task_struct *next)
     asm volatile("movq %0, %%fs\n" ::"a"(next->thread->fs));
     asm volatile("movq %0, %%gs\n" ::"a"(next->thread->gs));
     wrmsr(0x175, next->thread->rsp0);
+    // if(smp_cpu_id() == 0) color_printk(color, BLACK, "prev->thread->rsp0:%#018lx\n", prev->thread->rsp0);
+
 }
 
 asm
@@ -448,9 +447,6 @@ uint64_t do_execve(struct stackregs *regs, int8_t *name)
     regs->r10 = code_start_addr;
     regs->r11 = stack_start_addr;
     regs->rax = 1;
-
-    color_printk(YELLOW, BLACK, "do_execve task is running\n");
-
     if (current->flags & PF_VFORK)
     {
         current->mm = (struct mm_struct *)kmalloc(sizeof(struct mm_struct), 0);
