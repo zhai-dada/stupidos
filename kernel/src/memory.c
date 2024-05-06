@@ -135,7 +135,7 @@ void init_memory(void)
     set_page_attribute(mem_structure.pages_struct, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
     mem_structure.pages_struct->reference_count = 1;
     mem_structure.pages_struct->age = 0;
-    
+
     mem_structure.zones_length = (mem_structure.zones_size * sizeof(struct zone) + sizeof(int64_t) - 1) & (~(sizeof(int64_t) - 1));
     color_printk(ORANGE, BLACK, "bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_structure.bits_map, mem_structure.bits_size, mem_structure.bits_length);
     color_printk(ORANGE, BLACK, "pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_structure.pages_struct, mem_structure.pages_size, mem_structure.pages_length);
@@ -210,13 +210,13 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 	switch(zone_select)
 	{
 		case ZONE_DMA:
-				zone_start = 0;
-				zone_end = ZONE_NORMAL_INDEX;
+				zone_start = ZONE_DMA_INDEX;
+				zone_end = ZONE_DMA_INDEX;
 				attribute = PAGE_PT_MAPED;
 			break;
 
 		case ZONE_NORMAL:
-				zone_start = ZONE_DMA_INDEX;
+				zone_start = ZONE_NORMAL_INDEX;
 				zone_end = ZONE_NORMAL_INDEX;
 				attribute = PAGE_PT_MAPED;
 			break;
