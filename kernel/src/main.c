@@ -19,9 +19,8 @@ void kernel(void)
     set_tss64((uint32_t *)&init_tss[0], _stack_start_, _stack_start_, _stack_start_, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00);
     sys_vector_init();
     init_memory();
-    get_cpuinfo();
+    // get_cpuinfo();
     slab_init();
-    // color_printk(YELLOW, BLACK, "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC:%018lx\n", _stack_start_);
     ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
     ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = 0;
     init_tss[0].ist1 = (uint64_t)ptr;
