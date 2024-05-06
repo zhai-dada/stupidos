@@ -151,13 +151,8 @@ extern struct mm_descriptor mem_structure;
 #define PAGE_KERNEL         (1 << 3)   // 内核页
 #define PAGE_SHARED         (1 << 4)   // 共享页
 
-void init_memory(void);
-uint64_t page_init(struct page* page, uint64_t flags);
-uint64_t* get_gdt(void);
-struct page* alloc_pages(int32_t zones_select, int32_t number, uint64_t flags);
-
 #define flush_tlb()                     \
-    uint64_t a;                       \
+    {uint64_t a;                       \
     asm volatile                        \
     (                                   \
         "movq %%cr3, %0          \n"    \
@@ -165,7 +160,7 @@ struct page* alloc_pages(int32_t zones_select, int32_t number, uint64_t flags);
         : "=r"(a)                     \
         :                               \
         : "memory"                      \
-    );
+    );}
 
 #define SIZEOF_LONG_ALIGN(size) ((size + sizeof(int64_t) - 1) & ~(sizeof(int64_t) - 1))
 #define SIZEOF_INT_ALIGN(size) ((size + sizeof(int32_t) - 1) & ~(sizeof(int32_t) - 1))
@@ -174,41 +169,45 @@ struct page* alloc_pages(int32_t zones_select, int32_t number, uint64_t flags);
 #define P_TO_2M(kaddr) (mem_structure.pages_struct + ((uint64_t)(kaddr) >> PAGE_2M_SHIFT))
 
 // 用于内存分配的缓存结构
-struct slab_cache
+struct kmem_cache
 {
     uint64_t size;              // 单个对象的大小
     uint64_t total_using;       // 正在使用的对象总数
     uint64_t total_free;        // 空闲对象总数
-    struct slab* cache_pool;    // 缓存池指针
-    struct slab* dma_cache_pool; // DMA缓存池指针
+    struct kmem* cache_pool;    // 缓存池指针
     void* (*construct)(void* vaddress, uint64_t arg); // 构造函数指针
     void* (*destruct)(void* vaddress, uint64_t arg);  // 析构函数指针
 };
-// SLAB分配器中的SLAB结构
-struct slab
+// kmem分配器中的kmem结构
+struct kmem
 {
-    struct list list;           // 用于连接到SLAB链表中的节点
+    struct list list;           // 用于连接到kmem链表中的节点
     struct page* page;          // 所属页结构指针
     uint64_t using_count;       // 正在使用的对象计数
     uint64_t free_count;        // 空闲对象计数
-    void* vaddress;             // SLAB起始虚拟地址
+    void* vaddress;             // kmem起始虚拟地址
     uint64_t color_length;      // 颜色数组长度
     uint64_t color_count;       // 颜色数量
     uint64_t* color_map;        // 颜色映射表
 };
 
 
-extern struct slab_cache kmalloc_cache_size[16];
+extern struct kmem_cache kmalloc_cache_size[16];
 
-uint64_t slab_init(void);
-struct slab_cache* slab_create(uint64_t size, void* (*construct)(void* vaddress, uint64_t arg), void* (*destruct)(void* vaddress, uint64_t arg), uint64_t arg);
+void init_memory(void);
+uint64_t page_init(struct page* page, uint64_t flags);
+uint64_t* get_gdt(void);
+struct page* alloc_pages(int32_t zones_select, int32_t number, uint64_t flags);
+
+uint64_t kmem_init(void);
+struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress, uint64_t arg), void* (*destruct)(void* vaddress, uint64_t arg), uint64_t arg);
 void* kmalloc(uint64_t size, uint64_t flags);
 uint64_t kfree(void* address);
 void free_pages(struct page* page, int32_t number);
-void* slab_malloc(struct slab_cache* slab_cache, uint64_t arg);
-uint64_t slab_destroy(struct slab_cache* slab_cache);
+void* kmem_malloc(struct kmem_cache* kmem_cache, uint64_t arg);
+uint64_t kmem_destroy(struct kmem_cache* kmem_cache);
 uint64_t page_clean(struct page * page);
-uint64_t slab_free(struct slab_cache* slab_cache, void* address, uint64_t arg);
+uint64_t kmem_free(struct kmem_cache* kmem_cache, void* address, uint64_t arg);
 uint64_t get_page_attribute(struct page* page);
 uint64_t set_page_attribute(struct page* page, uint64_t flags);
 void pagetable_init();

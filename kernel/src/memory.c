@@ -4,24 +4,24 @@
 #include <errno.h>
 #include <task.h>
 
-struct slab_cache kmalloc_cache_size[16] = 
+struct kmem_cache kmalloc_cache_size[16] = 
 {
-    {32, 0, 0, NULL, NULL, NULL, NULL},
-    {64, 0, 0, NULL, NULL, NULL, NULL},
-    {128, 0, 0, NULL, NULL, NULL, NULL},
-    {256, 0, 0, NULL, NULL, NULL, NULL},
-    {512, 0, 0, NULL, NULL, NULL, NULL},
-    {1024, 0, 0, NULL, NULL, NULL, NULL},
-    {2048, 0, 0, NULL, NULL, NULL, NULL},
-    {4096, 0, 0, NULL, NULL, NULL, NULL},
-    {8192, 0, 0, NULL, NULL, NULL, NULL},
-    {16384, 0, 0, NULL, NULL, NULL, NULL},
-    {32768, 0, 0, NULL, NULL, NULL, NULL},
-    {65536, 0, 0, NULL, NULL, NULL, NULL},
-    {131072, 0, 0, NULL, NULL, NULL, NULL},
-    {262144, 0, 0, NULL, NULL, NULL, NULL},
-    {524288, 0, 0, NULL, NULL, NULL, NULL},
-    {1048576, 0, 0, NULL, NULL, NULL, NULL}
+    {32, 0, 0, NULL, NULL, NULL},
+    {64, 0, 0, NULL, NULL, NULL},
+    {128, 0, 0, NULL, NULL, NULL},
+    {256, 0, 0, NULL, NULL, NULL},
+    {512, 0, 0, NULL, NULL, NULL},
+    {1024, 0, 0, NULL, NULL, NULL},
+    {2048, 0, 0, NULL, NULL, NULL},
+    {4096, 0, 0, NULL, NULL, NULL},
+    {8192, 0, 0, NULL, NULL, NULL},
+    {16384, 0, 0, NULL, NULL, NULL},
+    {32768, 0, 0, NULL, NULL, NULL},
+    {65536, 0, 0, NULL, NULL, NULL},
+    {131072, 0, 0, NULL, NULL, NULL},
+    {262144, 0, 0, NULL, NULL, NULL},
+    {524288, 0, 0, NULL, NULL, NULL},
+    {1048576, 0, 0, NULL, NULL, NULL}
 };
 int32_t ZONE_DMA_INDEX = 0;
 int32_t ZONE_NORMAL_INDEX = 0;
@@ -45,47 +45,41 @@ void init_memory(void)
     uint64_t total_mem = 0;
     struct EFI_E820_MEMORY_DESCRIPTOR *p = NULL;
     p = (struct EFI_E820_MEMORY_DESCRIPTOR *)boot_info->e820inf.e820_entry;
-    uint64_t m_max = 0, m_tmp = 0;
-    for (i = 0; i < 32; i++)
+    for (i = 0; i < boot_info->e820inf.entrycount; ++i)
     {
         if (p->type == 1)
         {
-            total_mem = total_mem + p->length;
+            total_mem += p->length;
         }
         else if (p->type > 4 || p->length == 0 || p->type < 1)
         {
             break;
         }
-        m_tmp = p->address + p->length;
-        if(m_tmp > m_max)
-        {
-            m_max = m_tmp;
-        }
-        mem_structure.e820[i].address += p->address;
-        mem_structure.e820[i].length += p->length;
+        mem_structure.e820[i].address = p->address;
+        mem_structure.e820[i].length = p->length;
         mem_structure.e820[i].type = p->type;
         mem_structure.e820_length = i;
         p++;
     }
     color_printk(ORANGE, BLACK, "OS Can Used Totol RAM = %#018x\n", total_mem);
-    int32_t All_Page = 0;
-    for (i = 0; i < mem_structure.e820_length; i++)
-    {
-        uint64_t start, end;
-        if (mem_structure.e820[i].type != 1)
-        {
+    total_mem = 0;
+	for(i = 0;i <= mem_structure.e820_length;i++)
+	{
+		uint64_t start,end;
+		if(mem_structure.e820[i].type != 1)
+		{
             continue;
         }
-        start = PAGE_2M_ALIGN(mem_structure.e820[i].address);
-        end = (mem_structure.e820[i].address + mem_structure.e820[i].length) & PAGE_2M_MASK;
-        if (end <= start)
-        {
+		start = PAGE_2M_ALIGN(mem_structure.e820[i].address);
+		end   = ((mem_structure.e820[i].address + mem_structure.e820[i].length) >> PAGE_2M_SHIFT) << PAGE_2M_SHIFT;
+		if(end <= start)
+		{
             continue;
         }
-        All_Page = All_Page + ((end - start) >> PAGE_2M_SHIFT);
-    }
-    color_printk(ORANGE, BLACK, "Total effective 2MB Pages:%#010x = %#010d\n", All_Page, All_Page);
-    total_mem = m_max;
+		total_mem += (end - start) >> PAGE_2M_SHIFT;
+	}
+    color_printk(ORANGE, BLACK, "Total effective 2MB Pages:%#010x = %#010d\n", total_mem, total_mem);
+    total_mem = mem_structure.e820[mem_structure.e820_length].address + mem_structure.e820[mem_structure.e820_length].length;
     mem_structure.bits_map = (uint64_t *)PAGE_4K_ALIGN(mem_structure.start_brk);
     mem_structure.bits_size = total_mem >> PAGE_2M_SHIFT;
     mem_structure.bits_length = ((mem_structure.bits_size + sizeof(uint64_t) - 1) / 8) & (~(sizeof(uint64_t) - 1));
@@ -98,7 +92,7 @@ void init_memory(void)
     mem_structure.zones_size = 0;
     mem_structure.zones_length = (5 * sizeof(struct zone) + sizeof(int64_t) - 1) & (~(sizeof(int64_t) - 1));
     memset(mem_structure.zones_struct, 0x00, mem_structure.zones_length);
-    for (i = 0; i <= mem_structure.e820_length; i++)
+    for (i = 0; i <= mem_structure.e820_length; ++i)
     {
         uint64_t start, end;
         struct page *p;
@@ -126,7 +120,7 @@ void init_memory(void)
         z->pages_length = (end - start) >> PAGE_2M_SHIFT;
         z->pages_group = (struct page *)(mem_structure.pages_struct + (start >> PAGE_2M_SHIFT));
         p = z->pages_group;
-        for (j = 0; j < z->pages_length; j++, p++)
+        for (j = 0; j < z->pages_length; ++j, p++)
         {
             p->zone_struct = z;
             p->p_address = start + PAGE_2M_SIZE * j;
@@ -136,38 +130,38 @@ void init_memory(void)
             *(mem_structure.bits_map + ((p->p_address >> PAGE_2M_SHIFT) >> 6)) ^= 1UL << (p->p_address >> PAGE_2M_SHIFT) % 64;
         }
     }
-    mem_structure.e820[0].type != 1;
     mem_structure.pages_struct->zone_struct = mem_structure.zones_struct;
-    mem_structure.pages_struct->p_address = (uint64_t)0;
+    mem_structure.pages_struct->p_address = 0;
     set_page_attribute(mem_structure.pages_struct, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
     mem_structure.pages_struct->reference_count = 1;
     mem_structure.pages_struct->age = 0;
+    
     mem_structure.zones_length = (mem_structure.zones_size * sizeof(struct zone) + sizeof(int64_t) - 1) & (~(sizeof(int64_t) - 1));
-    // color_printk(ORANGE, BLACK, "bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_structure.bits_map, mem_structure.bits_size, mem_structure.bits_length);
-    // color_printk(ORANGE, BLACK, "pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_structure.pages_struct, mem_structure.pages_size, mem_structure.pages_length);
-    // color_printk(ORANGE, BLACK, "zones_struct:%#018lx zones_size:%#018lx zones_length:%#018lx\n", mem_structure.zones_struct, mem_structure.zones_size, mem_structure.zones_length);
+    color_printk(ORANGE, BLACK, "bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_structure.bits_map, mem_structure.bits_size, mem_structure.bits_length);
+    color_printk(ORANGE, BLACK, "pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_structure.pages_struct, mem_structure.pages_size, mem_structure.pages_length);
+    color_printk(ORANGE, BLACK, "zones_struct:%#018lx zones_size:%#018lx zones_length:%#018lx\n", mem_structure.zones_struct, mem_structure.zones_size, mem_structure.zones_length);
     ZONE_DMA_INDEX = 0;
-    ZONE_NORMAL_INDEX = 0;
+    ZONE_NORMAL_INDEX = 1;
     ZONE_UNMAPED_INDEX = 0;
-    int32_t tmpc = 0, tmpd = 0;
-    for (i = 0; i < mem_structure.zones_size; i++)
+    // int32_t tmpc = 0, tmpd = 0;
+    for (i = 0; i < mem_structure.zones_size; ++i)
     {
         struct zone *z = mem_structure.zones_struct + i;
-        tmpc = z->page_free_count;
-        if(tmpc > tmpd)
-        {
-            tmpd = tmpc;
-            ZONE_NORMAL_INDEX = i;
-        }
-        // color_printk(ORANGE, BLACK, "zone_start_address:%#018lx zone_end_address:%#018lx zone_length:%#018lx pages_group:%#018lx pages_length:%#018lx pages_freecount:%#018lx\n", z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length, z->page_free_count);
+        // tmpc = z->page_free_count;
+        // if(tmpc > tmpd)
+        // {
+        //     tmpd = tmpc;
+        //     ZONE_NORMAL_INDEX = i;
+        // }
+        color_printk(ORANGE, BLACK, "zone_start_address:%#018lx zone_end_address:%#018lx zone_length:%#018lx pages_group:%#018lx pages_length:%#018lx pages_freecount:%#018lx\n", z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length, z->page_free_count);
         if (z->zone_start_address >= 0x100000000 && !ZONE_UNMAPED_INDEX)
         {
             ZONE_UNMAPED_INDEX = i;
         }
     }
-	// color_printk(ORANGE, BLACK, "ZONE_DMA_INDEX:%d\tZONE_NORMAL_INDEX:%d\tZONE_UNMAPED_INDEX:%d\n", ZONE_DMA_INDEX, ZONE_NORMAL_INDEX, ZONE_UNMAPED_INDEX);
+	color_printk(ORANGE, BLACK, "ZONE_DMA_INDEX:%d\tZONE_NORMAL_INDEX:%d\tZONE_UNMAPED_INDEX:%d\n", ZONE_DMA_INDEX, ZONE_NORMAL_INDEX, ZONE_UNMAPED_INDEX);
     mem_structure.end_of_struct = (uint64_t)((uint64_t)mem_structure.zones_struct + mem_structure.zones_length + sizeof(int64_t) * 32) & (~(sizeof(int64_t) - 1));
-    // color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
+    color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
     i = V_TO_P(mem_structure.end_of_struct) >> PAGE_2M_SHIFT;
     for (j = 1; j <= i; ++j)
     {
@@ -179,10 +173,10 @@ void init_memory(void)
 
     }
     cr3 = get_gdt();
-    // color_printk(INDIGO, BLACK, "cr3:%#018lx\n", cr3);
-    // color_printk(INDIGO, BLACK, "*cr3:%#018lx\n", *(uint64_t *)P_TO_V(cr3) & (~0xff));
-    // color_printk(INDIGO, BLACK, "**cr3:%#018lx\n", *(uint64_t *)P_TO_V(*(uint64_t *)P_TO_V(cr3) & (~0xff)) & (~0xff));
-    // color_printk(ORANGE, BLACK, "1.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
+    color_printk(INDIGO, BLACK, "cr3:%#018lx\n", cr3);
+    color_printk(INDIGO, BLACK, "*cr3:%#018lx\n", *(uint64_t *)P_TO_V(cr3) & (~0xff));
+    color_printk(INDIGO, BLACK, "**cr3:%#018lx\n", *(uint64_t *)P_TO_V(*(uint64_t *)P_TO_V(cr3) & (~0xff)) & (~0xff));
+    color_printk(ORANGE, BLACK, "1.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
     flush_tlb();
     return;
 }
@@ -216,14 +210,14 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 	switch(zone_select)
 	{
 		case ZONE_DMA:
-				zone_start = ZONE_DMA_INDEX;
+				zone_start = 0;
 				zone_end = ZONE_NORMAL_INDEX;
 				attribute = PAGE_PT_MAPED;
 			break;
 
 		case ZONE_NORMAL:
-				zone_start = ZONE_NORMAL_INDEX;
-				zone_end = ZONE_UNMAPED_INDEX;
+				zone_start = ZONE_DMA_INDEX;
+				zone_end = ZONE_NORMAL_INDEX;
 				attribute = PAGE_PT_MAPED;
 			break;
 
@@ -239,7 +233,7 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 			break;
 	}
 
-	for(i = zone_start; i < zone_end; i++)
+	for(i = zone_start; i <= zone_end; ++i)
 	{
 		struct zone * z;
 		unsigned long j;
@@ -264,7 +258,7 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 			
 			unsigned long num = (1UL << number) - 1;
 			
-			for(k = shift;k < 64;k++)
+			for(k = shift;k < 64;++k)
 			{
 				if( !( (k ? ((*p >> k) | (*(p + 1) << (64 - k))) : *p) & (num) ) )
 				{
@@ -293,10 +287,10 @@ find_free_pages:
 	return (struct page *)(mem_structure.pages_struct + page);
 }
 
-struct slab* kmalloc_create(uint64_t size)
+struct kmem* kmalloc_create(uint64_t size)
 {
     int32_t i = 0;
-    struct slab* slab = NULL;
+    struct kmem* kmem = NULL;
     struct page* page = NULL;
     uint64_t* vaddress = NULL;
     int64_t structsize = 0;
@@ -315,20 +309,20 @@ struct slab* kmalloc_create(uint64_t size)
         case 256:
         case 512:
             vaddress = (uint64_t*)P_TO_V(page->p_address);
-            structsize = sizeof(struct slab) + PAGE_2M_SIZE / size / 8;
-            slab = (struct slab*)((uint8_t*)vaddress + PAGE_2M_SIZE - structsize);
-            slab->color_map = (uint64_t*)((uint8_t*)slab + sizeof(struct slab));
-            slab->free_count = (PAGE_2M_SIZE - (PAGE_2M_SIZE / size / 8) - sizeof(struct slab)) / size;
-            slab->using_count = 0;
-            slab->color_count = slab->free_count;
-            slab->vaddress = vaddress;
-            slab->page = page;
-            list_init(&slab->list);
-            slab->color_length = ((slab->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
-            memset(slab->color_map, 0xff, slab->color_length);
-            for(i = 0; i < slab->color_count; i++)
+            structsize = sizeof(struct kmem) + PAGE_2M_SIZE / size / 8;
+            kmem = (struct kmem*)((uint8_t*)vaddress + PAGE_2M_SIZE - structsize);
+            kmem->color_map = (uint64_t*)((uint8_t*)kmem + sizeof(struct kmem));
+            kmem->free_count = (PAGE_2M_SIZE - (PAGE_2M_SIZE / size / 8) - sizeof(struct kmem)) / size;
+            kmem->using_count = 0;
+            kmem->color_count = kmem->free_count;
+            kmem->vaddress = vaddress;
+            kmem->page = page;
+            list_init(&kmem->list);
+            kmem->color_length = ((kmem->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
+            memset(kmem->color_map, 0xff, kmem->color_length);
+            for(i = 0; i < kmem->color_count; ++i)
             {
-                *(slab->color_map + (i >> 6)) ^= 1UL << i % 64;
+                *(kmem->color_map + (i >> 6)) ^= 1UL << i % 64;
             }
             break;
         case 1024: //1KB
@@ -342,19 +336,19 @@ struct slab* kmalloc_create(uint64_t size)
         case 262144:
         case 524288:
         case 1048576:
-            slab = (struct slab*)kmalloc(sizeof(struct slab), 0);
-            slab->free_count = PAGE_2M_SIZE / size;
-            slab->using_count = 0;
-            slab->color_count = slab->free_count;
-            slab->color_length = ((slab->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
-            slab->color_map = (uint64_t*)kmalloc(slab->color_length, 0);
-            memset(slab->color_map, 0xff, slab->color_length);
-            slab->vaddress = (uint64_t*)P_TO_V(page->p_address);
-            slab->page = page;
-            list_init(&slab->list);
-            for(i = 0; i < slab->color_count; i++)
+            kmem = (struct kmem*)kmalloc(sizeof(struct kmem), 0);
+            kmem->free_count = PAGE_2M_SIZE / size;
+            kmem->using_count = 0;
+            kmem->color_count = kmem->free_count;
+            kmem->color_length = ((kmem->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
+            kmem->color_map = (uint64_t*)kmalloc(kmem->color_length, 0);
+            memset(kmem->color_map, 0xff, kmem->color_length);
+            kmem->vaddress = (uint64_t*)P_TO_V(page->p_address);
+            kmem->page = page;
+            list_init(&kmem->list);
+            for(i = 0; i < kmem->color_count; ++i)
             {
-                *(slab->color_map + (i >> 6)) ^= 1UL << i % 64;
+                *(kmem->color_map + (i >> 6)) ^= 1UL << i % 64;
             }
             break;
         default:
@@ -362,206 +356,205 @@ struct slab* kmalloc_create(uint64_t size)
             free_pages(page, 1);
             return NULL;
     }
-    return slab;
+    return kmem;
 }
 
 void* kmalloc(uint64_t size, uint64_t flags)
 {
     int32_t i = 0;
     int32_t j = 0;
-    struct slab* slab = NULL;
+    struct kmem* kmem = NULL;
     //1048576 = 1MB
     if(size > 1048576)
     {
         color_printk(RED, BLACK, "kmalloc() ERROR:kmalloc size too int64_t:%08d\n", size);
         return NULL;
     }
-    for(i = 0; i < 16; i++)
+    for(i = 0; i < 16; ++i)
     {
         if(kmalloc_cache_size[i].size >= size)
         {
             break;
         }
     }
-    slab = kmalloc_cache_size[i].cache_pool;
+    kmem = kmalloc_cache_size[i].cache_pool;
     if(kmalloc_cache_size[i].total_free != 0)
     {
         do
         {
-            if(slab->free_count == 0)
+            if(kmem->free_count == 0)
             {
-                slab = container_of(list_next(&slab->list), struct slab, list);
+                kmem = container_of(list_next(&kmem->list), struct kmem, list);
             }
             else
             {
                 break;
             }
-        }while(slab != kmalloc_cache_size[i].cache_pool);
+        }while(kmem != kmalloc_cache_size[i].cache_pool);
     }
     else
     {
-        slab = kmalloc_create(kmalloc_cache_size[i].size);
-        if(slab == NULL)
+        kmem = kmalloc_create(kmalloc_cache_size[i].size);
+        if(kmem == NULL)
         {
-            color_printk(RED, BLACK, "kmalloc()->kmalloc_create()->slab == NULL\n");
+            color_printk(RED, BLACK, "kmalloc()->kmalloc_create()->kmem == NULL\n");
             return NULL;
         }
-        kmalloc_cache_size[i].total_free += slab->color_count;
+        kmalloc_cache_size[i].total_free += kmem->color_count;
         color_printk(BLUE, BLACK, "kmalloc()->kmalloc_create() <= size:%#010x\n", kmalloc_cache_size[i].size);
-        list_add_before(&kmalloc_cache_size[i].cache_pool->list, &slab->list);
+        list_add_before(&kmalloc_cache_size[i].cache_pool->list, &kmem->list);
     }
-    for(j = 0; j < slab->color_count; ++j)
+    for(j = 0; j < kmem->color_count; ++j)
     {
-        if(*(slab->color_map + (j >> 6)) == 0xffffffffffffffffUL)
+        if(*(kmem->color_map + (j >> 6)) == 0xffffffffffffffffUL)
         {
             j += 63;
             continue;
         }
-        if((*(slab->color_map + (j >> 6)) & (1UL << (j % 64))) == 0)
+        if((*(kmem->color_map + (j >> 6)) & (1UL << (j % 64))) == 0)
         {
-            *(slab->color_map + (j >> 6)) |= 1UL << (j % 64);
-            slab->using_count++;
-            slab->free_count--;
+            *(kmem->color_map + (j >> 6)) |= 1UL << (j % 64);
+            kmem->using_count++;
+            kmem->free_count--;
             kmalloc_cache_size[i].total_using++;
             kmalloc_cache_size[i].total_free--;
-            return (void *)((char*)slab->vaddress + kmalloc_cache_size[i].size * j);
+            return (void *)((char*)kmem->vaddress + kmalloc_cache_size[i].size * j);
         }
     }
     color_printk(RED, BLACK, "kmalloc() ERROR: no memory call alloc\n");
     return NULL;
 }
-struct slab_cache* slab_create(uint64_t size, void* (*construct)(void* vaddress, uint64_t arg), void* (*destruct)(void* vaddress, uint64_t arg), uint64_t arg)
+struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress, uint64_t arg), void* (*destruct)(void* vaddress, uint64_t arg), uint64_t arg)
 {
-    struct slab_cache* slab_cache = NULL;
-    slab_cache = (struct slab_cache*)kmalloc(sizeof(struct slab_cache), 0);
-    if(slab_cache == NULL)
+    struct kmem_cache* kmem_cache = NULL;
+    kmem_cache = (struct kmem_cache*)kmalloc(sizeof(struct kmem_cache), 0);
+    if(kmem_cache == NULL)
     {
-        color_printk(RED, BLACK, "slab_create()->slab_cache = NULL\n");
+        color_printk(RED, BLACK, "kmem_create()->kmem_cache = NULL\n");
         return NULL;
     }
-    memset(slab_cache, 0, sizeof(struct slab_cache));
-    slab_cache->size = SIZEOF_LONG_ALIGN(size);
-    slab_cache->total_using = 0;
-    slab_cache->total_free = 0;
-    slab_cache->cache_pool = (struct slab*)kmalloc(sizeof(struct slab), 0);
-    if(slab_cache->cache_pool == NULL)
+    memset(kmem_cache, 0, sizeof(struct kmem_cache));
+    kmem_cache->size = SIZEOF_LONG_ALIGN(size);
+    kmem_cache->total_using = 0;
+    kmem_cache->total_free = 0;
+    kmem_cache->cache_pool = (struct kmem*)kmalloc(sizeof(struct kmem), 0);
+    if(kmem_cache->cache_pool == NULL)
     {
-        color_printk(RED, BLACK, "slab_cache()->kmalloc(slab_cache->cache_pool) ERROR == NULL\n");
-        kfree(slab_cache);
+        color_printk(RED, BLACK, "kmem_cache()->kmalloc(kmem_cache->cache_pool) ERROR == NULL\n");
+        kfree(kmem_cache);
         return NULL;
     }
-    memset(slab_cache->cache_pool, 0, sizeof(struct slab));
-    slab_cache->dma_cache_pool = NULL;
-    slab_cache->construct = construct;
-    slab_cache->destruct = destruct;
-    list_init(&slab_cache->cache_pool->list);
-    slab_cache->cache_pool->page = alloc_pages(ZONE_NORMAL, 1, 0);
-    if(slab_cache->cache_pool->page == NULL)
+    memset(kmem_cache->cache_pool, 0, sizeof(struct kmem));
+    kmem_cache->construct = construct;
+    kmem_cache->destruct = destruct;
+    list_init(&kmem_cache->cache_pool->list);
+    kmem_cache->cache_pool->page = alloc_pages(ZONE_NORMAL, 1, 0);
+    if(kmem_cache->cache_pool->page == NULL)
     {
-        color_printk(RED, BLACK, "slab_cache()->alloc_pages() page == NULL\n");
-        kfree(slab_cache->cache_pool);
-        kfree(slab_cache);
+        color_printk(RED, BLACK, "kmem_cache()->alloc_pages() page == NULL\n");
+        kfree(kmem_cache->cache_pool);
+        kfree(kmem_cache);
         return NULL;
     }
-    page_init(slab_cache->cache_pool->page, PAGE_KERNEL);
-    slab_cache->cache_pool->using_count = 0;
-    slab_cache->cache_pool->free_count = PAGE_2M_SIZE / slab_cache->size;
-    slab_cache->total_free = slab_cache->cache_pool->free_count;
-    slab_cache->cache_pool->vaddress = (uint64_t*)P_TO_V(slab_cache->cache_pool->page->p_address);
-    slab_cache->cache_pool->color_count = slab_cache->cache_pool->free_count;
-    slab_cache->cache_pool->color_length = ((slab_cache->cache_pool->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
-    slab_cache->cache_pool->color_map = (uint64_t*)kmalloc(slab_cache->cache_pool->color_length, 0);
-    if(slab_cache->cache_pool->color_map == NULL)
+    page_init(kmem_cache->cache_pool->page, PAGE_KERNEL);
+    kmem_cache->cache_pool->using_count = 0;
+    kmem_cache->cache_pool->free_count = PAGE_2M_SIZE / kmem_cache->size;
+    kmem_cache->total_free = kmem_cache->cache_pool->free_count;
+    kmem_cache->cache_pool->vaddress = (uint64_t*)P_TO_V(kmem_cache->cache_pool->page->p_address);
+    kmem_cache->cache_pool->color_count = kmem_cache->cache_pool->free_count;
+    kmem_cache->cache_pool->color_length = ((kmem_cache->cache_pool->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
+    kmem_cache->cache_pool->color_map = (uint64_t*)kmalloc(kmem_cache->cache_pool->color_length, 0);
+    if(kmem_cache->cache_pool->color_map == NULL)
     {
-        color_printk(RED, BLACK, "slab_create()->color_map == NULL\n");
-        free_pages(slab_cache->cache_pool->page, 1);
-        kfree(slab_cache->cache_pool);
-        kfree(slab_cache);
+        color_printk(RED, BLACK, "kmem_create()->color_map == NULL\n");
+        free_pages(kmem_cache->cache_pool->page, 1);
+        kfree(kmem_cache->cache_pool);
+        kfree(kmem_cache);
         return NULL;
     }
-    memset(slab_cache->cache_pool->color_map, 0, slab_cache->cache_pool->color_length);
-    return slab_cache;
+    memset(kmem_cache->cache_pool->color_map, 0, kmem_cache->cache_pool->color_length);
+    return kmem_cache;
 }
-uint64_t slab_destroy(struct slab_cache* slab_cache)
+uint64_t kmem_destroy(struct kmem_cache* kmem_cache)
 {
-    struct slab* slab_pool = slab_cache->cache_pool;
-    struct slab* slab_tmp = NULL;
-    if(slab_cache->total_using != 0)
+    struct kmem* kmem_pool = kmem_cache->cache_pool;
+    struct kmem* kmem_tmp = NULL;
+    if(kmem_cache->total_using != 0)
     {
-        color_printk(RED, BLACK, "slab_cache->total_using != 0\n");
+        color_printk(RED, BLACK, "kmem_cache->total_using != 0\n");
         return 0;
     }
-    while(!list_is_empty(&slab_pool->list))
+    while(!list_is_empty(&kmem_pool->list))
     {
-        slab_tmp = slab_pool;
-        slab_pool = (struct slab*)container_of(list_next(&slab_pool->list), struct slab, list);
-        list_delete(&slab_tmp->list);
-        kfree(slab_tmp->color_map);
-        page_clean(slab_tmp->page);
-        free_pages(slab_tmp->page, 1);
-        kfree(slab_tmp);
+        kmem_tmp = kmem_pool;
+        kmem_pool = (struct kmem*)container_of(list_next(&kmem_pool->list), struct kmem, list);
+        list_delete(&kmem_tmp->list);
+        kfree(kmem_tmp->color_map);
+        page_clean(kmem_tmp->page);
+        free_pages(kmem_tmp->page, 1);
+        kfree(kmem_tmp);
     }
-    kfree(slab_pool->color_map);
-    page_clean(slab_pool->page);
-    free_pages(slab_pool->page, 1);
-    kfree(slab_pool);
+    kfree(kmem_pool->color_map);
+    page_clean(kmem_pool->page);
+    free_pages(kmem_pool->page, 1);
+    kfree(kmem_pool);
     return 1;
 }
-void* slab_malloc(struct slab_cache* slab_cache, uint64_t arg)
+void* kmem_malloc(struct kmem_cache* kmem_cache, uint64_t arg)
 {
-    struct slab* slab_pool = slab_cache->cache_pool;
-    struct slab* slab_tmp = NULL;
+    struct kmem* kmem_pool = kmem_cache->cache_pool;
+    struct kmem* kmem_tmp = NULL;
     int32_t j = 0;
-    if(slab_cache->total_free == 0)
+    if(kmem_cache->total_free == 0)
     {
-        slab_tmp = (struct slab*)kmalloc(sizeof(struct slab), 0);
-        if(slab_tmp == NULL)
+        kmem_tmp = (struct kmem*)kmalloc(sizeof(struct kmem), 0);
+        if(kmem_tmp == NULL)
         {
-            color_printk(RED, BLACK, "slab_malloc()->kmalloc slab_tmp == NULL\n");
+            color_printk(RED, BLACK, "kmem_malloc()->kmalloc kmem_tmp == NULL\n");
             return NULL;
         }
-        memset(slab_tmp, 0, sizeof(struct slab));
-        list_init(&slab_tmp->list);
-        slab_tmp->page = alloc_pages(ZONE_NORMAL, 1, 0);
-        if(slab_tmp->page == NULL)
+        memset(kmem_tmp, 0, sizeof(struct kmem));
+        list_init(&kmem_tmp->list);
+        kmem_tmp->page = alloc_pages(ZONE_NORMAL, 1, 0);
+        if(kmem_tmp->page == NULL)
         {
-            color_printk(RED, BLACK, "slab_malloc()->alloc_page == NULL\n");
-            kfree(slab_tmp);
+            color_printk(RED, BLACK, "kmem_malloc()->alloc_page == NULL\n");
+            kfree(kmem_tmp);
             return NULL;
         }
-        page_init(slab_tmp->page, PAGE_KERNEL);
-        slab_tmp->using_count = 0;
-        slab_tmp->free_count = PAGE_2M_SIZE / slab_cache->size;
-        slab_tmp->vaddress = (uint64_t*)P_TO_V(slab_tmp->page->p_address);
-        slab_tmp->color_count = slab_tmp->free_count;
-        slab_tmp->color_length = ((slab_tmp->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
-        slab_tmp->color_map = (uint64_t*)kmalloc(slab_tmp->color_length, 0);
-        if(slab_tmp->color_map == NULL)
+        page_init(kmem_tmp->page, PAGE_KERNEL);
+        kmem_tmp->using_count = 0;
+        kmem_tmp->free_count = PAGE_2M_SIZE / kmem_cache->size;
+        kmem_tmp->vaddress = (uint64_t*)P_TO_V(kmem_tmp->page->p_address);
+        kmem_tmp->color_count = kmem_tmp->free_count;
+        kmem_tmp->color_length = ((kmem_tmp->color_count + sizeof(uint64_t) * 8 - 1) >> 6) << 3;
+        kmem_tmp->color_map = (uint64_t*)kmalloc(kmem_tmp->color_length, 0);
+        if(kmem_tmp->color_map == NULL)
         {
-            color_printk(RED, BLACK, "slab_malloc()->kmalloc(colormap) == NULL\n");
-            free_pages(slab_tmp->page, 1);
-            kfree(slab_tmp);
+            color_printk(RED, BLACK, "kmem_malloc()->kmalloc(colormap) == NULL\n");
+            free_pages(kmem_tmp->page, 1);
+            kfree(kmem_tmp);
             return NULL;
         }
-        memset(slab_tmp->color_map, 0, slab_tmp->color_length);
-        list_add_behind(&slab_cache->cache_pool->list, &slab_tmp->list);
-        slab_cache->total_free += slab_tmp->color_count;
-        for(j = 0; j < slab_tmp->color_count; j++)
+        memset(kmem_tmp->color_map, 0, kmem_tmp->color_length);
+        list_add_behind(&kmem_cache->cache_pool->list, &kmem_tmp->list);
+        kmem_cache->total_free += kmem_tmp->color_count;
+        for(j = 0; j < kmem_tmp->color_count; ++j)
         {
-            if((*(slab_tmp->color_map + (j >> 6)) & 1UL << (j % 64)) == 0)
+            if((*(kmem_tmp->color_map + (j >> 6)) & 1UL << (j % 64)) == 0)
             {
-                *(slab_tmp->color_map + (j >> 6)) |= 1UL << (j % 64);
-                slab_tmp->using_count++;
-                slab_tmp->free_count--;
-                slab_cache->total_free--;
-                slab_cache->total_using++;
-                if(slab_cache->construct != NULL)
+                *(kmem_tmp->color_map + (j >> 6)) |= 1UL << (j % 64);
+                kmem_tmp->using_count++;
+                kmem_tmp->free_count--;
+                kmem_cache->total_free--;
+                kmem_cache->total_using++;
+                if(kmem_cache->construct != NULL)
                 {
-                    return slab_cache->construct((char*)slab_tmp->vaddress + slab_cache->size * j, arg);
+                    return kmem_cache->construct((char*)kmem_tmp->vaddress + kmem_cache->size * j, arg);
                 }
                 else
                 {
-                    return (void*)((char*)slab_tmp->vaddress + slab_cache->size * j);
+                    return (void*)((char*)kmem_tmp->vaddress + kmem_cache->size * j);
                 }
             }
         }
@@ -570,82 +563,82 @@ void* slab_malloc(struct slab_cache* slab_cache, uint64_t arg)
     {
         do
         {
-            if(slab_pool->free_count == 0)
+            if(kmem_pool->free_count == 0)
             {
-                slab_pool = (struct slab*)container_of(list_next(&slab_pool->list), struct slab, list);
+                kmem_pool = (struct kmem*)container_of(list_next(&kmem_pool->list), struct kmem, list);
                 continue;
             }
-            for(j = 0; j < slab_pool->color_count; j++)
+            for(j = 0; j < kmem_pool->color_count; ++j)
             {
-                if(*(slab_pool->color_map + (j >> 6)) == 0xffffffffffffffffUL)
+                if(*(kmem_pool->color_map + (j >> 6)) == 0xffffffffffffffffUL)
                 {
                     j += 63;
                     continue;
                 }
             }
-            if((*(slab_pool->color_map + (j >> 6)) & (1UL << (j % 64))) == 0)
+            if((*(kmem_pool->color_map + (j >> 6)) & (1UL << (j % 64))) == 0)
             {
-                *(slab_pool->color_map + (j >> 6)) |= 1UL << (j % 64);
-                slab_pool->using_count++;
-                slab_pool->free_count--;
-                if(slab_cache->construct != NULL)
+                *(kmem_pool->color_map + (j >> 6)) |= 1UL << (j % 64);
+                kmem_pool->using_count++;
+                kmem_pool->free_count--;
+                if(kmem_cache->construct != NULL)
                 {
-                    return slab_cache->construct((char*)slab_tmp->vaddress + slab_cache->size * j, arg);
+                    return kmem_cache->construct((char*)kmem_tmp->vaddress + kmem_cache->size * j, arg);
                 }
                 else
                 {
-                    return (void*)((char*)slab_tmp->vaddress + slab_cache->size * j);
+                    return (void*)((char*)kmem_tmp->vaddress + kmem_cache->size * j);
                 }
             }
-        }while(slab_pool != slab_cache->cache_pool);
+        }while(kmem_pool != kmem_cache->cache_pool);
     }
-    color_printk(RED, BLACK, "slab_malloc()ERROR: can't alloc\n");
-    if(slab_tmp != NULL)
+    color_printk(RED, BLACK, "kmem_malloc()ERROR: can't alloc\n");
+    if(kmem_tmp != NULL)
     {
-        list_delete(&slab_tmp->list);
-        kfree(slab_tmp->color_map);
-        page_clean(slab_tmp->page);
-        free_pages(slab_tmp->page, 1);
-        kfree(slab_tmp);
+        list_delete(&kmem_tmp->list);
+        kfree(kmem_tmp->color_map);
+        page_clean(kmem_tmp->page);
+        free_pages(kmem_tmp->page, 1);
+        kfree(kmem_tmp);
     }
     return NULL;
 }
-uint64_t slab_free(struct slab_cache* slab_cache, void* address, uint64_t arg)
+uint64_t kmem_free(struct kmem_cache* kmem_cache, void* address, uint64_t arg)
 {
-    struct slab* slab_pool = slab_cache->cache_pool;
+    struct kmem* kmem_pool = kmem_cache->cache_pool;
     int32_t index = 0;
     do
     {
-        if(slab_pool->vaddress <= address && address < slab_pool->vaddress + PAGE_2M_SIZE)
+        if(kmem_pool->vaddress <= address && address < kmem_pool->vaddress + PAGE_2M_SIZE)
         {
-            index = (address - slab_pool->vaddress) / slab_cache->size;
-            *(slab_pool->color_map + (index >> 6)) ^= 1UL << (index % 64);
-            slab_pool->using_count--;
-            slab_pool->free_count++;
-            slab_cache->total_free++;
-            slab_cache->total_using--;
-            if(slab_cache->destruct != NULL)
+            index = (address - kmem_pool->vaddress) / kmem_cache->size;
+            *(kmem_pool->color_map + (index >> 6)) ^= 1UL << (index % 64);
+            kmem_pool->using_count--;
+            kmem_pool->free_count++;
+            kmem_cache->total_free++;
+            kmem_cache->total_using--;
+            if(kmem_cache->destruct != NULL)
             {
-                slab_cache->destruct((char*)slab_pool->vaddress + slab_cache->size * index, arg);
+                kmem_cache->destruct((char*)kmem_pool->vaddress + kmem_cache->size * index, arg);
             }
-            if((slab_pool->using_count == 0) && (slab_cache->total_free >= slab_pool->color_count * 3 / 2))
+            if((kmem_pool->using_count == 0) && (kmem_cache->total_free >= kmem_pool->color_count * 3 / 2))
             {
-                list_delete(&slab_pool->list);
-                slab_cache->total_free -= slab_pool->color_count;
-                kfree(slab_pool->color_map);
-                page_clean(slab_pool->page);
-                free_pages(slab_pool->page, 1);
-                kfree(slab_pool);
+                list_delete(&kmem_pool->list);
+                kmem_cache->total_free -= kmem_pool->color_count;
+                kfree(kmem_pool->color_map);
+                page_clean(kmem_pool->page);
+                free_pages(kmem_pool->page, 1);
+                kfree(kmem_pool);
             }
             return 1;
         }
         else
         {
-            slab_pool = (struct slab*)container_of(list_next(&slab_pool->list), struct slab, list);
+            kmem_pool = (struct kmem*)container_of(list_next(&kmem_pool->list), struct kmem, list);
             continue;
         }
-    }while(slab_pool != slab_cache->cache_pool);
-    color_printk(RED, BLACK, "slab_free() ERROR address is not in slab\n");
+    }while(kmem_pool != kmem_cache->cache_pool);
+    color_printk(RED, BLACK, "kmem_free() ERROR address is not in kmem\n");
     return 0;
 }
 uint64_t page_clean(struct page * page)
@@ -671,7 +664,7 @@ void free_pages(struct page* page, int32_t number)
         color_printk(RED, BLACK, "free_pages()ERROR:number is invalid\n");
         return;
     }
-    for(i = 0; i < number; i++, page++)
+    for(i = 0; i < number; ++i, page++)
     {
         *(mem_structure.bits_map +((page->p_address >> PAGE_2M_SHIFT) >> 6)) &= ~(1UL << (page->p_address >> PAGE_2M_SHIFT) % 64);
         page->zone_struct->page_using_count--;
@@ -684,22 +677,22 @@ uint64_t kfree(void* address)
 {
     int32_t i = 0;
     int32_t index = 0;
-    struct slab* slab = NULL;
+    struct kmem* kmem = NULL;
     void* page_bass_address = (void*)((uint64_t)address & PAGE_2M_MASK);
-    for(i = 0; i < 16; i++)
+    for(i = 0; i < 16; ++i)
     {
-        slab = kmalloc_cache_size[i].cache_pool;
+        kmem = kmalloc_cache_size[i].cache_pool;
         do
         {
-            if(slab->vaddress == page_bass_address)
+            if(kmem->vaddress == page_bass_address)
             {
-                index = (address - slab->vaddress) / kmalloc_cache_size[i].size;
-                *(slab->color_map + (index >> 6)) ^= 1UL << index % 64;
-                slab->free_count++;
-                slab->using_count--;
+                index = (address - kmem->vaddress) / kmalloc_cache_size[i].size;
+                *(kmem->color_map + (index >> 6)) ^= 1UL << index % 64;
+                kmem->free_count++;
+                kmem->using_count--;
                 kmalloc_cache_size[i].total_free++;
                 kmalloc_cache_size[i].total_using--;
-                if((slab->using_count == 0) && (kmalloc_cache_size[i].total_free >= slab->color_count * 3 / 2) && kmalloc_cache_size[i].cache_pool != slab)
+                if((kmem->using_count == 0) && (kmalloc_cache_size[i].total_free >= kmem->color_count * 3 / 2) && kmalloc_cache_size[i].cache_pool != kmem)
                 {
                     switch(kmalloc_cache_size[i].size)
                     {
@@ -708,18 +701,18 @@ uint64_t kfree(void* address)
                         case 128:
                         case 256:
                         case 512:
-                            list_delete(&slab->list);
-                            kmalloc_cache_size[i].total_free -= slab->color_count;
-                            page_clean(slab->page);
-                            free_pages(slab->page, 1);
+                            list_delete(&kmem->list);
+                            kmalloc_cache_size[i].total_free -= kmem->color_count;
+                            page_clean(kmem->page);
+                            free_pages(kmem->page, 1);
                             break;
                         default:
-                            list_delete(&slab->list);
-                            kmalloc_cache_size[i].total_free -= slab->color_count;
-                            kfree(slab->color_map);
-                            page_clean(slab->page);
-                            free_pages(slab->page, 1);
-                            kfree(slab);
+                            list_delete(&kmem->list);
+                            kmalloc_cache_size[i].total_free -= kmem->color_count;
+                            kfree(kmem->color_map);
+                            page_clean(kmem->page);
+                            free_pages(kmem->page, 1);
+                            kfree(kmem);
                             break;
                     }
                 }
@@ -727,24 +720,24 @@ uint64_t kfree(void* address)
             }
             else
             {
-                slab = (struct slab*)container_of(list_next(&slab->list), struct slab, list);
+                kmem = (struct kmem*)container_of(list_next(&kmem->list), struct kmem, list);
             }
-        }while(slab != kmalloc_cache_size[i].cache_pool);
+        }while(kmem != kmalloc_cache_size[i].cache_pool);
     }
     color_printk(RED, BLACK, "kfree() ERROR:can't free memory\n");
     return 0;
 }
-uint64_t slab_init(void)
+uint64_t kmem_init(void)
 {
     struct page* page = NULL;
     uint64_t* virtual = NULL;
     uint64_t i;
     uint64_t j;
     uint64_t tmp_address = mem_structure.end_of_struct;
-    for(i = 0; i < 16; i++)
+    for(i = 0; i < 16; ++i)
     {
-        kmalloc_cache_size[i].cache_pool = (struct slab*)mem_structure.end_of_struct;
-        mem_structure.end_of_struct = mem_structure.end_of_struct + sizeof(struct slab) + sizeof(int64_t) * 10;
+        kmalloc_cache_size[i].cache_pool = (struct kmem*)mem_structure.end_of_struct;
+        mem_structure.end_of_struct = mem_structure.end_of_struct + sizeof(struct kmem) + sizeof(int64_t) * 10;
         list_init(&kmalloc_cache_size[i].cache_pool->list);
         kmalloc_cache_size[i].cache_pool->using_count = 0;
         kmalloc_cache_size[i].cache_pool->free_count = PAGE_2M_SIZE / kmalloc_cache_size[i].size;
@@ -753,7 +746,7 @@ uint64_t slab_init(void)
         kmalloc_cache_size[i].cache_pool->color_map = (uint64_t*)mem_structure.end_of_struct;
         mem_structure.end_of_struct = (uint64_t)(mem_structure.end_of_struct + kmalloc_cache_size[i].cache_pool->color_length + sizeof(uint64_t) * 10) & (~(sizeof(uint64_t) - 1));
         memset(kmalloc_cache_size[i].cache_pool->color_map, 0xff, kmalloc_cache_size[i].cache_pool->color_length);
-        for(j = 0; j < kmalloc_cache_size[i].cache_pool->color_count; j++)
+        for(j = 0; j < kmalloc_cache_size[i].cache_pool->color_count; ++j)
         {
             *(kmalloc_cache_size[i].cache_pool->color_map + (j >> 6)) ^= 1UL << (j % 64);
         }
@@ -761,32 +754,38 @@ uint64_t slab_init(void)
         kmalloc_cache_size[i].total_using = 0;
     }
     i = V_TO_P(mem_structure.end_of_struct) >> PAGE_2M_SHIFT;
-    for(j = PAGE_2M_ALIGN(V_TO_P(tmp_address)) >> PAGE_2M_SHIFT; j <= i; j++)
+    for(j = PAGE_2M_ALIGN(V_TO_P(tmp_address)) >> PAGE_2M_SHIFT; j <= i; ++j)
     {
         page = mem_structure.pages_struct + j;
         *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
         page->zone_struct->page_using_count++;
         page->zone_struct->page_free_count--;
-        // color_printk(GREEN, BLACK, "%018ld\n",page->zone_struct->page_free_count);
+        color_printk(GREEN, BLACK, "%018ld\n",page->zone_struct->page_free_count);
         page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
     }
-    // color_printk(ORANGE, BLACK, "2.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
-    // color_printk(GREEN, BLACK, "%018lx\n", mem_structure.end_of_struct);
-    for(i = 0; i < 16; i++)
+    color_printk(ORANGE, BLACK, "2.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
+    color_printk(GREEN, BLACK, "%018lx\n", mem_structure.end_of_struct);
+    for(i = 0; i < 16; ++i)
     {
-        virtual = (uint64_t*)((P_TO_V(mem_structure.zones_struct[ZONE_NORMAL_INDEX].pages_group->p_address) + PAGE_2M_SIZE * i + PAGE_2M_SIZE - 1) & PAGE_2M_MASK);
-        page = (struct page*)V_TO_2M(virtual);
+        // virtual = (uint64_t*)((P_TO_V(mem_structure.zones_struct[ZONE_NORMAL_INDEX].pages_group->p_address) + PAGE_2M_SIZE * i + PAGE_2M_SIZE - 1) & PAGE_2M_MASK);
+        // page = (struct page*)V_TO_2M(virtual);
         // color_printk(GREEN, BLACK, "%018ld %018lx %018lx\n",page->zone_struct->page_free_count, page->p_address, virtual);
-        *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
-        page->zone_struct->page_using_count++;
-        page->zone_struct->page_free_count--;
-        page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
+        // *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
+        // page->zone_struct->page_using_count++;
+        // page->zone_struct->page_free_count--;
+        // page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
+        // kmalloc_cache_size[i].cache_pool->page = page;
+        // kmalloc_cache_size[i].cache_pool->vaddress = virtual;
+        page = alloc_pages(ZONE_NORMAL, 1, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
         kmalloc_cache_size[i].cache_pool->page = page;
-        kmalloc_cache_size[i].cache_pool->vaddress = virtual;
-        
+        kmalloc_cache_size[i].cache_pool->vaddress = (void *)P_TO_V(page->p_address);
     }
-    // color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct[0].page_free_count);
-    // color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
+    color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[0].page_using_count, mem_structure.zones_struct[0].page_free_count);
+    color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[1].page_using_count, mem_structure.zones_struct[1].page_free_count);
+    color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[2].page_using_count, mem_structure.zones_struct[2].page_free_count);
+    color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[3].page_using_count, mem_structure.zones_struct[3].page_free_count);
+
+    color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
     return 1;
 }
 uint64_t get_page_attribute(struct page* page)
@@ -816,12 +815,12 @@ void pagetable_init()
     uint64_t* virtual;
     cr3 = get_gdt();
     tmp = (uint64_t*)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + 8 * 256);
-    // color_printk(YELLOW, BLACK, "1:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
+    color_printk(YELLOW, BLACK, "1:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
     tmp = (uint64_t*)P_TO_V(*tmp & (~0xfffUL));
-    // color_printk(YELLOW, BLACK, "2:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
+    color_printk(YELLOW, BLACK, "2:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
     tmp = (uint64_t*)P_TO_V(*tmp & (~0xfffUL));
-    // color_printk(YELLOW, BLACK, "3:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
-    for(i = 0; i < mem_structure.zones_size; i++)
+    color_printk(YELLOW, BLACK, "3:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
+    for(i = 0; i < mem_structure.zones_size; ++i)
     {
         struct zone* z = mem_structure.zones_struct + i;
         struct page* page = z->pages_group;
@@ -829,7 +828,7 @@ void pagetable_init()
         {
             break;
         }
-        for(j = 0; j < z->pages_length; j++, page++)
+        for(j = 0; j < z->pages_length; ++j, page++)
         {
             tmp = (uint64_t*)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + (((uint64_t)P_TO_V(page->p_address) >> PAGE_GDT_SHIFT) & 0x1ff) * 8);
             if(*tmp == 0)
