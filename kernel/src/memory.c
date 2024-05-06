@@ -83,8 +83,8 @@ void init_memory(void)
             continue;
         }
         All_Page = All_Page + ((end - start) >> PAGE_2M_SHIFT);
-        color_printk(ORANGE, BLACK, "Total effective 2MB Pages:%#010x = %#010d\n", All_Page, All_Page);
     }
+    color_printk(ORANGE, BLACK, "Total effective 2MB Pages:%#010x = %#010d\n", All_Page, All_Page);
     total_mem = m_max;
     mem_structure.bits_map = (uint64_t *)PAGE_4K_ALIGN(mem_structure.start_brk);
     mem_structure.bits_size = total_mem >> PAGE_2M_SHIFT;
@@ -143,38 +143,46 @@ void init_memory(void)
     mem_structure.pages_struct->reference_count = 1;
     mem_structure.pages_struct->age = 0;
     mem_structure.zones_length = (mem_structure.zones_size * sizeof(struct zone) + sizeof(int64_t) - 1) & (~(sizeof(int64_t) - 1));
-    color_printk(ORANGE, BLACK, "bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_structure.bits_map, mem_structure.bits_size, mem_structure.bits_length);
-    color_printk(ORANGE, BLACK, "pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_structure.pages_struct, mem_structure.pages_size, mem_structure.pages_length);
-    color_printk(ORANGE, BLACK, "zones_struct:%#018lx zones_size:%#018lx zones_length:%#018lx\n", mem_structure.zones_struct, mem_structure.zones_size, mem_structure.zones_length);
+    // color_printk(ORANGE, BLACK, "bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_structure.bits_map, mem_structure.bits_size, mem_structure.bits_length);
+    // color_printk(ORANGE, BLACK, "pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_structure.pages_struct, mem_structure.pages_size, mem_structure.pages_length);
+    // color_printk(ORANGE, BLACK, "zones_struct:%#018lx zones_size:%#018lx zones_length:%#018lx\n", mem_structure.zones_struct, mem_structure.zones_size, mem_structure.zones_length);
     ZONE_DMA_INDEX = 0;
     ZONE_NORMAL_INDEX = 0;
     ZONE_UNMAPED_INDEX = 0;
+    int32_t tmpc = 0, tmpd = 0;
     for (i = 0; i < mem_structure.zones_size; i++)
     {
         struct zone *z = mem_structure.zones_struct + i;
-        color_printk(ORANGE, BLACK, "zone_start_address:%#018lx zone_end_address:%#018lx zone_length:%#018lx pages_group:%#018lx pages_length:%#018lx\n", z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length);
+        tmpc = z->page_free_count;
+        if(tmpc > tmpd)
+        {
+            tmpd = tmpc;
+            ZONE_NORMAL_INDEX = i;
+        }
+        // color_printk(ORANGE, BLACK, "zone_start_address:%#018lx zone_end_address:%#018lx zone_length:%#018lx pages_group:%#018lx pages_length:%#018lx pages_freecount:%#018lx\n", z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length, z->page_free_count);
         if (z->zone_start_address >= 0x100000000 && !ZONE_UNMAPED_INDEX)
         {
             ZONE_UNMAPED_INDEX = i;
         }
     }
-	color_printk(ORANGE, BLACK, "ZONE_DMA_INDEX:%d\tZONE_NORMAL_INDEX:%d\tZONE_UNMAPED_INDEX:%d\n", ZONE_DMA_INDEX, ZONE_NORMAL_INDEX, ZONE_UNMAPED_INDEX);
+	// color_printk(ORANGE, BLACK, "ZONE_DMA_INDEX:%d\tZONE_NORMAL_INDEX:%d\tZONE_UNMAPED_INDEX:%d\n", ZONE_DMA_INDEX, ZONE_NORMAL_INDEX, ZONE_UNMAPED_INDEX);
     mem_structure.end_of_struct = (uint64_t)((uint64_t)mem_structure.zones_struct + mem_structure.zones_length + sizeof(int64_t) * 32) & (~(sizeof(int64_t) - 1));
-    color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
+    // color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
     i = V_TO_P(mem_structure.end_of_struct) >> PAGE_2M_SHIFT;
-    for (j = 0; j <= i; j++)
+    for (j = 1; j <= i; ++j)
     {
         struct page* tmp_page = mem_structure.pages_struct + j;
         page_init(tmp_page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
         *(mem_structure.bits_map + ((tmp_page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (tmp_page->p_address >> PAGE_2M_SHIFT) % 64;
         tmp_page->zone_struct->page_using_count++;
         tmp_page->zone_struct->page_free_count--;
+
     }
     cr3 = get_gdt();
-    color_printk(INDIGO, BLACK, "cr3:%#018lx\n", cr3);
-    color_printk(INDIGO, BLACK, "*cr3:%#018lx\n", *(uint64_t *)P_TO_V(cr3) & (~0xff));
-    color_printk(INDIGO, BLACK, "**cr3:%#018lx\n", *(uint64_t *)P_TO_V(*(uint64_t *)P_TO_V(cr3) & (~0xff)) & (~0xff));
-    color_printk(ORANGE, BLACK, "1.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
+    // color_printk(INDIGO, BLACK, "cr3:%#018lx\n", cr3);
+    // color_printk(INDIGO, BLACK, "*cr3:%#018lx\n", *(uint64_t *)P_TO_V(cr3) & (~0xff));
+    // color_printk(INDIGO, BLACK, "**cr3:%#018lx\n", *(uint64_t *)P_TO_V(*(uint64_t *)P_TO_V(cr3) & (~0xff)) & (~0xff));
+    // color_printk(ORANGE, BLACK, "1.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
     flush_tlb();
     return;
 }
@@ -190,84 +198,99 @@ uint64_t *get_gdt(void)
     );
     return tmp;
 }
-struct page *alloc_pages(int32_t zones_select, int32_t number, uint64_t flags)
+struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 {
-    int32_t i;
-    uint64_t page = 0;
-    uint64_t attribute = 0;
+	int i;
+	unsigned long page = 0;
+	unsigned long attribute = 0;
 
-    int32_t zone_start = 0;
-    int32_t zone_end = 0;
-    if(number >= 64 || number <= 0)
-    {
-        color_printk(RED, BLACK, "alloc_pages() ERROR:number is invalid\n");
-        return NULL;
-    }
-    switch (zones_select)
-    {
-    case ZONE_DMA:
-        zone_start = 0;
-        zone_end = ZONE_DMA_INDEX;
-        attribute = PAGE_PT_MAPED;
-        break;
-    case ZONE_NORMAL:
-        zone_start = ZONE_DMA_INDEX;
-        zone_end = ZONE_NORMAL_INDEX;
-        attribute = PAGE_PT_MAPED;
-        break;
-    case ZONE_UNMAPED:
-        zone_start = ZONE_UNMAPED_INDEX;
-        zone_end = (mem_structure.zones_size) - 1;
-        attribute = 0;
-        break;
-    default:
-        color_printk(RED, BLACK, "Alloc_Pages error zone_select index\n");
-        return NULL;
-        break;
-    }
-    for (i = zone_start; i <= zone_end; i++)
-    {
-        struct zone *z;
-        uint64_t j;
-        uint64_t start, end;
-        uint64_t tmp;
-        if ((mem_structure.zones_struct + i)->page_free_count < number)
-        {
+	int zone_start = 0;
+	int zone_end = 0;
+	
+	if(number >= 64 || number <= 0)
+	{
+		color_printk(RED,BLACK,"alloc_pages() ERROR: number is invalid\n");
+		return NULL;		
+	}
+
+	switch(zone_select)
+	{
+		case ZONE_DMA:
+				zone_start = ZONE_DMA_INDEX;
+				zone_end = ZONE_NORMAL_INDEX;
+				attribute = PAGE_PT_MAPED;
+			break;
+
+		case ZONE_NORMAL:
+				zone_start = ZONE_NORMAL_INDEX;
+				zone_end = ZONE_UNMAPED_INDEX;
+				attribute = PAGE_PT_MAPED;
+			break;
+
+		case ZONE_UNMAPED:
+				zone_start = ZONE_UNMAPED_INDEX;
+				zone_end = mem_structure.zones_size - 1;
+				attribute = 0;
+			break;
+
+		default:
+			color_printk(RED,BLACK,"alloc_pages() ERROR: zone_select index is invalid\n");
+			return NULL;
+			break;
+	}
+
+	for(i = zone_start; i < zone_end; i++)
+	{
+		struct zone * z;
+		unsigned long j;
+		unsigned long start,end;
+		unsigned long tmp;
+
+		if((mem_structure.zones_struct + i)->page_free_count < number)
+		{
             continue;
         }
-        z = mem_structure.zones_struct + i;
-        start = z->zone_start_address >> PAGE_2M_SHIFT;
-        end = z->zone_end_address >> PAGE_2M_SHIFT;
-        tmp = 64 - number % 64;
-        for (j = start; j <= end; j += j % 64 ? tmp : 64)
-        {
-            uint64_t *p = mem_structure.bits_map + (j >> 6);
-            uint64_t shift = j % 64;
-            uint64_t k = 0;
-            uint64_t num = (1UL << number) - 1;
-            for(k = shift; k < 64; k++)
-            {
-                if(!((k ? ((*p >> k) | (*(p + 1) << (64 - k))) : *p) & (num)))
-                {
-                    uint64_t l;
-                    page = j + k - shift;
-                    for(l = 0; l < number; l++)
-                    {
-                        struct page* page_ptr = mem_structure.pages_struct + page + l;
-                        *(mem_structure.bits_map + ((page_ptr->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page_ptr->p_address >> PAGE_2M_SHIFT) % 64;
-                        z->page_using_count++;
-                        z->page_free_count--;
-                        page_ptr->attribute = attribute;
-                    }
-                    goto Found;
-                }
-            }
-        }
-    }
-    color_printk(RED,BLACK,"alloc_pages() ERROR: no page can alloc\n");
-    return NULL;
-    Found:
-        return (struct page *)(mem_structure.pages_struct + page);
+		z = mem_structure.zones_struct + i;
+		start = z->zone_start_address >> PAGE_2M_SHIFT;
+		end = z->zone_end_address >> PAGE_2M_SHIFT;
+
+		tmp = 64 - start % 64;
+
+		for(j = start;j < end;j += j % 64 ? tmp : 64)
+		{
+			unsigned long * p = mem_structure.bits_map + (j >> 6);
+			unsigned long k = 0;
+			unsigned long shift = j % 64;
+			
+			unsigned long num = (1UL << number) - 1;
+			
+			for(k = shift;k < 64;k++)
+			{
+				if( !( (k ? ((*p >> k) | (*(p + 1) << (64 - k))) : *p) & (num) ) )
+				{
+					unsigned long	l;
+					page = j + k - shift;
+					for(l = 0;l < number;l++)
+					{
+						struct page * pageptr = mem_structure.pages_struct + page + l;
+
+						*(mem_structure.bits_map + ((pageptr->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (pageptr->p_address >> PAGE_2M_SHIFT) % 64;
+						z->page_using_count++;
+						z->page_free_count--;
+						pageptr->attribute = attribute;
+					}
+					goto find_free_pages;
+				}
+			}
+		}
+	}
+
+	color_printk(RED,BLACK,"alloc_pages() ERROR: no page can alloc\n");
+	return NULL;
+
+find_free_pages:
+
+	return (struct page *)(mem_structure.pages_struct + page);
 }
 
 struct slab* kmalloc_create(uint64_t size)
@@ -387,7 +410,7 @@ void* kmalloc(uint64_t size, uint64_t flags)
         color_printk(BLUE, BLACK, "kmalloc()->kmalloc_create() <= size:%#010x\n", kmalloc_cache_size[i].size);
         list_add_before(&kmalloc_cache_size[i].cache_pool->list, &slab->list);
     }
-    for(j = 0; j < slab->color_count; j++)
+    for(j = 0; j < slab->color_count; ++j)
     {
         if(*(slab->color_map + (j >> 6)) == 0xffffffffffffffffUL)
         {
@@ -744,22 +767,26 @@ uint64_t slab_init(void)
         *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
         page->zone_struct->page_using_count++;
         page->zone_struct->page_free_count--;
+        // color_printk(GREEN, BLACK, "%018ld\n",page->zone_struct->page_free_count);
         page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
     }
-    color_printk(ORANGE, BLACK, "2.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
+    // color_printk(ORANGE, BLACK, "2.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
+    // color_printk(GREEN, BLACK, "%018lx\n", mem_structure.end_of_struct);
     for(i = 0; i < 16; i++)
     {
-        virtual = (uint64_t*)((mem_structure.end_of_struct + PAGE_2M_SIZE * i + PAGE_2M_SIZE - 1) & PAGE_2M_MASK);
+        virtual = (uint64_t*)((P_TO_V(mem_structure.zones_struct[ZONE_NORMAL_INDEX].pages_group->p_address) + PAGE_2M_SIZE * i + PAGE_2M_SIZE - 1) & PAGE_2M_MASK);
         page = (struct page*)V_TO_2M(virtual);
+        // color_printk(GREEN, BLACK, "%018ld %018lx %018lx\n",page->zone_struct->page_free_count, page->p_address, virtual);
         *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
         page->zone_struct->page_using_count++;
         page->zone_struct->page_free_count--;
         page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
         kmalloc_cache_size[i].cache_pool->page = page;
         kmalloc_cache_size[i].cache_pool->vaddress = virtual;
+        
     }
-    color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct->page_free_count);
-    color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
+    // color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct->page_using_count, mem_structure.zones_struct[0].page_free_count);
+    // color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
     return 1;
 }
 uint64_t get_page_attribute(struct page* page)
@@ -789,11 +816,11 @@ void pagetable_init()
     uint64_t* virtual;
     cr3 = get_gdt();
     tmp = (uint64_t*)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + 8 * 256);
-    color_printk(YELLOW, BLACK, "1:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
+    // color_printk(YELLOW, BLACK, "1:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
     tmp = (uint64_t*)P_TO_V(*tmp & (~0xfffUL));
-    color_printk(YELLOW, BLACK, "2:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
+    // color_printk(YELLOW, BLACK, "2:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
     tmp = (uint64_t*)P_TO_V(*tmp & (~0xfffUL));
-    color_printk(YELLOW, BLACK, "3:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
+    // color_printk(YELLOW, BLACK, "3:%#018lx\t%#018lx\n", (uint64_t)tmp, *tmp);
     for(i = 0; i < mem_structure.zones_size; i++)
     {
         struct zone* z = mem_structure.zones_struct + i;
@@ -860,7 +887,6 @@ uint64_t do_brk(uint64_t addr, uint64_t len)
             set_pdt(tmp, make_pdt(p->p_address, PAGE_USER_PAGE));
         }
     }
-    current->mm->end_brk = i;
     flush_tlb();
     return i;
 }

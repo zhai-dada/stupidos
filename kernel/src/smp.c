@@ -13,7 +13,27 @@
 extern int global_i;
 spinlock_t smp_lock;
 
-void ipi_200(uint64_t nr, uint64_t parameter, struct stackregs* regs);
+void ipi_200(uint64_t nr, uint64_t parameter, struct stackregs* regs)
+{
+    switch(current->priority)
+    {
+        case 0:
+        case 1:
+            task_schedule[smp_cpu_id()].exectask_jiffies--;
+            current->vruntime += 1;
+            break;
+        case 2:
+        default:
+            task_schedule[smp_cpu_id()].exectask_jiffies -= 2;
+            current->vruntime += 2;
+            break;
+    }
+    if(task_schedule[smp_cpu_id()].exectask_jiffies <= 0)
+    {
+        current->flags |= NEED_SCHEDULE;
+    }
+    return;
+}
 void smp_init()
 {
     int i = 0;
@@ -150,28 +170,6 @@ void start_smp()
     while(1)
     {
         hlt();
-    }
-    return;
-}
-
-void ipi_200(uint64_t nr, uint64_t parameter, struct stackregs* regs)
-{
-    switch(current->priority)
-    {
-        case 0:
-        case 1:
-            task_schedule[smp_cpu_id()].exectask_jiffies--;
-            current->vruntime += 1;
-            break;
-        case 2:
-        default:
-            task_schedule[smp_cpu_id()].exectask_jiffies -= 2;
-            current->vruntime += 2;
-            break;
-    }
-    if(task_schedule[smp_cpu_id()].exectask_jiffies <= 0)
-    {
-        current->flags |= NEED_SCHEDULE;
     }
     return;
 }
