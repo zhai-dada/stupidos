@@ -23,14 +23,15 @@ union task_stack_union init_task_stack __attribute__((__section__(".data.init_ta
 
 struct thread_struct init_thread;
 struct thread_struct init_thread =
-    {
-        .rsp0 = (uint64_t)(init_task_stack.stack + STACK_SIZE / sizeof(uint64_t)),
-        .rsp = (uint64_t)(init_task_stack.stack + STACK_SIZE / sizeof(uint64_t)),
-        .fs = KERNEL_DATA_SEGMENT,
-        .gs = KERNEL_DATA_SEGMENT,
-        .cr2 = 0,
-        .trap_nr = 0,
-        .error_code = 0};
+{
+    .rsp0 = (uint64_t)(init_task_stack.stack + STACK_SIZE / sizeof(uint64_t)),
+    .rsp = (uint64_t)(init_task_stack.stack + STACK_SIZE / sizeof(uint64_t)),
+    .fs = KERNEL_DATA_SEGMENT,
+    .gs = KERNEL_DATA_SEGMENT,
+    .cr2 = 0,
+    .trap_nr = 0,
+    .error_code = 0
+};
 
 struct task_struct *init_task[CPUNUM] = {&init_task_stack.task, 0};
 
