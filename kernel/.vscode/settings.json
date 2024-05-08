@@ -29,6 +29,11 @@
         "ide.h": "c",
         "interrupt.h": "c",
         "lib.h": "c",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "smp.h": "c",
+        "gate.h": "c",
+        "hpet.h": "c",
+        "keyboard.h": "c",
+        "unistd.h": "c"
     }
 }

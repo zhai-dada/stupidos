@@ -1,10 +1,9 @@
 #include "string.h"
 
-void* memcpy(void* From, void* To, long num)
+void *memcpy(void *From, void *To, long num)
 {
     int d0, d1, d2;
-    asm volatile
-    (
+    asm volatile(
         "cld    \n"
         "rep movsq\n"
         "testb $4, %b4\n"
@@ -19,10 +18,9 @@ void* memcpy(void* From, void* To, long num)
         "jz 3f\n"
         "movsb\n"
         "3:\n"
-        :"=&c"(d0), "=&D"(d1), "=&S"(d2)
-        :"0"(num / 8), "q"(num), "1"(To), "2"(From)
-        :"memory"
-    );
+        : "=&c"(d0), "=&D"(d1), "=&S"(d2)
+        : "0"(num / 8), "q"(num), "1"(To), "2"(From)
+        : "memory");
     return To;
 }
 void *memset(void *address, unsigned char c, long count)
@@ -68,39 +66,64 @@ char *strncpy(char *d, char *s, long count)
 }
 int strlen(char *S)
 {
+    int res = 0;
+    for(res = 0; S[res] != '\0'; res++);
+    return res;
+}
+int strcmp(char *FirstPart, char *SecondPart)
+{
     register int res;
     asm volatile(
-        "cld            \n"
-        "repne scasb    \n"
-        "notl %0        \n"
-        "decl %0        \n"
-        : "=c"(res)
-        : "D"(S), "a"(0), "0"(0xffffffff)
+        "cld	\n"
+        "1:	\n"
+        "lodsb	\n"
+        "scasb	\n"
+        "jne	2f	\n"
+        "testb	%%al,	%%al	\n"
+        "jne	1b	\n"
+        "xorl	%%eax,	%%eax	\n"
+        "jmp	3f	\n"
+        "2:	\n"
+        "movl	$1,	%%eax	\n"
+        "jl	3f	\n"
+        "negl	%%eax	\n"
+        "3:	\n"
+        : "=a"(res)
+        : "D"(FirstPart), "S"(SecondPart)
         :);
     return res;
 }
-int strcmp(char* FirstPart, char* SecondPart)
+
+char *strcpy(char *Dest, char *Src)
 {
-	register int res;
-	asm	volatile
-    (	
-        "cld	\n"
-		"1:	\n"
-		"lodsb	\n"
-		"scasb	\n"
-		"jne	2f	\n"
-		"testb	%%al,	%%al	\n"
-		"jne	1b	\n"
-		"xorl	%%eax,	%%eax	\n"
-		"jmp	3f	\n"
-		"2:	\n"
-        "movl	$1,	%%eax	\n"
-		"jl	3f	\n"
-		"negl	%%eax	\n"
-		"3:	\n"
-		:"=a"(res)
-		:"D"(FirstPart),"S"(SecondPart)
-		:					
-	);
-	return res;
+    asm volatile("cld	                \n\t"
+                 "1:	                    \n\t"
+                 "lodsb	                \n\t"
+                 "stosb	                \n\t"
+                 "testb %%al, %%al	    \n\t"
+                 "jne 1b	                \n\t"
+                 :
+                 : "S"(Src), "D"(Dest)
+                 : "ax", "memory");
+    return Dest;
+}
+
+char *strcat(char *Dest, char *Src)
+{
+    asm volatile
+    (
+        "cld	\n\t"
+        "repne	\n\t"
+        "scasb	\n\t"
+        "decq	%1	\n\t"
+        "1:	\n\t"
+        "lodsb	\n\t"
+        "stosb	\n\r"
+        "testb	%%al,	%%al	\n\t"
+        "jne	1b	\n\t"
+        :
+        : "S"(Src), "D"(Dest), "a"(0), "c"(0xffffffff)
+        : "memory"
+    );
+    return Dest;
 }

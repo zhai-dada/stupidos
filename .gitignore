@@ -1,0 +1,8 @@
+disk.img
+*.o
+*.s
+*.bin
+system
+system_api
+test
+kallsystem

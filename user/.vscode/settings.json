@@ -3,6 +3,7 @@
         "string.h": "c",
         "printf.h": "c",
         "errno.h": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "init.h": "c"
     }
 }

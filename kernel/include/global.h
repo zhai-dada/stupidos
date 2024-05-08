@@ -21,6 +21,7 @@
 #include <trap.h>
 #include <keyboard.h>
 #include <interrupt.h>
+#include <pci/pci.h>
 
 extern int8_t _text, _etext;
 extern int8_t _data, _edata;

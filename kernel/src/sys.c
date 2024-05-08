@@ -351,9 +351,9 @@ uint64_t sys_wait4(uint64_t pid,int *status,int options,void *rusage)
 	int64_t retval = 0;
 	struct task_struct *child = NULL;
 	struct task_struct *tsk = NULL;
-
 	// color_printk(GREEN,BLACK,"sys_wait4\n");
-	for(tsk = &init_task_stack.task;tsk->next != &init_task_stack.task;tsk = tsk->next)
+	// for(tsk = current; tsk->next != current; tsk = tsk->next)
+	for(tsk = &init_task_stack.task; tsk->next != &init_task_stack.task; tsk = tsk->next)
 	{
 		if(tsk->next->pid == pid)
 		{
@@ -361,7 +361,6 @@ uint64_t sys_wait4(uint64_t pid,int *status,int options,void *rusage)
 			break;
 		}
 	}
-
 	if(child == NULL)
 	{
         return -ECHILD;

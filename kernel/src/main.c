@@ -42,7 +42,11 @@ void kernel(void)
     timer_init();
     smp_init();
     keyboard_init();
-    color_printk(GREEN, BLACK, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾\n");
+    color_printk(GREEN, BLACK, "ÄãºÃÊÀ½ç\n");
+
+    uint32_t pci = pci_in32(0, 3, 0, 0);
+    color_printk(INDIGO, BLACK, "%lx\n", pci);
+
     task_init();
     sti();
     while (1)

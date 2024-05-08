@@ -21,8 +21,7 @@ int main()
 
 	current_dir = "/";
 	fd = device_openkeyboard(path, 0);
-	printf("进入终端:\n");
-
+	printf("你好世界\n");
 	while (1)
 	{
 		int argc = 0;
@@ -45,6 +44,7 @@ int main()
 	}
 
 	close(fd);
+
 	while (1)
 	{
 		;
@@ -69,9 +69,43 @@ int touch_command(int argc, char **argv) {}
 int rm_command(int argc, char **argv) {}
 int mkdir_command(int argc, char **argv) {}
 int rmdir_command(int argc, char **argv) {}
-int exec_command(int argc, char **argv) {}
 int reboot_command(int argc, char **argv) {}
+int exec_command(int argc, char **argv)
+{
+	int errno = 0;
+	int retval = 0;
+	int len = 0;
+	char *filename = NULL;
+	int i = 0;
 
+	if (argc < 2)
+	{
+		return 1;
+	}
+	if (fork() == 0)
+	{
+		// printf("child process\n");
+		len = strlen(current_dir);
+		i = len + strlen(argv[1]);
+		filename = malloc(i + 2);
+		memset(filename, 0, i + 2);
+		strcpy(filename, current_dir);
+		if (len > 1)
+		{
+			filename[len] = '/';
+		}
+		strcat(filename, argv[1]);
+
+		execve(filename, argv, NULL);
+		exit(0);
+	}
+	else
+	{
+		wait4(errno, &retval, 0);
+		printf("\n");
+	}
+	return 1;
+}
 struct buildincmd shell_internal_cmd[] =
 	{
 		{"cd", cd_command},
@@ -120,12 +154,10 @@ int parse_command(char *buf, int *argc, char ***argv)
 		if (buf[i] != ' ' && (buf[i + 1] == ' ' || buf[i + 1] == '\0'))
 			(*argc)++;
 	}
-
 	if (!*argc)
 		return -1;
 
 	*argv = (char **)malloc(sizeof(char **) * (*argc));
-
 	for (i = 0; i < *argc && j < 256; i++)
 	{
 		*((*argv) + i) = &buf[j];
@@ -135,9 +167,8 @@ int parse_command(char *buf, int *argc, char ***argv)
 		buf[j++] = '\0';
 		while (buf[j] == ' ')
 			j++;
-		printf("%s\n", (*argv)[i]);
+		// printf("%s\n", (*argv)[i]);
 	}
-
 	return find_cmd(**argv);
 }
 
@@ -275,11 +306,11 @@ int read_line(int fd, char *buf)
 		}
 		else if (key == '\b')
 		{
-			if(count != 0)
+			if (count != 0)
 			{
 				buf[count--] = 0;
 			}
-			if(pos != 0)
+			if (pos != 0)
 			{
 				--pos;
 				printf("%c", key);

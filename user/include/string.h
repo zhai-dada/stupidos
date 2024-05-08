@@ -5,5 +5,6 @@ void *memset(void *address, unsigned char c, long count);
 char *strncpy(char *d, char *s, long count);
 int strlen(char *s);
 int strcmp(char *FirstPart, char *SecondPart);
-
+char *strcat(char *Dest, char *Src);
+char *strcpy(char *Dest, char *Src);
 #endif

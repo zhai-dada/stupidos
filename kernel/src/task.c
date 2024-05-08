@@ -507,16 +507,16 @@ uint64_t do_execve(struct stackregs *regs, int8_t *name, uint8_t *argv[], uint8_
 	// 	uint8_t **dargv = (uint8_t **)(stack_start_addr - 10 * sizeof(char *));
 	// 	pos = (uint64_t)dargv;
 
-		// for(i = 0; i < 10 && argv[i] != NULL; ++i)
-		// {
-		// 	len = strnlen_user(argv[i], 1024) + 1;
-		// 	strcpy((uint8_t *)(pos - len), argv[i]);
-		// 	dargv[i] = (uint8_t *)(pos - len);
-		// 	pos -= len;
-		// }
-		// stack_start_addr = pos - 10 - 10;
-		// regs->rdi = i;
-		// regs->rsi = (uint64_t)dargv;
+	// 	for(i = 0; i < 10 && argv[i] != NULL; ++i)
+	// 	{
+	// 		len = strlen(argv[i]);
+	// 		strcpy((uint8_t *)(pos - len), argv[i]);
+	// 		dargv[i] = (uint8_t *)(pos - len);
+	// 		pos -= len;
+	// 	}
+	// 	stack_start_addr = pos - 10 - 10;
+	// 	regs->rdi = i;
+	// 	regs->rsi = (uint64_t)dargv;
 	// }
 
     memset((void *)code_start_addr, 0, stack_start_addr - code_start_addr);
