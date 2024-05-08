@@ -11,11 +11,11 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <keyboard.h>
+#include <task.h>
 
 uint64_t no_system_call(void)
 {
     color_printk(YELLOW, BLACK, "no_system_call!\n");
-
     return -1;
 }
 uint64_t sys_printf(int8_t *string)
@@ -213,7 +213,7 @@ uint64_t sys_brk(uint64_t brk)
     }
     if(new_brk < current->mm->start_brk)
     {
-        return 0; //free
+        return 0;
     }
     new_brk = do_brk(current->mm->end_brk, new_brk - current->mm->end_brk);
     current->mm->end_brk = new_brk;
@@ -310,4 +310,78 @@ int64_t sys_device_openkeyboard(int8_t *filename, int32_t flags)
     }
     f[fd] = filp;
     return fd;
+}
+uint64_t sys_execve(void)
+{
+    uint8_t* pathname = NULL;
+    int64_t pathlen = 0;
+    int32_t error = 0;
+    struct stackregs *regs = (struct stackregs *)current->thread->rsp0 - 1;
+    // color_printk(YELLOW, BLACK, "sys_execve\n");
+    pathname = (uint8_t *)kmalloc(PAGE_4K_SIZE, 0);
+    if(pathname == NULL)
+    {
+        return -ENOMEM;
+    }
+    memset(pathname, 0, PAGE_4K_SIZE);
+    pathlen = strnlen_user((uint8_t *)regs->rdi, PAGE_4K_SIZE);
+    if(pathlen < 0)
+    {
+        kfree(pathname);
+        return -EFAULT;
+    }
+    else if(pathlen > PAGE_4K_SIZE)
+    {
+        kfree(pathname);
+        return -ENAMETOOLONG;
+    }
+    strncpy_from_user((uint8_t *)regs->rdi, pathname, pathlen);
+    error = do_execve(regs, pathname, (uint8_t **)regs->rdi, NULL);
+    kfree(pathname);
+    return error;
+}
+uint64_t sys_exit(int32_t exitcode)
+{
+	// color_printk(GREEN,BLACK,"sys_exit\n");
+	return do_exit(exitcode);
+}
+
+uint64_t sys_wait4(uint64_t pid,int *status,int options,void *rusage)
+{
+	int64_t retval = 0;
+	struct task_struct *child = NULL;
+	struct task_struct *tsk = NULL;
+
+	// color_printk(GREEN,BLACK,"sys_wait4\n");
+	for(tsk = &init_task_stack.task;tsk->next != &init_task_stack.task;tsk = tsk->next)
+	{
+		if(tsk->next->pid == pid)
+		{
+			child = tsk->next;
+			break;
+		}
+	}
+
+	if(child == NULL)
+	{
+        return -ECHILD;
+    }
+	if(options != 0)
+	{
+        return -EINVAL;
+    }
+	if(child->state == TASK_ZOMBIE)
+	{
+		copy_to_user(&child->exitcode,status,sizeof(int32_t));
+		tsk->next = child->next;
+		exit_mem(child);
+		kfree(child);
+		return retval;
+	}
+	interruptible_sleep_on(&current->childexit_wait);
+	copy_to_user(&child->exitcode, status, sizeof(int32_t));
+	tsk->next = child->next;
+	exit_mem(child);
+	kfree(child);
+	return retval;
 }

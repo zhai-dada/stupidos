@@ -9,9 +9,12 @@
 #include <schedule.h>
 #include <memory.h>
 #include <gate.h>
+#include <hpet.h>
+#include <task.h>
 
 extern int global_i;
 spinlock_t smp_lock;
+extern void system_call(void);
 
 void ipi_200(uint64_t nr, uint64_t parameter, struct stackregs* regs)
 {
@@ -32,7 +35,6 @@ void ipi_200(uint64_t nr, uint64_t parameter, struct stackregs* regs)
     {
         current->flags |= NEED_SCHEDULE;
     }
-    return;
 }
 void smp_init()
 {
@@ -55,7 +57,7 @@ void smp_init()
         set_intr_gate(i, 2, smp_interrupt[i - 0xc8]);
     }
     memset(smp_ipi_desc, 0, sizeof(irq_desc_t) * 10);
-    register_ipi(200, NULL, &ipi_200, NULL, NULL, "IPI 200");
+    // register_ipi(200, NULL, &ipi_200, NULL, NULL, "IPI 200");
     spinlock_init(&smp_lock);
     struct IRQ_CMD_REG icr_entry;
     uint8_t *ptr = NULL;
@@ -71,23 +73,20 @@ void smp_init()
     icr_entry.res_3 = 0;
     icr_entry.destination.x2apic_destination = 0x00;
     wrmsr(0x830, *(uint64_t *)&icr_entry);
-    for (global_i = 1; global_i < 4; ++global_i)
+    for (global_i = 1; global_i < 2; ++global_i)
     {
         spinlock_lock(&smp_lock);
-        ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
+        ptr = (uint8_t *)((uint64_t)kmalloc(STACK_SIZE, 0) + STACK_SIZE);
         if (ptr == NULL)
         {
             color_printk(RED, BLACK, "kmalloc NULL\n");
         }
-        ((struct task_struct *)(ptr))->cpu_id = global_i;
-
-        _stack_start_ = (uint64_t)ptr + 1000;
-
+        ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = global_i;
+        _stack_start_ = (uint64_t)ptr;
         memset(&init_tss[global_i], 0, sizeof(struct tss_struct));
         init_tss[global_i].rsp0 = (uint64_t)ptr;
         init_tss[global_i].rsp1 = (uint64_t)ptr;
         init_tss[global_i].rsp2 = (uint64_t)ptr;
-        // color_printk(YELLOW, BLACK, "CPU ID:%ld\n", ((struct task_struct *)(init_tss[global_i].rsp0 - STACK_SIZE))->cpu_id);
         ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
         ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = global_i;
         init_tss[global_i].ist1 = (uint64_t)ptr;
@@ -145,6 +144,7 @@ void start_smp()
         :
         :"memory"
     );
+    // color_printk(GREEN, BLACK, "CPU ID:%018lx, %018lx\n", current, get_rsp());
 
     current->state = TASK_RUNNING;
     current->flags = PF_KTHREAD;
@@ -161,12 +161,12 @@ void start_smp()
     current->thread->fs = KERNEL_DATA_SEGMENT;
     current->thread->gs = KERNEL_DATA_SEGMENT;
     init_task[smp_cpu_id()] = current;
+    current->next = init_task[0];
     load_TR(10 + smp_cpu_id() * 2);
     spinlock_unlock(&smp_lock);
     current->preempt_count = 0;
     // task_init();
     sti();
-    
     while(1)
     {
         hlt();

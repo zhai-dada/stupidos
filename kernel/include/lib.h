@@ -173,20 +173,10 @@ inline int8_t *strncpy(int8_t *d, int8_t *s, int64_t count)
     );
     return d;
 }
-int32_t strlen(int8_t *S);
-inline int32_t strlen(int8_t *S)
+int32_t strlen(uint8_t *S)
 {
-    register int32_t res;
-    asm volatile
-    (
-        "cld            \n"
-        "repne scasb    \n"
-        "notl %0        \n"
-        "decl %0        \n"
-        : "=c"(res)
-        : "D"(S), "a"(0), "0"(0xffffffff)
-        : "memory"
-    );
+    int res = 0;
+    for(res = 0; S[res] != '\0'; res++);
     return res;
 }
 int32_t strcmp(int8_t* FirstPart, int8_t* SecondPart);
@@ -391,8 +381,8 @@ __attribute__((always_inline)) inline int64_t copy_to_user(void* from, void* to,
 	);
 	return size;
 }
-int64_t strncpy_from_user(void* from, void* to, uint64_t size);
-inline int64_t strncpy_from_user(void* from, void* to, uint64_t size)
+
+__attribute__((always_inline)) inline int64_t strncpy_from_user(void* from, void* to, uint64_t size)
 {
 	if(!verify_area((uint8_t*)from,size))
 	{
@@ -401,17 +391,30 @@ inline int64_t strncpy_from_user(void* from, void* to, uint64_t size)
 	strncpy((int8_t*)to, (int8_t*)from, size);
 	return	size;
 }
-int64_t strnlen_user(void* src, uint64_t maxlen);
-inline int64_t strnlen_user(void* src, uint64_t maxlen)
+int64_t strnlen_user(void* src, uint64_t maxlen)
 {
-	uint64_t size = strlen((int8_t*)src);
-	if(!verify_area((uint8_t*)src, size))
+	uint64_t size = strlen(src);
+	if(!verify_area(src, size))
 	{
         return 0;
     }
 	return size <= maxlen ? size : maxlen;
 }
-
+uint8_t * strcpy(char * Dest,char * Src)
+{
+	asm	volatile
+    (	"cld	                \n\t"
+		"1:	                    \n\t"
+		"lodsb	                \n\t"
+		"stosb	                \n\t"
+		"testb %%al, %%al	    \n\t"
+		"jne 1b	                \n\t"
+		:
+		:"S"(Src),"D"(Dest)
+		:"ax","memory"
+	);
+	return 	Dest;
+}
 #define port_insw(port, buffer, nr)	    \
     asm volatile                        \
     (                                   \

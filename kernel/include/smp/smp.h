@@ -4,6 +4,7 @@
 #include <lib.h>
 #include <stdint.h>
 #include <spinlock.h>
+#include <stackregs.h>
 
 extern spinlock_t smp_lock;
 

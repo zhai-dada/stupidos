@@ -7,6 +7,7 @@
 #include <smp/cpu.h>
 #include <smp/smp.h>
 #include <stackregs.h>
+#include <waitque.h>
 
 #define STACK_SIZE 65536
 #define TASK_SIZE 0x00007fffffffffff
@@ -31,7 +32,7 @@ extern int8_t _end;
 
 extern int64_t global_pid;
 
-extern uint64_t _stack_start_;
+extern int64_t _stack_start_;
 extern void ret_from_intr();
 
 struct mm_struct
@@ -63,19 +64,21 @@ struct thread_struct
 #define TASK_FILE_MAX 10
 struct task_struct
 {
-    volatile int64_t state;              //0x00
-    volatile uint64_t flags;             //0x08
-    volatile int64_t preempt_count;      //0x10
-    volatile int64_t signal;             //0x18
-    int64_t cpu_id;             //0x20
+    volatile int64_t state;                 //0x00
+    volatile uint64_t flags;                //0x08
+    volatile int64_t preempt_count;         //0x10
+    volatile int64_t signal;                //0x18
+    int64_t cpu_id;                         //0x20
     int64_t pid;               
     int64_t priority;          
     int64_t vruntime;          
     uint64_t addr_limit;
+    int64_t exitcode;
     struct mm_struct* mm;
     struct thread_struct* thread;
     struct list list;
     struct file* filestruct[TASK_FILE_MAX];
+    waitque_t childexit_wait;
     struct task_struct *next;
 	struct task_struct *parent;
 };
@@ -196,4 +199,8 @@ void switch_mm(struct task_struct *prev, struct task_struct *next);
 uint64_t do_fork(struct stackregs *regs, uint64_t clone_flags, uint64_t stack_start, uint64_t stack_size);
 void wakeup_process(struct task_struct *task);
 void smp_task_init(void);
+void exit_mem(struct task_struct *task);
+uint64_t do_exit(int64_t code);
+
+uint64_t do_execve(struct stackregs *regs, int8_t *name, uint8_t *argv[], uint8_t *envp[]);
 #endif

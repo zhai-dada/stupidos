@@ -210,13 +210,13 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 	switch(zone_select)
 	{
 		case ZONE_DMA:
-				zone_start = ZONE_DMA_INDEX;
+				zone_start = 0;
 				zone_end = ZONE_DMA_INDEX;
 				attribute = PAGE_PT_MAPED;
 			break;
 
 		case ZONE_NORMAL:
-				zone_start = ZONE_NORMAL_INDEX;
+				zone_start = ZONE_DMA_INDEX;
 				zone_end = ZONE_NORMAL_INDEX;
 				attribute = PAGE_PT_MAPED;
 			break;
@@ -358,7 +358,6 @@ struct kmem* kmalloc_create(uint64_t size)
     }
     return kmem;
 }
-
 void* kmalloc(uint64_t size, uint64_t flags)
 {
     int32_t i = 0;
@@ -370,7 +369,7 @@ void* kmalloc(uint64_t size, uint64_t flags)
         color_printk(RED, BLACK, "kmalloc() ERROR:kmalloc size too int64_t:%08d\n", size);
         return NULL;
     }
-    for(i = 0; i < 16; ++i)
+    for(i = 0; i < 16; i++)
     {
         if(kmalloc_cache_size[i].size >= size)
         {
@@ -878,7 +877,6 @@ uint64_t do_brk(uint64_t addr, uint64_t len)
         if(*tmp == 0)
         {
             p = alloc_pages(ZONE_NORMAL, 1, PAGE_PT_MAPED);
-            memset(p, 0, PAGE_2M_SIZE);
             if(p == NULL)
             {
                 return -ENOMEM;
@@ -886,6 +884,7 @@ uint64_t do_brk(uint64_t addr, uint64_t len)
             set_pdt(tmp, make_pdt(p->p_address, PAGE_USER_PAGE));
         }
     }
+    current->mm->end_brk = i;
     flush_tlb();
     return i;
 }

@@ -20,7 +20,7 @@ void kernel(void)
     sys_vector_init();
     init_memory();
     // get_cpuinfo();
-    slab_init();
+    kmem_init();
     ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
     ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = 0;
     init_tss[0].ist1 = (uint64_t)ptr;
@@ -42,7 +42,7 @@ void kernel(void)
     timer_init();
     smp_init();
     keyboard_init();
-    color_printk(GREEN, BLACK, "╡Бйтжпндотй╬\n");
+    color_printk(GREEN, BLACK, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫й╬\n");
     task_init();
     sti();
     while (1)

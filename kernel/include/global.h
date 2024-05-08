@@ -20,6 +20,7 @@
 #include <disk/disk.h>
 #include <trap.h>
 #include <keyboard.h>
+#include <interrupt.h>
 
 extern int8_t _text, _etext;
 extern int8_t _data, _edata;

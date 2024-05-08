@@ -333,7 +333,7 @@ struct dir_entry *fat32_lookup(struct index_node *parent_inode, struct dir_entry
 
 next_cluster:
     sector = fsbi->data_firstsector + (cluster - 2) * fsbi->sector_per_cluster;
-    color_printk(BLUE, BLACK, "lookup cluster:%#010x,sector:%#018lx\n", cluster, sector);
+    // color_printk(BLUE, BLACK, "lookup cluster:%#010x,sector:%#018lx\n", cluster, sector);
     if (!disk_device_operation.transfer(ATA_READ_CMD, sector, fsbi->sector_per_cluster, (uint8_t *)buff))
     {
         color_printk(RED, BLACK, "fat32 FS(lookup) read disk ERROR!!!!!!!!!!\n");

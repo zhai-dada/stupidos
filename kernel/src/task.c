@@ -11,8 +11,6 @@
 #include <vfs/vfs.h>
 #include <schedule.h>
 
-extern spinlock_t sequence_lock;
-
 struct mm_struct init_mm;
 int64_t global_pid;
 
@@ -21,7 +19,6 @@ union task_stack_union init_task_stack __attribute__((__section__(".data.init_ta
     INIT_TASK(init_task_stack.task)
 };
 
-struct thread_struct init_thread;
 struct thread_struct init_thread =
 {
     .rsp0 = (uint64_t)(init_task_stack.stack + STACK_SIZE / sizeof(uint64_t)),
@@ -156,7 +153,6 @@ uint64_t copy_mem(uint64_t clone_flags, struct task_struct *task)
     }
 
     newmm = (struct mm_struct *)kmalloc(sizeof(struct mm_struct), 0);
-    memset(newmm, 0, sizeof(struct mm_struct));
     memcpy(current->mm, newmm, sizeof(struct mm_struct));
 
     newmm->pgd = (pml4t_t *)V_TO_P(kmalloc(PAGE_4K_SIZE, 0));
@@ -184,9 +180,9 @@ uint64_t copy_mem(uint64_t clone_flags, struct task_struct *task)
         tmp = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)newmm->pgd & (~0xfffUL))) + ((brk_start_addr >> PAGE_GDT_SHIFT) & 0x1ff) * 8);
         tmp = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)(*tmp) & (~0xfffUL))) + ((brk_start_addr >> PAGE_1G_SHIFT) & 0x1ff) * 8);
         tmp = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)(*tmp) & (~0xfffUL))) + ((brk_start_addr >> PAGE_2M_SHIFT) & 0x1ff) * 8);
-        p = alloc_pages(ZONE_NORMAL, 5, PAGE_PT_MAPED);
+        p = alloc_pages(ZONE_NORMAL, 1, PAGE_PT_MAPED);
         set_pdt(tmp, make_pdt(p->p_address, PAGE_USER_PAGE));
-        memcpy((void *)brk_start_addr, (void *)P_TO_V(p->p_address), PAGE_2M_SIZE * 5);
+        memcpy((void *)brk_start_addr, (void *)P_TO_V(p->p_address), PAGE_2M_SIZE);
     }
 
 out:
@@ -283,26 +279,10 @@ void exit_thread(struct task_struct *task)
 }
 uint64_t do_fork(struct stackregs *regs, uint64_t clone_flags, uint64_t stack_start, uint64_t stack_size)
 {
-    uint32_t color = 0;
-    switch (smp_cpu_id())
-    {
-    case 0:
-        color = GREEN;
-        break;
-    case 1:
-        color = YELLOW;
-        break;
-    case 2:
-        color = BLUE;
-        break;
-    case 3:
-        color = ORANGE;
-        break;
-    }
     int32_t retval = 0;
     struct task_struct *task = NULL;
     task = (struct task_struct *)kmalloc(STACK_SIZE, 0);
-    color_printk(color, BLACK, "struct task_struct address:%#018lx\n", (uint64_t)task);
+    // color_printk(INDIGO, BLACK, "struct task_struct address:%#018lx\n", (uint64_t)task);
     if (task == NULL)
     {
         retval = -EAGAIN;
@@ -317,6 +297,10 @@ uint64_t do_fork(struct stackregs *regs, uint64_t clone_flags, uint64_t stack_st
     task->preempt_count = 0;
     task->state = TASK_UNINTERRUPTIBLE;
     task->parent = current;
+    task->exitcode = 0;
+    task->next = init_task_stack.task.next;
+    init_task_stack.task.next = task;
+    wait_queue_init(&task->childexit_wait, NULL);
     retval = -ENOMEM;
     if (copy_flags(clone_flags, task))
     {
@@ -373,8 +357,7 @@ void _switch_to_(struct task_struct *prev, struct task_struct *next)
     asm volatile("movq %0, %%fs\n" ::"a"(next->thread->fs));
     asm volatile("movq %0, %%gs\n" ::"a"(next->thread->gs));
     wrmsr(0x175, next->thread->rsp0);
-    // if(smp_cpu_id() == 0) color_printk(color, BLACK, "prev->thread->rsp0:%#018lx\n", prev->thread->rsp0);
-
+    // color_printk(color, BLACK, "%0#018lx %#018lx\n", current->thread->rsp0, next->thread->rsp0);
 }
 
 asm
@@ -406,13 +389,24 @@ asm
     "movq %rax, %rdi\n"
     "callq do_exit\n"
 );
-uint64_t do_exit(uint64_t code)
+void exit_notify(void)
 {
-    color_printk(RED, BLACK, "exit task is running, arg code = %#018lx\n", code);
-    while (1)
-    {
-        nop();
-    }
+    wakeup(&current->parent->childexit_wait, TASK_INTERRUPTIBLE);
+}
+uint64_t do_exit(int64_t code)
+{
+    struct task_struct *task = current;
+    // color_printk(ORANGE, BLACK, "exit task is running, arg code = %#018lx\n", code);
+    do_exit_again:
+    cli();
+    task->state = TASK_ZOMBIE;
+    task->exitcode = code;
+    exit_thread(task);
+    exit_file(task);
+    sti();
+    exit_notify();
+    schedule();
+    goto do_exit_again;
     return 0;
 }
 int32_t kernel_thread(uint64_t (*func)(uint64_t), uint64_t args, uint64_t flags)
@@ -429,7 +423,7 @@ int32_t kernel_thread(uint64_t (*func)(uint64_t), uint64_t args, uint64_t flags)
     regs.rip = (uint64_t)fc;
     return do_fork(&regs, flags | CLONE_VM, 0, 0);
 }
-uint64_t do_execve(struct stackregs *regs, int8_t *name)
+uint64_t do_execve(struct stackregs *regs, int8_t *name, uint8_t *argv[], uint8_t *envp[])
 {
     uint64_t code_start_addr = 0x800000;
     uint64_t stack_start_addr = 0xa00000;
@@ -440,14 +434,6 @@ uint64_t do_execve(struct stackregs *regs, int8_t *name)
     struct file *filp = NULL;
     uint64_t retval = 0;
     int64_t pos = 0;
-
-    regs->ds = USER_DATA_SEGMENT;
-    regs->es = USER_DATA_SEGMENT;
-    regs->ss = USER_DATA_SEGMENT;
-    regs->cs = USER_CODE_SEGMENT;
-    regs->r10 = code_start_addr;
-    regs->r11 = stack_start_addr;
-    regs->rax = 1;
     if (current->flags & PF_VFORK)
     {
         current->mm = (struct mm_struct *)kmalloc(sizeof(struct mm_struct), 0);
@@ -488,7 +474,11 @@ uint64_t do_execve(struct stackregs *regs, int8_t *name)
         : "r"(current->mm->pgd)
         : "memory"
     );
-
+    filp = open_exec_file(name);
+	if((uint64_t)filp > -0x1000UL)
+	{
+        return (uint64_t)filp;
+    }
     if (!(current->flags & PF_KTHREAD))
     {
         current->addr_limit = TASK_SIZE;
@@ -499,8 +489,8 @@ uint64_t do_execve(struct stackregs *regs, int8_t *name)
     current->mm->end_data = 0;
     current->mm->start_rodata = 0;
     current->mm->end_rodata = 0;
-    current->mm->start_bss = 0;
-    current->mm->end_bss = 0;
+    current->mm->start_bss = code_start_addr + filp->dentry->dir_inode->file_size;
+    current->mm->end_bss = stack_start_addr;
     current->mm->start_brk = brk_start_addr;
     current->mm->end_brk = brk_start_addr;
     current->mm->start_stack = stack_start_addr;
@@ -509,14 +499,45 @@ uint64_t do_execve(struct stackregs *regs, int8_t *name)
 
     current->flags &= ~PF_VFORK;
 
-    filp = open_exec_file(name);
+	// if(argv != NULL)
+	// {
+	// 	int argc = 0;
+	// 	int len = 0;
+	// 	int i = 0;
+	// 	uint8_t **dargv = (uint8_t **)(stack_start_addr - 10 * sizeof(char *));
+	// 	pos = (uint64_t)dargv;
 
-    if ((uint64_t)filp > -0x1000UL)
-    {
-        return (uint64_t)filp;
-    }
-    memset((void *)code_start_addr, 0, PAGE_2M_SIZE);
+		// for(i = 0; i < 10 && argv[i] != NULL; ++i)
+		// {
+		// 	len = strnlen_user(argv[i], 1024) + 1;
+		// 	strcpy((uint8_t *)(pos - len), argv[i]);
+		// 	dargv[i] = (uint8_t *)(pos - len);
+		// 	pos -= len;
+		// }
+		// stack_start_addr = pos - 10 - 10;
+		// regs->rdi = i;
+		// regs->rsi = (uint64_t)dargv;
+	// }
+
+    memset((void *)code_start_addr, 0, stack_start_addr - code_start_addr);
+    pos = 0;
+
     retval = filp->f_ops->read(filp, (void *)code_start_addr, filp->dentry->dir_inode->file_size, &pos);
+    asm	volatile
+    (
+        "movq %0, %%gs  \n"
+        "movq %0, %%fs  \n"
+        :
+        :"r"((uint64_t)0)
+        :
+    );
+    regs->ds = USER_DATA_SEGMENT;
+    regs->es = USER_DATA_SEGMENT;
+    regs->ss = USER_DATA_SEGMENT;
+    regs->cs = USER_CODE_SEGMENT;
+    regs->r10 = code_start_addr;
+    regs->r11 = stack_start_addr;
+    regs->rax = 1;
     return retval;
 }
 extern void system_call(void);
@@ -536,7 +557,7 @@ uint64_t init(uint64_t arg)
         "pushq %1\n"
         "jmp do_execve\n"
         :
-        : "D"(current->thread->rsp), "m"(current->thread->rip), "m"(current->thread->rsp), "S"("/init.bin")
+        : "D"(current->thread->rsp), "m"(current->thread->rip), "m"(current->thread->rsp), "S"("/init.bin"), "d"(NULL), "c"(NULL)
         : "memory"
     );
     return 1;
@@ -561,25 +582,26 @@ void task_init(void)
                 set_pml4t(tmp, make_pml4t(V_TO_P(virtual), PAGE_KERNEL_GDT));
             }
         }
+        flush_tlb();
+        current->mm->pgd = (pml4t_t *)get_gdt();
+        current->mm->start_code = (uint64_t)&_text;
+        current->mm->end_code = mem_structure.end_code;
+        current->mm->start_data = (uint64_t)&_data;
+        current->mm->end_data = mem_structure.end_data;
+        current->mm->start_rodata = (uint64_t)&_rodata;
+        current->mm->end_rodata = mem_structure.end_rodata;
+        current->mm->start_brk = mem_structure.start_brk;
+        current->mm->end_brk = init_task[smp_cpu_id()]->addr_limit;
+        current->mm->start_bss = (uint64_t)&_bss;
+        current->mm->end_bss = (uint64_t)&_ebss;
+        current->mm->start_stack = init_task[smp_cpu_id()]->thread->rsp0;
     }
-    current->mm->pgd = (pml4t_t *)get_gdt();
-    current->mm->start_code = mem_structure.start_code;
-    current->mm->end_code = mem_structure.end_code;
-    current->mm->start_data = mem_structure.start_data;
-    current->mm->end_data = mem_structure.end_data;
-    current->mm->start_rodata = (uint64_t)&_rodata;
-    current->mm->end_rodata = mem_structure.end_rodata;
-    current->mm->start_brk = mem_structure.start_brk;
-    current->mm->end_brk = init_task[smp_cpu_id()]->addr_limit;
-    current->mm->start_bss = (uint64_t)&_bss;
-    current->mm->end_bss = (uint64_t)&_ebss;
-    current->mm->start_stack = init_thread.rsp;
-
     wrmsr(0x174, KERNEL_CODE_SEGMENT);
     wrmsr(0x175, init_task[smp_cpu_id()]->thread->rsp0);
     wrmsr(0x176, (uint64_t)system_call);
-
+    barrier();
     list_init(&init_task[smp_cpu_id()]->list);
+    wait_queue_init(&init_task_stack.task.childexit_wait, NULL);
     kernel_thread(init, 10, CLONE_FS | CLONE_SIGNAL);
     init_task[smp_cpu_id()]->preempt_count = 0;
     init_task[smp_cpu_id()]->state = TASK_RUNNING;

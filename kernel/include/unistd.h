@@ -11,6 +11,9 @@
 #define sys_vfork_nr        8
 #define sys_brk_nr          9
 #define sys_device_open_nr 10
+#define sys_execve_nr       11
+#define sys_exit_nr         12
+#define sys_wait4_nr        13
 
 
 #endif

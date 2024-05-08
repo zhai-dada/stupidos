@@ -166,9 +166,9 @@ error_code:
     cld
     movq ERRCODE(%rsp), %rsi
     movq FUNC(%rsp), %rdx
-    movq $0x10, %rax
-    movq %rax, %ds
-    movq %rax, %es
+    movq $0x10, %rdi
+    movq %rdi, %ds
+    movq %rdi, %es
     movq %rsp, %rdi
     callq *%rdx
     jmp ret_from_exception

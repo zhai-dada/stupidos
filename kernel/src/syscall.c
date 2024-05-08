@@ -21,5 +21,8 @@ system_call_t system_call_table[SYS_CALL_NUM] =
         [7] = sys_fork,
         [8] = sys_vfork,
         [9] = sys_brk,
-        [10] = sys_device_openkeyboard
+        [10] = sys_device_openkeyboard,
+        [11] = sys_execve,
+        [12] = sys_exit,
+        [13] = sys_wait4,
     };
