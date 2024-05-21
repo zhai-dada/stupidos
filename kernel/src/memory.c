@@ -192,14 +192,14 @@ uint64_t *get_gdt(void)
     );
     return tmp;
 }
-struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
+struct page * alloc_pages(int32_t zone_select,int32_t number,uint64_t page_flags)
 {
-	int i;
-	unsigned long page = 0;
-	unsigned long attribute = 0;
+	int32_t i;
+	uint64_t page = 0;
+	uint64_t attribute = 0;
 
-	int zone_start = 0;
-	int zone_end = 0;
+	int32_t zone_start = 0;
+	int32_t zone_end = 0;
 	
 	if(number >= 64 || number <= 0)
 	{
@@ -236,9 +236,9 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 	for(i = zone_start; i <= zone_end; ++i)
 	{
 		struct zone * z;
-		unsigned long j;
-		unsigned long start,end;
-		unsigned long tmp;
+		uint64_t j;
+		uint64_t start,end;
+		uint64_t tmp;
 
 		if((mem_structure.zones_struct + i)->page_free_count < number)
 		{
@@ -252,17 +252,17 @@ struct page * alloc_pages(int zone_select,int number,unsigned long page_flags)
 
 		for(j = start;j < end;j += j % 64 ? tmp : 64)
 		{
-			unsigned long * p = mem_structure.bits_map + (j >> 6);
-			unsigned long k = 0;
-			unsigned long shift = j % 64;
+			uint64_t * p = mem_structure.bits_map + (j >> 6);
+			uint64_t k = 0;
+			uint64_t shift = j % 64;
 			
-			unsigned long num = (1UL << number) - 1;
+			uint64_t num = (1UL << number) - 1;
 			
 			for(k = shift;k < 64;++k)
 			{
 				if( !( (k ? ((*p >> k) | (*(p + 1) << (64 - k))) : *p) & (num) ) )
 				{
-					unsigned long	l;
+					uint64_t	l;
 					page = j + k - shift;
 					for(l = 0;l < number;l++)
 					{
@@ -766,15 +766,6 @@ uint64_t kmem_init(void)
     color_printk(GREEN, BLACK, "%018lx\n", mem_structure.end_of_struct);
     for(i = 0; i < 16; ++i)
     {
-        // virtual = (uint64_t*)((P_TO_V(mem_structure.zones_struct[ZONE_NORMAL_INDEX].pages_group->p_address) + PAGE_2M_SIZE * i + PAGE_2M_SIZE - 1) & PAGE_2M_MASK);
-        // page = (struct page*)V_TO_2M(virtual);
-        // color_printk(GREEN, BLACK, "%018ld %018lx %018lx\n",page->zone_struct->page_free_count, page->p_address, virtual);
-        // *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
-        // page->zone_struct->page_using_count++;
-        // page->zone_struct->page_free_count--;
-        // page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
-        // kmalloc_cache_size[i].cache_pool->page = page;
-        // kmalloc_cache_size[i].cache_pool->vaddress = virtual;
         page = alloc_pages(ZONE_NORMAL, 1, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
         kmalloc_cache_size[i].cache_pool->page = page;
         kmalloc_cache_size[i].cache_pool->vaddress = (void *)P_TO_V(page->p_address);
@@ -783,7 +774,6 @@ uint64_t kmem_init(void)
     color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[1].page_using_count, mem_structure.zones_struct[1].page_free_count);
     color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[2].page_using_count, mem_structure.zones_struct[2].page_free_count);
     color_printk(ORANGE, BLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_structure.bits_map, mem_structure.zones_struct[3].page_using_count, mem_structure.zones_struct[3].page_free_count);
-
     color_printk(ORANGE, BLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_structure.start_code, mem_structure.end_code, mem_structure.start_data, mem_structure.end_data, mem_structure.start_brk, mem_structure.end_of_struct);
     return 1;
 }
@@ -827,7 +817,7 @@ void pagetable_init()
         {
             break;
         }
-        for(j = 0; j < z->pages_length; ++j, page++)
+        for(j = 0; j < z->pages_length; ++j, ++page)
         {
             tmp = (uint64_t*)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + (((uint64_t)P_TO_V(page->p_address) >> PAGE_GDT_SHIFT) & 0x1ff) * 8);
             if(*tmp == 0)
