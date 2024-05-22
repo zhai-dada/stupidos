@@ -813,10 +813,6 @@ void pagetable_init()
     {
         struct zone* z = mem_structure.zones_struct + i;
         struct page* page = z->pages_group;
-        if(ZONE_UNMAPED_INDEX && i == ZONE_UNMAPED_INDEX)
-        {
-            break;
-        }
         for(j = 0; j < z->pages_length; ++j, ++page)
         {
             tmp = (uint64_t*)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + (((uint64_t)P_TO_V(page->p_address) >> PAGE_GDT_SHIFT) & 0x1ff) * 8);
