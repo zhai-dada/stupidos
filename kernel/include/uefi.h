@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-/**
- * 图像显示信息结构体
- */
 struct EFI_GRAPHICSOUTPUT_INFORMATION
 {
     uint32_t hr;   // 水平分辨率
@@ -14,10 +11,6 @@ struct EFI_GRAPHICSOUTPUT_INFORMATION
     uint64_t bufferbase;
     uint64_t buffersize;
 };
-
-/**
- * E820 地址空间信息结构体
- */
 struct EFI_E820_MEMORY_DESCRIPTOR
 {
     uint64_t address;
@@ -35,6 +28,7 @@ struct KERNEL_BOOT_INFORMATION
     struct EFI_GRAPHICSOUTPUT_INFORMATION graphicsinf;
     struct EFI_E820_MEMORY_DESCRIPTOR_INFORMATION e820inf;
 };
+
 
 extern struct KERNEL_BOOT_INFORMATION *boot_info;
 
