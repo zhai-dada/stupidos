@@ -42,11 +42,61 @@ void kernel(void)
     timer_init();
     smp_init();
     keyboard_init();
-    color_printk(GREEN, BLACK, "ÄãºÃÊÀ½ç\n");
+    color_printk(GREEN, BLACK, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½\n");
 
-    uint32_t pci = pci_in32(0, 3, 0, 0);
-    color_printk(INDIGO, BLACK, "%lx\n", pci);
+    // struct page* p = NULL;
+    // for(int j = 0; j < 10; ++j)
+    // {
+    //     p = alloc_pages(ZONE_NORMAL, 1, 0);
+    //     color_printk(INDIGO, BLACK, "page:%d\tattribute:%018lx\taddress:%018lx\n", j, p->attribute, p->p_address);
+    //     color_printk(ORANGE, BLACK, "bits_map:%018lx\n", *mem_structure.bits_map);
+    // }
+    // color_printk(YELLOW, BLACK, "free_pages 5 \t");
+    // free_pages(p, 5);
+    // color_printk(ORANGE, BLACK, "bits_map:%018lx\n", *mem_structure.bits_map);
 
+
+    // color_printk(INDIGO, BLACK, "ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ABCDEF&*())):[]]{}Hello World!ï¿½ï¿½ï¿½ï¿½ï¿½\tï¿½ï¿½\t 123456\n");
+    // color_printk(INDIGO, BLACK, "abcdefghijklmnopqrstuvwxyzï¿½ï¿½ï¿½ï¿½ï¿½Ò¸ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ã¸¶ï¿½ï¿½ï¿½Å¶ï¿½ï¿½ï¿½ï¿½ckeori8932!@#()))\n");
+    // color_printk(INDIGO, BLACK, "jgde\tdaeesï¿½ï¿½hideï¿½ï¿½\bbbbbbb\n");
+
+
+    // int a = 1 / 0;
+    // *((int *)0xffff900000000000) = 0;
+
+    // uint8_t *a = NULL;
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     a = kmalloc(32, 0);
+    //     color_printk(YELLOW, BLACK, "address:%018lx\n", a);
+    // }
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     a = kmalloc(64, 0);
+    //     color_printk(INDIGO, BLACK, "address:%018lx\n", a);
+    // }
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     a = kmalloc(2048, 0);
+    //     color_printk(WHITE, BLACK, "address:%018lx\n", a);
+    // }
+    // uint8_t *a = NULL;
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     a = kmalloc(32, 0);
+    //     color_printk(INDIGO, BLACK, "address:%018lx\n", a);
+    //     kfree(a);
+    // }
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     a = kmalloc(1024, 0);
+    //     color_printk(GREEN, BLACK, "address:%018lx\n", a);
+    //     kfree(a);
+    // }
+    // for(int i = 0; i < 10000; i++)
+    // {
+    //     a = kmalloc(1024 * 1024, 0);
+    // }
     task_init();
     sti();
     while (1)

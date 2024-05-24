@@ -356,6 +356,5 @@ void sys_vector_init()
     set_trap_gate(18, 1, machine_check);
     set_trap_gate(19, 1, SIMD_exception);
     set_trap_gate(20, 1, virtualization_exception);
-
     return;
 }

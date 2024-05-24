@@ -831,6 +831,10 @@ void pagetable_init()
             }
             tmp = (uint64_t*)(((uint64_t)P_TO_V((uint64_t)(*tmp & (~0xfffUL)) & (~0xfffUL))) + (((uint64_t)P_TO_V(page->p_address) >> PAGE_2M_SHIFT) & 0x1ff) * 8);
             set_pdt(tmp, make_pdt(page->p_address, PAGE_KERNEL_PAGE));
+            // if(j % 50 == 0)
+            // {
+            //     color_printk(GREEN, BLACK, "%018lx\t%018lx\n", tmp, *tmp);
+            // }
         }
     }
     flush_tlb();
