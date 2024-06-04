@@ -43,7 +43,7 @@ void kernel(void)
     smp_init();
     keyboard_init();
     color_printk(GREEN, BLACK, "������ʾ����\n");
-
+    pci_init();
     // struct page* p = NULL;
     // for(int j = 0; j < 10; ++j)
     // {

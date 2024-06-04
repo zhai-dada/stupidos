@@ -84,7 +84,7 @@ typedef struct pci_device_t
     uint16_t deviceid;
     uint8_t revision;
     uint32_t classcode;
-    pci_bar_t bar [PCI_BAR_NR];
+    volatile pci_bar_t bar [PCI_BAR_NR];
 } pci_device_t;
 
 
@@ -223,6 +223,10 @@ void pci_out32(uint8_t bus, uint8_t dev, uint8_t func, uint8_t addr, uint32_t va
 static uint32_t pci_size(uint32_t base, uint32_t mask);
 void pci_init();
 uint8_t pci_interrupt(pci_device_t *device);
+uint8_t pci_interrupt_pin(pci_device_t *device);
 void pci_find_bar(pci_device_t *device);
+pci_device_t *pci_find_device_by_class(uint32_t classcode);
+pci_device_t *pci_find_device(uint16_t vendorid, uint16_t deviceid);
+void pci_enable_busmastering(pci_device_t *device);
 
 #endif

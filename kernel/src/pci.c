@@ -84,7 +84,7 @@ static void pci_check_device(uint8_t bus, uint8_t dev)
 {
     uint32_t value = 0;
 
-    for (uint8_t func = 0; func < 8; func++)
+    for (uint8_t func = 0; func < 8; ++func)
     {
         value = pci_in32(bus, dev, func, PCI_CONF_VENDOR);
         uint16_t vendorid = value & 0xFFFF;
@@ -110,10 +110,10 @@ static void pci_check_device(uint8_t bus, uint8_t dev)
         device->classcode = value >> 8;
         device->revision = value & 0xff;
         color_printk(
-            GREEN, BLACK, "PCI bus:%02x dev:%02x func:%x vendorid:%4x deviceid:%4x classname:%s intnum:%d\n",
+            GREEN, BLACK, "PCI bus:%02x dev:%02x func:%x vendorid:%4x deviceid:%4x classname:%s intnum:%d intpin:%d\n",
             device->bus, device->dev, device->func,
             device->vendorid, device->deviceid,
-            pci_classname(device->classcode), pci_interrupt(device));
+            pci_classname(device->classcode), pci_interrupt(device), pci_interrupt_pin(device));
         pci_find_bar(device);
     }
     return;
@@ -164,6 +164,13 @@ uint8_t pci_interrupt(pci_device_t *device)
 {
     uint32_t data = pci_in32(device->bus, device->dev, device->func, PCI_CONF_INTERRUPT);
     return data & 0xff;
+}
+
+// 获得中断 IRQ PIN
+uint8_t pci_interrupt_pin(pci_device_t *device)
+{
+    uint32_t data = pci_in32(device->bus, device->dev, device->func, PCI_CONF_INTERRUPT);
+    return (data >> 8) & 0xff;
 }
 
 // 启用总线主控，用于发起 DMA
