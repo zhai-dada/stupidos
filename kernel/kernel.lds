@@ -11,26 +11,25 @@ SECTIONS
 		*(.text)
 		_etext = .;
 	}
-
 	. = ALIGN(8);
-
 	.data :
 	{
 		_data = .;
-		*(.data)		
+		*(.data)
 		_edata = .;
 	}
-
+	. = ALIGN(8);
 	.rodata : 
 	{
 		_rodata = .;	
 		*(.rodata)
 		_erodata = .;
 	}
-
 	. = ALIGN(32768);
-	.data.init_task_stack : { *(.data.init_task_stack) }
-
+	.data.init_task_stack :
+	{
+		*(.data.init_task_stack)
+	}
 	.bss :
 	{
 		_bss = .;

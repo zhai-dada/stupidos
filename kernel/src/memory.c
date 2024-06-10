@@ -203,7 +203,7 @@ struct page * alloc_pages(int32_t zone_select,int32_t number,uint64_t page_flags
 	
 	if(number >= 64 || number <= 0)
 	{
-		color_printk(RED,BLACK,"alloc_pages() ERROR: number is invalid\n");
+		color_printk(ORANGE,BLACK,"alloc_pages() ERROR: number is invalid\n");
 		return NULL;		
 	}
 
@@ -228,7 +228,7 @@ struct page * alloc_pages(int32_t zone_select,int32_t number,uint64_t page_flags
 			break;
 
 		default:
-			color_printk(RED,BLACK,"alloc_pages() ERROR: zone_select index is invalid\n");
+			color_printk(ORANGE,BLACK,"alloc_pages() ERROR: zone_select index is invalid\n");
 			return NULL;
 			break;
 	}
@@ -279,7 +279,7 @@ struct page * alloc_pages(int32_t zone_select,int32_t number,uint64_t page_flags
 		}
 	}
 
-	color_printk(RED,BLACK,"alloc_pages() ERROR: no page can alloc\n");
+	color_printk(ORANGE,BLACK,"alloc_pages() ERROR: no page can alloc\n");
 	return NULL;
 
 find_free_pages:
@@ -297,7 +297,7 @@ struct kmem* kmalloc_create(uint64_t size)
     page = alloc_pages(ZONE_NORMAL, 1, 0);
     if(page == NULL)
     {
-        color_printk(RED, BLACK, "kmalloc_create()->page_alloc() ERROR page = NULL\n");
+        color_printk(ORANGE, BLACK, "kmalloc_create()->page_alloc() ERROR page = NULL\n");
         return NULL;
     }
     page_init(page, PAGE_KERNEL);
@@ -352,7 +352,7 @@ struct kmem* kmalloc_create(uint64_t size)
             }
             break;
         default:
-            color_printk(RED, BLACK, "kmalloc_create() ERROR:wrong size%08d\n", size);
+            color_printk(ORANGE, BLACK, "kmalloc_create() ERROR:wrong size%08d\n", size);
             free_pages(page, 1);
             return NULL;
     }
@@ -366,7 +366,7 @@ void* kmalloc(uint64_t size, uint64_t flags)
     //1048576 = 1MB
     if(size > 1048576)
     {
-        color_printk(RED, BLACK, "kmalloc() ERROR:kmalloc size too int64_t:%08d\n", size);
+        color_printk(ORANGE, BLACK, "kmalloc() ERROR:kmalloc size too int64_t:%08d\n", size);
         return NULL;
     }
     for(i = 0; i < 16; i++)
@@ -396,7 +396,7 @@ void* kmalloc(uint64_t size, uint64_t flags)
         kmem = kmalloc_create(kmalloc_cache_size[i].size);
         if(kmem == NULL)
         {
-            color_printk(RED, BLACK, "kmalloc()->kmalloc_create()->kmem == NULL\n");
+            color_printk(ORANGE, BLACK, "kmalloc()->kmalloc_create()->kmem == NULL\n");
             return NULL;
         }
         kmalloc_cache_size[i].total_free += kmem->color_count;
@@ -420,7 +420,7 @@ void* kmalloc(uint64_t size, uint64_t flags)
             return (void *)((char*)kmem->vaddress + kmalloc_cache_size[i].size * j);
         }
     }
-    color_printk(RED, BLACK, "kmalloc() ERROR: no memory call alloc\n");
+    color_printk(ORANGE, BLACK, "kmalloc() ERROR: no memory call alloc\n");
     return NULL;
 }
 struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress, uint64_t arg), void* (*destruct)(void* vaddress, uint64_t arg), uint64_t arg)
@@ -429,7 +429,7 @@ struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress,
     kmem_cache = (struct kmem_cache*)kmalloc(sizeof(struct kmem_cache), 0);
     if(kmem_cache == NULL)
     {
-        color_printk(RED, BLACK, "kmem_create()->kmem_cache = NULL\n");
+        color_printk(ORANGE, BLACK, "kmem_create()->kmem_cache = NULL\n");
         return NULL;
     }
     memset(kmem_cache, 0, sizeof(struct kmem_cache));
@@ -439,7 +439,7 @@ struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress,
     kmem_cache->cache_pool = (struct kmem*)kmalloc(sizeof(struct kmem), 0);
     if(kmem_cache->cache_pool == NULL)
     {
-        color_printk(RED, BLACK, "kmem_cache()->kmalloc(kmem_cache->cache_pool) ERROR == NULL\n");
+        color_printk(ORANGE, BLACK, "kmem_cache()->kmalloc(kmem_cache->cache_pool) ERROR == NULL\n");
         kfree(kmem_cache);
         return NULL;
     }
@@ -450,7 +450,7 @@ struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress,
     kmem_cache->cache_pool->page = alloc_pages(ZONE_NORMAL, 1, 0);
     if(kmem_cache->cache_pool->page == NULL)
     {
-        color_printk(RED, BLACK, "kmem_cache()->alloc_pages() page == NULL\n");
+        color_printk(ORANGE, BLACK, "kmem_cache()->alloc_pages() page == NULL\n");
         kfree(kmem_cache->cache_pool);
         kfree(kmem_cache);
         return NULL;
@@ -465,7 +465,7 @@ struct kmem_cache* kmem_create(uint64_t size, void* (*construct)(void* vaddress,
     kmem_cache->cache_pool->color_map = (uint64_t*)kmalloc(kmem_cache->cache_pool->color_length, 0);
     if(kmem_cache->cache_pool->color_map == NULL)
     {
-        color_printk(RED, BLACK, "kmem_create()->color_map == NULL\n");
+        color_printk(ORANGE, BLACK, "kmem_create()->color_map == NULL\n");
         free_pages(kmem_cache->cache_pool->page, 1);
         kfree(kmem_cache->cache_pool);
         kfree(kmem_cache);
@@ -480,7 +480,7 @@ uint64_t kmem_destroy(struct kmem_cache* kmem_cache)
     struct kmem* kmem_tmp = NULL;
     if(kmem_cache->total_using != 0)
     {
-        color_printk(RED, BLACK, "kmem_cache->total_using != 0\n");
+        color_printk(ORANGE, BLACK, "kmem_cache->total_using != 0\n");
         return 0;
     }
     while(!list_is_empty(&kmem_pool->list))
@@ -509,7 +509,7 @@ void* kmem_malloc(struct kmem_cache* kmem_cache, uint64_t arg)
         kmem_tmp = (struct kmem*)kmalloc(sizeof(struct kmem), 0);
         if(kmem_tmp == NULL)
         {
-            color_printk(RED, BLACK, "kmem_malloc()->kmalloc kmem_tmp == NULL\n");
+            color_printk(ORANGE, BLACK, "kmem_malloc()->kmalloc kmem_tmp == NULL\n");
             return NULL;
         }
         memset(kmem_tmp, 0, sizeof(struct kmem));
@@ -517,7 +517,7 @@ void* kmem_malloc(struct kmem_cache* kmem_cache, uint64_t arg)
         kmem_tmp->page = alloc_pages(ZONE_NORMAL, 1, 0);
         if(kmem_tmp->page == NULL)
         {
-            color_printk(RED, BLACK, "kmem_malloc()->alloc_page == NULL\n");
+            color_printk(ORANGE, BLACK, "kmem_malloc()->alloc_page == NULL\n");
             kfree(kmem_tmp);
             return NULL;
         }
@@ -530,7 +530,7 @@ void* kmem_malloc(struct kmem_cache* kmem_cache, uint64_t arg)
         kmem_tmp->color_map = (uint64_t*)kmalloc(kmem_tmp->color_length, 0);
         if(kmem_tmp->color_map == NULL)
         {
-            color_printk(RED, BLACK, "kmem_malloc()->kmalloc(colormap) == NULL\n");
+            color_printk(ORANGE, BLACK, "kmem_malloc()->kmalloc(colormap) == NULL\n");
             free_pages(kmem_tmp->page, 1);
             kfree(kmem_tmp);
             return NULL;
@@ -591,7 +591,7 @@ void* kmem_malloc(struct kmem_cache* kmem_cache, uint64_t arg)
             }
         }while(kmem_pool != kmem_cache->cache_pool);
     }
-    color_printk(RED, BLACK, "kmem_malloc()ERROR: can't alloc\n");
+    color_printk(ORANGE, BLACK, "kmem_malloc()ERROR: can't alloc\n");
     if(kmem_tmp != NULL)
     {
         list_delete(&kmem_tmp->list);
@@ -637,7 +637,7 @@ uint64_t kmem_free(struct kmem_cache* kmem_cache, void* address, uint64_t arg)
             continue;
         }
     }while(kmem_pool != kmem_cache->cache_pool);
-    color_printk(RED, BLACK, "kmem_free() ERROR address is not in kmem\n");
+    color_printk(ORANGE, BLACK, "kmem_free() ERROR address is not in kmem\n");
     return 0;
 }
 uint64_t page_clean(struct page * page)
@@ -655,12 +655,12 @@ void free_pages(struct page* page, int32_t number)
     int32_t i = 0;
     if(page == NULL)
     {
-        color_printk(RED, BLACK, "free_pages()ERROR:page is invalid\n");
+        color_printk(ORANGE, BLACK, "free_pages()ERROR:page is invalid\n");
         return;
     }
     if(number >= 64 || number <= 0)
     {
-        color_printk(RED, BLACK, "free_pages()ERROR:number is invalid\n");
+        color_printk(ORANGE, BLACK, "free_pages()ERROR:number is invalid\n");
         return;
     }
     for(i = 0; i < number; ++i, page++)
@@ -723,7 +723,7 @@ uint64_t kfree(void* address)
             }
         }while(kmem != kmalloc_cache_size[i].cache_pool);
     }
-    color_printk(RED, BLACK, "kfree() ERROR:can't free memory\n");
+    color_printk(ORANGE, BLACK, "kfree() ERROR:can't free memory\n");
     return 0;
 }
 uint64_t kmem_init(void)
@@ -781,7 +781,7 @@ uint64_t get_page_attribute(struct page* page)
 {
     if(page == NULL)
     {
-        color_printk(RED, BLACK, "get_page_attribute() ERROR:page == NULL\n");
+        color_printk(ORANGE, BLACK, "get_page_attribute() ERROR:page == NULL\n");
         return 0;
     }
     return (page->attribute);
@@ -790,7 +790,7 @@ uint64_t set_page_attribute(struct page* page, uint64_t flags)
 {
     if(page == NULL)
     {
-        color_printk(RED, BLACK, "set_page_attribute() ERROR:page == NULL\n");
+        color_printk(ORANGE, BLACK, "set_page_attribute() ERROR:page == NULL\n");
         return 0;
     }
     page->attribute = flags;
@@ -877,4 +877,38 @@ uint64_t do_brk(uint64_t addr, uint64_t len)
     current->mm->end_brk = i;
     flush_tlb();
     return i;
+}
+
+uint64_t buffer_remap(uint64_t buffer_addr, uint64_t length)
+{
+	uint64_t i = 0;
+	uint64_t *tmp = NULL;
+	uint64_t *tmp1 = NULL;
+	uint64_t *virtual = NULL;
+	uint64_t phy = 0;
+	uint32_t *tmp_addr = (uint32_t *)P_TO_V(buffer_addr & PAGE_2M_MASK);
+
+	cr3 = get_gdt();
+	tmp = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + (((uint64_t)tmp_addr >> PAGE_GDT_SHIFT) & 0x1ff) * 8);
+	if (*tmp == 0)
+	{
+		virtual = (uint64_t *)kmalloc(PAGE_4K_SIZE, 0);
+		memset(virtual, 0, PAGE_4K_SIZE);
+		set_pml4t(tmp, make_pml4t(V_TO_P(virtual), PAGE_KERNEL_GDT | PAGE_USER_GDT));
+	}
+	tmp = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)(*tmp & (~0xfffUL)) & (~0xfffUL))) + (((uint64_t)tmp_addr >> PAGE_1G_SHIFT) & 0x1ff) * 8);
+	if (*tmp == 0)
+	{
+		virtual = (uint64_t *)kmalloc(PAGE_4K_SIZE, 0);
+		memset(virtual, 0, PAGE_4K_SIZE);
+		set_pdpt(tmp, make_pdpt(V_TO_P(virtual), PAGE_KERNEL_DIR | PAGE_USER_DIR));
+	}
+	for (i = 0; i < length; i = i + PAGE_2M_SIZE)
+	{
+		tmp1 = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)(*tmp & (~0xfffUL)) & (~0xfffUL))) + ((((uint64_t)tmp_addr + i) >> PAGE_2M_SHIFT) & 0x1ff) * 8);
+		phy = buffer_addr + i;
+		set_pdt(tmp1, make_pdt(phy & PAGE_2M_MASK, PAGE_KERNEL_PAGE | PAGE_PWT | PAGE_PCD | PAGE_USER_PAGE));
+	}
+	flush_tlb();
+	return (uint64_t)P_TO_V(buffer_addr);
 }

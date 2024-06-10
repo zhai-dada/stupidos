@@ -25,7 +25,7 @@ static uint32_t pci_size(uint32_t base, uint32_t mask)
     return size;
 }
 
-// // 获取某种类型的 Base Address Register
+// 获取某种类型的 Base Address Register
 void pci_find_bar(pci_device_t *device)
 {
     for (uint64_t idx = 0; idx < PCI_BAR_NR; idx++)
@@ -109,12 +109,12 @@ static void pci_check_device(uint8_t bus, uint8_t dev)
         value = pci_in32(bus, dev, func, PCI_CONF_REVISION);
         device->classcode = value >> 8;
         device->revision = value & 0xff;
+        pci_find_bar(device);
         color_printk(
             GREEN, BLACK, "PCI bus:%02x dev:%02x func:%x vendorid:%4x deviceid:%4x classname:%s intnum:%d intpin:%d\n",
             device->bus, device->dev, device->func,
             device->vendorid, device->deviceid,
             pci_classname(device->classcode), pci_interrupt(device), pci_interrupt_pin(device));
-        pci_find_bar(device);
     }
     return;
 }

@@ -21,7 +21,6 @@ int main()
 
 	current_dir = "/";
 	fd = device_openkeyboard(path, 0);
-	printf("ÄãºÃÊÀ½ç\n");
 	while (1)
 	{
 		int argc = 0;

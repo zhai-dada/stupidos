@@ -7,6 +7,7 @@
 
 extern uint64_t* cr3;
 
+#define BUFFER_1M_SIZE  1048576
 #define COUNT_PER_PAGE  512
 
 #define PAGE_OFFSET         ((uint64_t)0xffff800000000000)
@@ -212,5 +213,5 @@ uint64_t get_page_attribute(struct page* page);
 uint64_t set_page_attribute(struct page* page, uint64_t flags);
 void pagetable_init();
 uint64_t do_brk(uint64_t addr, uint64_t len);
-
+uint64_t buffer_remap(uint64_t buffer_addr, uint64_t length);
 #endif

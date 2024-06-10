@@ -572,7 +572,7 @@ void task_init(void)
     {
         vaddr = (uint64_t *)P_TO_V((uint64_t)get_gdt() & (~0xfffUL));
         *vaddr = 0UL;
-        for (i = 256; i < 512; i++)
+        for (i = 256; i < 512; ++i)
         {
             tmp = vaddr + i;
             if (*tmp == 0)
@@ -585,12 +585,12 @@ void task_init(void)
         flush_tlb();
         current->mm->pgd = (pml4t_t *)get_gdt();
         current->mm->start_code = (uint64_t)&_text;
-        current->mm->end_code = mem_structure.end_code;
+        current->mm->end_code = (uint64_t)&_etext;
         current->mm->start_data = (uint64_t)&_data;
-        current->mm->end_data = mem_structure.end_data;
+        current->mm->end_data = (uint64_t)&_edata;
         current->mm->start_rodata = (uint64_t)&_rodata;
-        current->mm->end_rodata = mem_structure.end_rodata;
-        current->mm->start_brk = mem_structure.start_brk;
+        current->mm->end_rodata = (uint64_t)&_erodata;
+        current->mm->start_brk = (uint64_t)&_bss;
         current->mm->end_brk = init_task[smp_cpu_id()]->addr_limit;
         current->mm->start_bss = (uint64_t)&_bss;
         current->mm->end_bss = (uint64_t)&_ebss;

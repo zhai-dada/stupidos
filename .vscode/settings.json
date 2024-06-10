@@ -1,11 +1,11 @@
 {
+    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "waitque.h": "c",
-        "keyboard.h": "c",
-        "cpu.h": "c",
-        "lib.h": "c",
-        "schedule.h": "c",
+        "e1000.h": "c",
         "printk.h": "c",
-        "memory.h": "c"
+        "global.h": "c",
+        "task.h": "c",
+        "memory.h": "c",
+        "pci.h": "c"
     }
 }

@@ -60,7 +60,6 @@ extern struct position pos;
 void init_printk(void);
 void vbe_buffer_init();
 void putchar(uint32_t *fb, int32_t x_size, int32_t x, int32_t y, uint32_t FRcolor, uint32_t BKcolor, uint8_t font);
-void putword(uint32_t *fb, int32_t x_size, int32_t x, int32_t y, uint32_t FRcolor, uint32_t BKcolor, uint16_t font);
 
 int32_t skip_atoi(const int8_t **s);
 

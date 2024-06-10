@@ -50,15 +50,13 @@ struct list
     struct list* prev;
     struct list* next;
 };
-void list_init(struct list* list);
-inline void list_init(struct list* list)
+__attribute__((always_inline)) inline void list_init(struct list* list)
 {
     list->prev = list;
     list->next = list;
     return;
 }
-void list_add_behind(struct list* list, struct list* newn);
-inline void list_add_behind(struct list* list, struct list* newn)
+__attribute__((always_inline)) inline void list_add_behind(struct list* list, struct list* newn)
 {
     newn->next = list->next;
     newn->prev = list;
@@ -66,8 +64,7 @@ inline void list_add_behind(struct list* list, struct list* newn)
     list->next = newn;
     return;
 }
-void list_add_before(struct list* list, struct list* newn);
-inline void list_add_before(struct list* list, struct list* newn)
+__attribute__((always_inline)) inline void list_add_before(struct list* list, struct list* newn)
 {
     list->prev->next = newn;
     newn->prev = list->prev;
@@ -75,15 +72,13 @@ inline void list_add_before(struct list* list, struct list* newn)
     newn->next = list;
     return;
 }
-void list_delete(struct list* list);
-inline void list_delete(struct list* list)
+__attribute__((always_inline)) inline void list_delete(struct list* list)
 {
     list->next->prev = list->prev;
     list->prev->next = list->next;
     return;
 }
-int64_t list_is_empty(struct list* list);
-inline int64_t list_is_empty(struct list* list)
+__attribute__((always_inline)) inline int64_t list_is_empty(struct list* list)
 {
     if(list->next == list && list->prev == list)
     {
@@ -91,8 +86,7 @@ inline int64_t list_is_empty(struct list* list)
     }
     return 0;
 }
-struct list* list_prev(struct list* list);
-inline struct list* list_prev(struct list* list)
+__attribute__((always_inline)) inline struct list* list_prev(struct list* list)
 {
     if(list->prev != NULL)
     {
@@ -100,8 +94,7 @@ inline struct list* list_prev(struct list* list)
     }
     return NULL;
 }
-struct list* list_next(struct list* list);
-inline struct list* list_next(struct list* list)
+__attribute__((always_inline)) inline struct list* list_next(struct list* list)
 {
     if(list->next != NULL)
     {
@@ -141,7 +134,7 @@ __attribute__((always_inline)) inline void* memcpy(void* From, void* To, int64_t
 __attribute__((always_inline)) inline void* memset(void *address, uint8_t c, int64_t count)
 {
     uint8_t* tmp = (uint8_t*)address;
-    for(int i = 0; i < count; ++i, ++tmp)
+    for(uint32_t i = 0; i < count; ++i, ++tmp)
     {
         *tmp = c;
     }
@@ -151,8 +144,7 @@ __attribute__((always_inline)) inline void* memset(void *address, uint8_t c, int
 /**
  * 字符串常用函数
 */
-int8_t *strncpy(int8_t *d, int8_t *s, int64_t count);
-inline int8_t *strncpy(int8_t *d, int8_t *s, int64_t count)
+int8_t *strncpy(int8_t *d, int8_t *s, int64_t count)
 {
     asm volatile
     (
@@ -179,8 +171,7 @@ int32_t strlen(uint8_t *S)
     for(res = 0; S[res] != '\0'; res++);
     return res;
 }
-int32_t strcmp(int8_t* FirstPart, int8_t* SecondPart);
-inline int32_t strcmp(int8_t* FirstPart, int8_t* SecondPart)
+int32_t strcmp(int8_t* FirstPart, int8_t* SecondPart)
 {
 	register int32_t res;
 	asm	volatile
@@ -208,8 +199,7 @@ inline int32_t strcmp(int8_t* FirstPart, int8_t* SecondPart)
 /**
  * 端口读写函数
 */
-uint8_t io_in8(uint16_t port);
-inline uint8_t io_in8(uint16_t port)
+__attribute__((always_inline)) inline uint8_t io_in8(uint16_t port)
 {
     uint8_t ret = 0;
     asm volatile
@@ -222,8 +212,7 @@ inline uint8_t io_in8(uint16_t port)
     );
     return ret;
 }
-uint32_t io_in32(uint16_t port);
-inline uint32_t io_in32(uint16_t port)
+__attribute__((always_inline)) inline uint32_t io_in32(uint16_t port)
 {
     uint32_t ret = 0;
     asm volatile
@@ -236,8 +225,7 @@ inline uint32_t io_in32(uint16_t port)
     );
     return ret;
 }
-void io_out8(uint16_t port, uint8_t value);
-inline void io_out8(uint16_t port, uint8_t value)
+__attribute__((always_inline)) inline void io_out8(uint16_t port, uint8_t value)
 {
     asm volatile
     (
@@ -249,8 +237,7 @@ inline void io_out8(uint16_t port, uint8_t value)
     );
     return;
 }
-void io_out32(uint16_t port, uint32_t value);
-inline void io_out32(uint16_t port, uint32_t value)
+__attribute__((always_inline)) inline void io_out32(uint16_t port, uint32_t value)
 {
     asm volatile
     (
@@ -300,8 +287,7 @@ __attribute__((always_inline)) inline void wrmsr(uint64_t address, uint64_t valu
     );
     return;
 }
-void cpuid(uint32_t mainleaf, uint32_t subleaf, uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d);
-inline void cpuid(uint32_t mainleaf, uint32_t subleaf, uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d)
+void cpuid(uint32_t mainleaf, uint32_t subleaf, uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d)
 {
     asm volatile
     (
@@ -315,8 +301,7 @@ inline void cpuid(uint32_t mainleaf, uint32_t subleaf, uint32_t* a, uint32_t* b,
 /**
  * 获取flags寄存器状态
 */
-uint64_t get_rflags();
-inline uint64_t get_rflags()
+uint64_t get_rflags()
 {
 	uint64_t tmp = 0;
     asm volatile
@@ -333,7 +318,7 @@ inline uint64_t get_rflags()
 /**
  * 关于用户内存以及内核内存的函数
 */
-__attribute__((always_inline)) inline int64_t verify_area(uint8_t* addr, uint64_t size)
+int64_t verify_area(uint8_t* addr, uint64_t size)
 {
 	if(((uint64_t)addr + size) <= (uint64_t)0x00007fffffffffff)
 	{
@@ -341,7 +326,7 @@ __attribute__((always_inline)) inline int64_t verify_area(uint8_t* addr, uint64_
     }
 	return 0;
 }
-__attribute__((always_inline)) inline int64_t copy_from_user(void* from, void* to, uint64_t size)
+int64_t copy_from_user(void* from, void* to, uint64_t size)
 {
 	uint64_t d0,d1;
 	if(!verify_area((uint8_t*)from, size))
@@ -361,7 +346,7 @@ __attribute__((always_inline)) inline int64_t copy_from_user(void* from, void* t
 	);
 	return size;
 }
-__attribute__((always_inline)) inline int64_t copy_to_user(void* from, void* to, uint64_t size)
+int64_t copy_to_user(void* from, void* to, uint64_t size)
 {
 	uint64_t d0,d1;
 	if(!verify_area((uint8_t*)to, size))
@@ -382,7 +367,7 @@ __attribute__((always_inline)) inline int64_t copy_to_user(void* from, void* to,
 	return size;
 }
 
-__attribute__((always_inline)) inline int64_t strncpy_from_user(void* from, void* to, uint64_t size)
+int64_t strncpy_from_user(void* from, void* to, uint64_t size)
 {
 	if(!verify_area((uint8_t*)from,size))
 	{
@@ -436,5 +421,44 @@ uint8_t * strcpy(char * Dest,char * Src)
         : "d"(port),"S"(buffer),"c"(nr) \
         : "memory"                      \
     )
+__attribute__((always_inline)) inline uint8_t min8(uint64_t addr)
+{
+    return *((volatile uint8_t *)addr);
+}
+
+__attribute__((always_inline)) inline uint16_t min16(uint64_t addr)
+{
+    return *((volatile uint16_t *)addr);
+}
+
+__attribute__((always_inline)) inline uint32_t min32(uint64_t addr)
+{
+    return *((volatile uint32_t *)addr);
+}
+
+__attribute__((always_inline)) inline uint64_t min64(uint64_t addr)
+{
+    return *((volatile uint64_t *)addr);
+}
+
+__attribute__((always_inline)) inline void mout8(uint64_t addr, uint8_t value)
+{
+    *((volatile uint8_t *)addr) = value;
+}
+
+__attribute__((always_inline)) inline void mout16(uint64_t addr, uint16_t value)
+{
+    *((volatile uint16_t *)addr) = value;
+}
+
+__attribute__((always_inline)) inline void mout32(uint64_t addr, uint32_t value)
+{
+    *((volatile uint32_t *)addr) = value;
+}
+
+__attribute__((always_inline)) inline void mout64(uint64_t addr, uint64_t value)
+{
+    *((volatile uint64_t *)addr) = value;
+}
 
 #endif

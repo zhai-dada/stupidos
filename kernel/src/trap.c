@@ -9,14 +9,14 @@
 
 void display_regs(struct stackregs *regs)
 {
-    color_printk(RED, BLACK, "CS:%#010x,SS:%#010x\nDS:%#010x,ES:%#010x\nRFLAGS:%#018lx\n", regs->cs, regs->ss, regs->ds, regs->es, regs->rflags);
-    color_printk(RED, BLACK, "RAX:%#018lx,RBX:%#018lx,RCX:%#018lx,RDX:%#018lx\nRSP:%#018lx,RBP:%#018lx,RIP:%#018lx\nRSI:%#018lx,RDI:%#018lx\n", regs->rax, regs->rbx, regs->rcx, regs->rdx, regs->rsp, regs->rbp, regs->rip, regs->rsi, regs->rdi);
-    color_printk(RED, BLACK, "R8 :%#018lx,R9 :%#018lx\nR10:%#018lx,R11:%#018lx\nR12:%#018lx,R13:%#018lx\nR14:%#018lx,R15:%#018lx\n", regs->r8, regs->r9, regs->r10, regs->r11, regs->r12, regs->r13, regs->r14, regs->r15);
+    color_printk(ORANGE, BLACK, "CS:%#010x,SS:%#010x\nDS:%#010x,ES:%#010x\nRFLAGS:%#018lx\n", regs->cs, regs->ss, regs->ds, regs->es, regs->rflags);
+    color_printk(ORANGE, BLACK, "RAX:%#018lx,RBX:%#018lx,RCX:%#018lx,RDX:%#018lx\nRSP:%#018lx,RBP:%#018lx,RIP:%#018lx\nRSI:%#018lx,RDI:%#018lx\n", regs->rax, regs->rbx, regs->rcx, regs->rdx, regs->rsp, regs->rbp, regs->rip, regs->rsi, regs->rdi);
+    color_printk(ORANGE, BLACK, "R8 :%#018lx,R9 :%#018lx\nR10:%#018lx,R11:%#018lx\nR12:%#018lx,R13:%#018lx\nR14:%#018lx,R15:%#018lx\n", regs->r8, regs->r9, regs->r10, regs->r11, regs->r12, regs->r13, regs->r14, regs->r15);
     backtrace(regs);
 }
 void do_divide_error(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_divide_error(0), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_divide_error(0), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -25,7 +25,7 @@ void do_divide_error(struct stackregs *reg, uint64_t error_code)
 }
 void do_debug(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_debug(1), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_debug(1), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -34,7 +34,7 @@ void do_debug(struct stackregs *reg, uint64_t error_code)
 }
 void do_nmi(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_nmi(2), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_nmi(2), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -43,7 +43,7 @@ void do_nmi(struct stackregs *reg, uint64_t error_code)
 }
 void do_int3(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_int3(3), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_int3(3), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -52,7 +52,7 @@ void do_int3(struct stackregs *reg, uint64_t error_code)
 }
 void do_overflow(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_overflow(4), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_overflow(4), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -61,7 +61,7 @@ void do_overflow(struct stackregs *reg, uint64_t error_code)
 }
 void do_bounds(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_bounds(5), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_bounds(5), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -70,7 +70,7 @@ void do_bounds(struct stackregs *reg, uint64_t error_code)
 }
 void do_undefined_opcode(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_undefined_opcode(6), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_undefined_opcode(6), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -79,7 +79,7 @@ void do_undefined_opcode(struct stackregs *reg, uint64_t error_code)
 }
 void do_dev_not_available(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_dev_not_available(7), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_dev_not_available(7), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -88,7 +88,7 @@ void do_dev_not_available(struct stackregs *reg, uint64_t error_code)
 }
 void do_double_fault(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_double_fault(8), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_double_fault(8), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -97,7 +97,7 @@ void do_double_fault(struct stackregs *reg, uint64_t error_code)
 }
 void do_coprocessor_segment_overrun(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_coprocessor_segment_overrun(9), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_coprocessor_segment_overrun(9), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -106,31 +106,31 @@ void do_coprocessor_segment_overrun(struct stackregs *reg, uint64_t error_code)
 }
 void do_invalid_TSS(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_invalid(10), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_invalid(10), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     if (error_code & 0x01)
     {
-        color_printk(RED, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
+        color_printk(ORANGE, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
     }
     if (error_code & 0x02)
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the IDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the IDT\n");
     }
     else
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
     }
     if ((error_code & 0x02) == 0)
     {
         if (error_code & 0x04)
         {
-            color_printk(RED, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
         }
         else
         {
-            color_printk(RED, BLACK, "Refers to a descriptor in the current GDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a descriptor in the current GDT\n");
         }
     }
-    color_printk(RED, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
+    color_printk(ORANGE, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
     display_regs(reg);
     while (1)
     {
@@ -139,31 +139,31 @@ void do_invalid_TSS(struct stackregs *reg, uint64_t error_code)
 }
 void do_segment_not_present(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_segment_not_present(11), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_segment_not_present(11), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     if (error_code & 0x01)
     {
-        color_printk(RED, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
+        color_printk(ORANGE, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
     }
     if (error_code & 0x02)
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the IDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the IDT\n");
     }
     else
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
     }
     if ((error_code & 0x02) == 0)
     {
         if (error_code & 0x04)
         {
-            color_printk(RED, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
         }
         else
         {
-            color_printk(RED, BLACK, "Refers to a descriptor in the current GDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a descriptor in the current GDT\n");
         }
     }
-    color_printk(RED, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
+    color_printk(ORANGE, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
     display_regs(reg);
     while (1)
     {
@@ -172,31 +172,31 @@ void do_segment_not_present(struct stackregs *reg, uint64_t error_code)
 }
 void do_stack_segment_fault(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_stack_segment_fault(12), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_stack_segment_fault(12), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     if (error_code & 0x01)
     {
-        color_printk(RED, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
+        color_printk(ORANGE, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
     }
     if (error_code & 0x02)
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the IDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the IDT\n");
     }
     else
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
     }
     if ((error_code & 0x02) == 0)
     {
         if (error_code & 0x04)
         {
-            color_printk(RED, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
         }
         else
         {
-            color_printk(RED, BLACK, "Refers to a descriptor in the current GDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a descriptor in the current GDT\n");
         }
     }
-    color_printk(RED, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
+    color_printk(ORANGE, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
     display_regs(reg);
     while (1)
     {
@@ -205,31 +205,31 @@ void do_stack_segment_fault(struct stackregs *reg, uint64_t error_code)
 }
 void do_general_protection(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_general_protection(13), ERR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx, RDX:%#018lx\n", error_code, reg->rsp, reg->rip, reg->rdx);
+    color_printk(ORANGE, BLACK, "do_general_protection(13), ERR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx, RDX:%#018lx\n", error_code, reg->rsp, reg->rip, reg->rdx);
     if (error_code & 0x01)
     {
-        color_printk(RED, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
+        color_printk(ORANGE, BLACK, "The exception occurred during delivery of an event external to the program, such as an interrupt or an earlier exception\n");
     }
     if (error_code & 0x02)
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the IDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the IDT\n");
     }
     else
     {
-        color_printk(RED, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
+        color_printk(ORANGE, BLACK, "Refers to a gate descriptor in the GDT or the current LDT\n");
     }
     if ((error_code & 0x02) == 0)
     {
         if (error_code & 0x04)
         {
-            color_printk(RED, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a segment or gate descriptor in the LDT\n");
         }
         else
         {
-            color_printk(RED, BLACK, "Refers to a descriptor in the current GDT\n");
+            color_printk(ORANGE, BLACK, "Refers to a descriptor in the current GDT\n");
         }
     }
-    color_printk(RED, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
+    color_printk(ORANGE, BLACK, "Segment Selector Index:%#010x\n", error_code & 0xfff8);
     display_regs(reg);
     while (1)
     {
@@ -246,41 +246,41 @@ void do_page_fault(struct stackregs *reg, uint64_t error_code)
         :
         :
     );
-    color_printk(RED, BLACK, "do_page_fault(14), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_page_fault(14), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     if (error_code & 0x01)
     {
-        color_printk(RED, BLACK, "Page Not-Present,\t");
+        color_printk(ORANGE, BLACK, "Page Not-Present,\t");
     }
     else
     {
-        color_printk(RED, BLACK, "Page-level protection throws an exception,\t");
+        color_printk(ORANGE, BLACK, "Page-level protection throws an exception,\t");
     }
     if (error_code & 0x02)
     {
-        color_printk(RED, BLACK, "Write Cause Fault,\t");
+        color_printk(ORANGE, BLACK, "Write Cause Fault,\t");
     }
     else
     {
-        color_printk(RED, BLACK, "Read Cause Fault,\t");
+        color_printk(ORANGE, BLACK, "Read Cause Fault,\t");
     }
     if (error_code & 0x04)
     {
-        color_printk(RED, BLACK, "Fault in user(3)\t");
+        color_printk(ORANGE, BLACK, "Fault in user(3)\t");
     }
     else
     {
-        color_printk(RED, BLACK, "Fault in supervisor(0,1,2)\t");
+        color_printk(ORANGE, BLACK, "Fault in supervisor(0,1,2)\t");
     }
     if (error_code & 0x08)
     {
-        color_printk(RED, BLACK, "Reserved Bit Cause Fault\t");
+        color_printk(ORANGE, BLACK, "Reserved Bit Cause Fault\t");
     }
     if (error_code & 0x10)
     {
-        color_printk(RED, BLACK, "Instruction fetch Cause Fault");
+        color_printk(ORANGE, BLACK, "Instruction fetch Cause Fault");
     }
-    color_printk(RED, BLACK, "\n");
-    color_printk(RED, BLACK, "CR2:%#018lx CPU:%d\n", cr2, smp_cpu_id());
+    color_printk(ORANGE, BLACK, "\n");
+    color_printk(ORANGE, BLACK, "CR2:%#018lx CPU:%d\n", cr2, smp_cpu_id());
     display_regs(reg);
     while (1)
     {
@@ -289,7 +289,7 @@ void do_page_fault(struct stackregs *reg, uint64_t error_code)
 }
 void do_x87_FPU_error(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_x87_FPU_error(16), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_x87_FPU_error(16), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -298,7 +298,7 @@ void do_x87_FPU_error(struct stackregs *reg, uint64_t error_code)
 }
 void do_alignment_check(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_alignment_check(17), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_alignment_check(17), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -307,7 +307,7 @@ void do_alignment_check(struct stackregs *reg, uint64_t error_code)
 }
 void do_machine_check(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_machine_check(18), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_machine_check(18), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -316,7 +316,7 @@ void do_machine_check(struct stackregs *reg, uint64_t error_code)
 }
 void do_SIMD_exception(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_SIMD_exception(19), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_SIMD_exception(19), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {
@@ -325,7 +325,7 @@ void do_SIMD_exception(struct stackregs *reg, uint64_t error_code)
 }
 void do_virtualization_exception(struct stackregs *reg, uint64_t error_code)
 {
-    color_printk(RED, BLACK, "do_virtualization_exception(20), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
+    color_printk(ORANGE, BLACK, "do_virtualization_exception(20), ERROR_CODE:%#018lx, RSP:%#018lx, RIP:%#018lx\n", error_code, reg->rsp, reg->rip);
     display_regs(reg);
     while (1)
     {

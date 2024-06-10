@@ -3,7 +3,6 @@
 #include <memory.h>
 #include <uefi.h>
 #include <font.h>
-#include <hzk16.h>
 
 struct position pos;
 int8_t buf[4096] = {0};
@@ -33,7 +32,7 @@ void vbe_buffer_init()
 	uint64_t *virtual = NULL;
 	uint64_t phy = 0;
 	uint32_t *FB_addr = (uint32_t *)P_TO_V(boot_info->graphicsinf.bufferbase);
-
+	
 	cr3 = get_gdt();
 	tmp = (uint64_t *)(((uint64_t)P_TO_V((uint64_t)cr3 & (~0xfffUL))) + (((uint64_t)FB_addr >> PAGE_GDT_SHIFT) & 0x1ff) * 8);
 	if (*tmp == 0)
@@ -69,26 +68,6 @@ int32_t skip_atoi(const int8_t **s)
 		i = i * 10 + *((*s)++) - '0';
 	}
 	return i;
-}
-void putword(uint32_t *fb, int32_t x_size, int32_t x, int32_t y, uint32_t FRcolor, uint32_t BKcolor, uint16_t font)
-{
-	uint32_t *addr = NULL;
-	uint8_t section = (font & 0xff) - 0xa0 - 1;
-	uint8_t offset = (font >> 8) - 0xa0 - 1;
-	uint8_t *base = &hzk16[(section * 94 + offset) * 32];
-	int i = 0;
-	int j = 0;
-	for (i = 0; i < 16; i++)
-	{
-		addr = fb + x_size * (y + i) + x;
-		uint16_t val = (base[i * 2] << 8) | base[i * 2 + 1];
-		for (j = 0; j < 16; j++)
-		{
-			val & (0x8000 >> j) ? (*addr = FRcolor) : (*addr = BKcolor);
-			addr++;
-		}
-	}
-	return;
 }
 
 void putchar(uint32_t *fb, int32_t x_size, int32_t x, int32_t y, uint32_t FRcolor, uint32_t BKcolor, uint8_t font)
@@ -405,18 +384,8 @@ int32_t color_printk(uint32_t FRcolor, uint32_t BKcolor, const int8_t *fmt, ...)
 		}
 		else
 		{
-			if (is_gb2312(*(uint8_t *)(buf + count)))
-			{
-				uint16_t gb2312 = *(uint16_t *)(buf + count);
-				putword(pos.FB_addr, pos.x_resolution, pos.x_position * pos.x_charsize, pos.y_position * pos.y_charsize, FRcolor, BKcolor, gb2312);
-				count++; // 跳过下一个字节，因为 GB2312 中文字符占两个字节
-				pos.x_position++;
-			}
-			else
-			{
-				uint8_t font = (uint8_t)*(buf + count);
-				putchar(pos.FB_addr, pos.x_resolution, pos.x_position * pos.x_charsize, pos.y_position * pos.y_charsize, FRcolor, BKcolor, font);
-			}
+			uint8_t font = (uint8_t)*(buf + count);
+			putchar(pos.FB_addr, pos.x_resolution, pos.x_position * pos.x_charsize, pos.y_position * pos.y_charsize, FRcolor, BKcolor, font);
 			pos.x_position++;
 		}
 
@@ -443,12 +412,14 @@ void roll_screen(void)
 	int32_t count = (int32_t)(res - i);
 	int8_t *all = (int8_t *)pos.FB_addr + pos.FB_length;
 	int8_t black = 0x00;
-	asm volatile(
+	asm volatile
+	(
 		"cld 		\n"
 		"rep movsb 	\n"
 		:
 		: "D"(i), "S"(j), "c"(count)
-		: "memory");
+		: "memory"
+	);
 	io_mfence();
 	for (j = res; j < all; j++)
 	{

@@ -1,5 +1,5 @@
-CFLAGS 			:=	-mcmodel=large -fno-builtin -fno-stack-protector -fno-common -fno-pie -m64 -fno-PIC -I./include/ -c
-OBJFLAGS 		:=	-I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary
+CFLAGS 			:=	-mcmodel=large -fno-builtin -fno-stack-protector -fno-pie -fno-pic -fno-common -std=gnu99 -nostartfiles -Wno-address-of-packed-member -m64 -I./include/ -c -O0
+OBJFLAGS 		:=	-I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -R ".note" -O binary
 LDFLAGS 		:=	-b elf64-x86-64 -z muldefs -z noexecstack
 
 CC 				:= 	gcc

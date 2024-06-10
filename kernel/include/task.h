@@ -153,8 +153,7 @@ extern struct thread_struct init_thread;
     .reserved3 = 0,             \
     .iomapbaseaddr = 0          \
 }
-
-struct task_struct* get_current()
+__attribute__((always_inline)) inline struct task_struct* get_current()
 {
     struct task_struct* current = NULL;
     asm volatile
@@ -166,7 +165,6 @@ struct task_struct* get_current()
     );
     return current;
 }
-
 #define current get_current()
 
 #define switch_to(prev, next)                   \
