@@ -266,10 +266,10 @@ void send_packet(eth_t *eth, uint16_t len)
     tx_desc_t *tx = &e1000->tx_desc[e1000->tx_cur];
     while (tx->status == 0)
     {
-        e1000->tx_waiter = running_task();
+        e1000->tx_waiter = current;
     }
 
-    memcpy((void *)(uint32_t)tx->addr, eth, len);
+    memcpy((void *)tx->addr, eth, len);
 
     tx->length = len;
     tx->cmd = TCMD_EOP | TCMD_RS | TCMD_RPS | TCMD_IFCS;
@@ -279,7 +279,7 @@ void send_packet(eth_t *eth, uint16_t len)
 
     color_printk
     (
-        YELLOW, BLACK, "ETH S [0x%04X]: %lx -> %lx, %d\n",
+        YELLOW, BLACK, "ETH S [0x%04x]: %m -> %m %d\n",
         ntohs(eth->type),
         eth->src,
         eth->dst,
@@ -293,7 +293,7 @@ void test_e1000_send_packet()
     e1000_t *e1000 = &obj;
     eth_t *eth = (eth_t *)kmalloc(4096, 0);
     memcpy(eth->src, e1000->mac, 6);
-    memcpy(eth->dst, "\xff\xff\xff\xff\xff\xff", 6);
+    memcpy(eth->dst, "\x55\xaa\x55\xaa\x55\xff", 6);
     eth->type = 0x0090; // LOOP 0x9000
 
     uint32_t len = 1500;
@@ -303,7 +303,7 @@ void test_e1000_send_packet()
 }
 
 // 中断处理函数
-static void e1000_handler(uint32_t vector)
+static void e1000_handler()
 {
     e1000_t *e1000 = &obj;
 
@@ -316,7 +316,6 @@ static void e1000_handler(uint32_t vector)
         color_printk(YELLOW, BLACK, "e1000 TXDW...\n");
         if (e1000->tx_waiter)
         {
-            task_unblock(e1000->tx_waiter, EOK);
             e1000->tx_waiter = NULL;
         }
     }
@@ -360,7 +359,7 @@ static void e1000_handler(uint32_t vector)
         color_printk(YELLOW, BLACK, "e1000 status unhandled %d\n", status);
     }
 
-    // send_eoi(vector);
+    EOI();
 }
 
 // 检测只读存储器
@@ -371,10 +370,15 @@ static void e1000_eeprom_detect(e1000_t *e1000)
     {
         uint32_t val = min32(e1000->membase + E1000_EERD);
         if (val & 0x10)
+        {
             e1000->eeprom = 1;
+        }
         else
+        {
             e1000->eeprom = 0;
+        }
     }
+    return;
 }
 
 // 读取只读存储器
@@ -439,8 +443,9 @@ static void e1000_reset(e1000_t *e1000)
 
     // 初始化组播表数组
     for (uint32_t i = E1000_MAT0; i < E1000_MAT1; i += 4)
+    {
         mout32(e1000->membase + i, 0);
-
+    }
     // 禁用中断
     mout32(e1000->membase + E1000_IMS, 0);
 
@@ -455,7 +460,7 @@ static void e1000_reset(e1000_t *e1000)
     mout32(e1000->membase + E1000_RDT, RX_DESC_NR - 1);
 
     // 接收描述符地址
-    for (uint64_t i = 0; i < RX_DESC_NR; i++)
+    for (uint64_t i = 0; i < RX_DESC_NR; ++i)
     {
         e1000->rx_desc[i].addr = (uint64_t)kmalloc(4096, 0); // TODO: free
         e1000->rx_desc[i].status = 0;
@@ -479,7 +484,7 @@ static void e1000_reset(e1000_t *e1000)
     mout32(e1000->membase + E1000_TDT, 0);
 
     // 传输描述符基地址
-    for (uint64_t i = 0; i < TX_DESC_NR; i++)
+    for (uint64_t i = 0; i < TX_DESC_NR; ++i)
     {
         e1000->tx_desc[i].addr = (uint64_t)kmalloc(4096, 0); // TODO: free
         e1000->tx_desc[i].status = TS_DD;
@@ -506,10 +511,18 @@ static pci_device_t *find_e1000_device()
     device = pci_find_device(VENDORID, DEVICEID_E1000);
     return device;
 }
-
+irq_controller e1000_controller =
+{
+    .enable = ioapic_enable,
+    .disable = ioapic_disable,
+    .install = ioapic_install,
+    .uninstall = ioapic_uninstall,
+    .ack = ioapic_edge_ack,
+};
 // 初始化 e1000
 void e1000_init()
 {
+    struct IOAPIC_RET_ENTRY entry;
     pci_device_t *device = find_e1000_device();
     if (!device)
     {
@@ -530,12 +543,19 @@ void e1000_init()
     e1000_reset(e1000);
 
     uint32_t intr = pci_interrupt(device);
-
-    color_printk(YELLOW, BLACK, "e1000 irq 0x%X...\n", intr);
-    // 设置中断处理函数
-    // set_interrupt_handler(intr, e1000_handler);
-    // set_interrupt_mask(intr, 1);
-    // if (intr >= 8)
-    //     set_interrupt_mask(IRQ_CASCADE, 1);
+    entry.vector_num = intr;
+    entry.deliver_mode = IOAPIC_FIXED;
+    entry.deliver_status = IOAPIC_DELI_STATUS_IDLE;
+    entry.dest_mode = IOAPIC_DEST_MODE_PHYSICAL;
+    entry.polarity = IOAPIC_POLARITY_HIGH;
+    entry.mask = IOAPIC_MASK_MASKED;
+    entry.irr = IOAPIC_IRR_RESET;
+    entry.trigger = IOAPIC_TRIGGER_EDGE;
+    entry.reserved = 0;
+    entry.destination.physical.reserved1 = 0;
+    entry.destination.physical.reserved2 = 0;
+    entry.destination.physical.phy_dest = 0;
+    register_irq(intr, &entry, &e1000_handler, NULL, &e1000_controller, "e1000 eth");
+    test_e1000_send_packet();
     return;
 }

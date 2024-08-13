@@ -81,8 +81,9 @@ void smp_init()
         {
             color_printk(RED, BLACK, "kmalloc NULL\n");
         }
-        ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = global_i;
-        _stack_start_ = (uint64_t)ptr;
+        _stack_start_ = ptr + STACK_SIZE;
+        ((struct task_struct *)(ptr))->cpu_id = global_i;
+
         memset(&init_tss[global_i], 0, sizeof(struct tss_struct));
         init_tss[global_i].rsp0 = (uint64_t)ptr;
         init_tss[global_i].rsp1 = (uint64_t)ptr;

@@ -155,11 +155,7 @@ __PDE:
 	.quad	0x2a00083
 	.quad	0x2c00083
 	.quad	0x2e00083
-	.quad	0x3000083
-	.quad	0x3200083
-	.quad	0x3400083
-	.quad	0x3600083
-	.fill	484,8,0
+	.fill	488,8,0
 
 /**
 * 数据段

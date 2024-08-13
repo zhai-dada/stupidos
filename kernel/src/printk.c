@@ -315,7 +315,34 @@ int32_t vsprintf(int8_t *buf, const int8_t *fmt, va_list args)
 				*ip = (str - buf);
 			}
 			break;
-
+        case 'b': // binary
+            uint32_t num = va_arg(args, unsigned long);
+            str = number(str, num, 2, field_width, precision, flags);
+            break;
+        case 'm': // mac address
+            flags |= SMALL | ZEROPAD;
+            uint8_t* ptr = va_arg(args, uint8_t *);
+            for (uint32_t t = 0; t < 6; t++, ptr++)
+            {
+                int num = *ptr;
+                str = number(str, num, 16, 2, precision, flags);
+                *str = ':';
+                str++;
+            }
+            str--;
+            break;
+        case 'r': // ip address
+            flags |= SMALL;
+            ptr = va_arg(args, uint8_t *);
+            for (uint32_t t = 0; t < 4; t++, ptr++)
+            {
+                uint32_t num = *ptr;
+                str = number(str, num, 10, field_width, precision, flags);
+                *str = '.';
+                str++;
+            }
+            str--;
+            break;
 		case '%':
 
 			*str++ = '%';

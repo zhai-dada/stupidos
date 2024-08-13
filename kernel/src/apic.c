@@ -108,13 +108,12 @@ void local_apic_init()
 }
 void apic_ioapic_init()
 {
-    int i = 0;
     uint32_t x = 0;
     uint16_t* p = NULL;
     io_out8(0x21, 0xff);
     io_out8(0xa1, 0xff);
     ioapic_page_table_remap();
-    for(i = 0x20; i <= 0x37; i++)
+    for(uint32_t i = 0x20; i <= 0x37; ++i)
     {
         set_intr_gate(i, 0, interrupt[i - 0x20]);
     }
@@ -187,7 +186,7 @@ void ioapic_rte_write(uint8_t index, uint64_t value)
 void ioapic_init()
 {
     uint64_t test = 0;
-    int i = 0;
+    uint32_t i = 0;
     *ioapic_map.virtual_index_address = 0x00;
     io_mfence();
     *ioapic_map.virtual_data_address = 0x0f000000;
@@ -268,7 +267,7 @@ void do_irq(struct stackregs* regs, uint64_t nr)
         }
         default:
         {
-            color_printk(RED, BLACK, "INT:%d\n", nr);
+            color_printk(RED, BLACK, "uint32_t:%d\n", nr);
             break;
         }
     }
