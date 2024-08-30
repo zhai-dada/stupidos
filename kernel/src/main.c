@@ -19,17 +19,22 @@ void kernel(void)
     set_tss64((uint32_t *)&init_tss[0], _stack_start_, _stack_start_, _stack_start_, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00);
     sys_vector_init();
     init_memory();
-    // get_cpuinfo();
+    get_cpuinfo();
     kmem_init();
-    ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
-    ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = 0;
-    init_tss[0].ist1 = (uint64_t)ptr;
-    init_tss[0].ist2 = (uint64_t)ptr;
-    init_tss[0].ist3 = (uint64_t)ptr;
-    init_tss[0].ist4 = (uint64_t)ptr;
-    init_tss[0].ist5 = (uint64_t)ptr;
-    init_tss[0].ist6 = (uint64_t)ptr;
-    init_tss[0].ist7 = (uint64_t)ptr;
+
+    for(i = 0; i < 8; ++i)
+    {
+        ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
+        ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = i;
+        init_tss[i].ist1 = (uint64_t)ptr;
+        init_tss[i].ist2 = (uint64_t)ptr;
+        init_tss[i].ist3 = (uint64_t)ptr;
+        init_tss[i].ist4 = (uint64_t)ptr;
+        init_tss[i].ist5 = (uint64_t)ptr;
+        init_tss[i].ist6 = (uint64_t)ptr;
+        init_tss[i].ist7 = (uint64_t)ptr;
+    }
+
     vbe_buffer_init();
     pagetable_init();
     local_apic_init();
@@ -44,6 +49,10 @@ void kernel(void)
     keyboard_init();
     pci_init();
     task_init();
+
+    set_tss64((uint32_t *)&init_tss[0], init_tss[0].rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2, init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);
+
+
     e1000_init();
     sti();
     while (1)

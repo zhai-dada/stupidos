@@ -564,6 +564,7 @@ uint64_t init(uint64_t arg)
 }
 void task_init(void)
 {
+    // color_printk(YELLOW, BLACK, "cpu id:%d into task\n", current->cpu_id);
     uint64_t *tmp = NULL;
     uint64_t *vaddr = NULL;
     uint64_t *virtual = NULL;

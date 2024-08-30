@@ -35,7 +35,9 @@ void schedule()
 
             }
         }
+        barrier();
         switch_mm(current, task);
+        barrier();
         switch_to(current, task);
     }
     else

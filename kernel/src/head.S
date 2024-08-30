@@ -113,11 +113,10 @@ go_to_kernel:
 ignore_int:
 	iretq
 
-ENTRY(_stack_start_)
-	.quad init_task_stack + 65536
 /*
 * 内存分页
 */
+
 .align 8
 .org	0x1000
 __PML4E:
@@ -157,10 +156,14 @@ __PDE:
 	.quad	0x2e00083
 	.fill	488,8,0
 
+
 /**
 * 数据段
 */
 .section .data
+
+ENTRY(_stack_start_)
+	.quad init_task_stack + 65536
 /*
 * GDT TABLE 全局描述符表 是写死的，因为sysexit以及syscall需要按照一定的计算方式寻找描述符
 */
