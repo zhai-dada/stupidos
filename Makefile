@@ -14,10 +14,11 @@ qemu:
 	sudo cp $(current_dir)/build/kernel/kernel.bin $(current_dir)/tmp
 	sudo cp $(current_dir)/build/user/init.bin $(current_dir)/tmp
 	sudo cp $(current_dir)/build/test/test.bin $(current_dir)/tmp
+	sudo touch $(current_dir)/tmp/keyboard.dev
 	sudo umount ./tmp
 	sudo losetup -D
 	sudo sync
-	sudo qemu-system-x86_64 -bios OVMF.fd -hda disk.img -cpu host -enable-kvm -m 4096 -smp 4 -netdev tap,id=mytap,ifname=tap0,script=no,downscript=no -device e1000,netdev=mytap,mac=12:34:56:78:55:aa -display vnc=:0 -vga virtio -monitor stdio
+	qemu-system-x86_64 -bios OVMF.fd -hda disk.img -cpu host -enable-kvm -m 4096 -smp 4 -device e1000,mac=12:34:56:78:55:aa -display vnc=:0 -vga virtio -monitor stdio
 clean:
 	rm -rf ./build
 
