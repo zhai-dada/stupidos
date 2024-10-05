@@ -16,7 +16,7 @@ qemu:
 	sudo cp $(current_dir)/build/test/test.bin $(current_dir)/tmp
 	sudo touch $(current_dir)/tmp/keyboard.dev
 	sudo umount ./tmp
-	sudo losetup -D
+	sudo losetup -D $(current_dir)/disk.img
 	sudo sync
 	qemu-system-x86_64 -bios OVMF.fd -hda disk.img -cpu host -enable-kvm -m 4096 -smp 4 -device e1000,mac=12:34:56:78:55:aa -display vnc=:0 -vga virtio -monitor stdio
 clean:
