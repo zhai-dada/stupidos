@@ -11,26 +11,16 @@ ENTRY(_start)
 	mov	%ax, %es
 	mov	%ax, %fs
 	mov	%ax, %ss
-	mov	$0x7E00, %esp
+	mov	$0x7E00, %rsp
 	movq $0x101000, %rax
 	movq %rax, %cr3
 
-//=======	load GDTR
 	lgdt	gdt_pointer(%rip)
-//=======	load	IDTR
 	lidt	idt_pointer(%rip)
 
-	mov	$0x10, %ax
-	mov	%ax, %ds
-	mov	%ax, %es
-	mov	%ax, %fs
-	mov	%ax, %gs
-	mov	%ax, %ss
 
 	movq _stack_start_(%rip), %rsp
-//===========load cr3
-    movq $0x101000, %rax
-    movq %rax, %cr3
+
     movq switch_seg(%rip), %rax
     pushq $0x08
     pushq %rax

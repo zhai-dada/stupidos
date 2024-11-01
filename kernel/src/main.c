@@ -11,7 +11,7 @@ void kernel(void)
     mem_structure.end_rodata = (uint64_t)&_erodata;
 
     global_pid = 1;
-    
+
     int32_t i = 0;
     uint8_t *ptr = NULL;
     init_printk();
@@ -22,7 +22,7 @@ void kernel(void)
     get_cpuinfo();
     kmem_init();
 
-    for(i = 0; i < 8; ++i)
+    for (i = 0; i < 8; ++i)
     {
         ptr = (uint8_t *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
         ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = i;
@@ -48,16 +48,21 @@ void kernel(void)
     smp_init();
     keyboard_init();
     pci_init();
+    serial_init();
     task_init();
 
     set_tss64((uint32_t *)&init_tss[0], init_tss[0].rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2, init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);
 
-
     e1000_init();
     sti();
+    char test;
     while (1)
     {
-        hlt();
+        if(serial_recv(&test) == 0)
+        {
+            serial_send(test);
+        }
+        // hlt();
     }
     return;
 }

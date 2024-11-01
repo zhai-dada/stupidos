@@ -23,6 +23,7 @@
 #include <interrupt.h>
 #include <pci/pci.h>
 #include <e1000.h>
+#include <serial.h>
 
 extern int8_t _text, _etext;
 extern int8_t _data, _edata;

@@ -442,9 +442,9 @@ void roll_screen(void)
 	asm volatile
 	(
 		"cld 		\n"
-		"rep movsb 	\n"
+		"rep movsq 	\n"
 		:
-		: "D"(i), "S"(j), "c"(count)
+		: "D"(i), "S"(j), "c"(count / 8)
 		: "memory"
 	);
 	io_mfence();
@@ -455,3 +455,11 @@ void roll_screen(void)
 	io_mfence();
 	return;
 }
+// void roll_screen(void)
+// {
+// 	memcpy(pos.FB_addr, pos.FB_addr + pos.x_resolution * pos.y_charsize * 4, pos.x_resolution * (pos.y_resolution - 1));
+// 	io_mfence();
+// 	memset(pos.x_resolution * (pos.y_resolution - 1) * 4 + pos.FB_addr, 0, pos.x_resolution * 1);
+// 	io_mfence();
+// 	return;
+// }
