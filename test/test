@@ -5,7 +5,7 @@
 Disassembly of section .text:
 
 0000000000800000 <main>:
-  800000:	f3 0f 1e fa          	endbr64 
+  800000:	f3 0f 1e fa          	endbr64
   800004:	55                   	push   %rbp
   800005:	48 89 e5             	mov    %rsp,%rbp
   800008:	48 b8 a0 15 80 00 00 	movabs $0x8015a0,%rax
@@ -21,7 +21,7 @@ Disassembly of section .text:
   800035:	ff d0                	call   *%rax
   800037:	b8 00 00 00 00       	mov    $0x0,%eax
   80003c:	5d                   	pop    %rbp
-  80003d:	c3                   	ret    
+  80003d:	c3                   	ret
 
 000000000080003e <putstring>:
   80003e:	48 c7 c0 01 00 00 00 	mov    $0x1,%rax
@@ -80,7 +80,7 @@ Disassembly of section .text:
   8000b5:	41 53                	push   %r11
   8000b7:	4c 8d 15 05 00 00 00 	lea    0x5(%rip),%r10        # 8000c3 <sysexit_return_address>
   8000be:	49 89 e3             	mov    %rsp,%r11
-  8000c1:	0f 34                	sysenter 
+  8000c1:	0f 34                	sysenter
 
 00000000008000c3 <sysexit_return_address>:
   8000c3:	49 87 d2             	xchg   %rdx,%r10
@@ -93,10 +93,10 @@ Disassembly of section .text:
   8000dc:	48 83 c8 ff          	or     $0xffffffffffffffff,%rax
 
 00000000008000e0 <SYSCALL_RET>:
-  8000e0:	c3                   	ret    
+  8000e0:	c3                   	ret
 
 00000000008000e1 <malloc>:
-  8000e1:	f3 0f 1e fa          	endbr64 
+  8000e1:	f3 0f 1e fa          	endbr64
   8000e5:	55                   	push   %rbp
   8000e6:	48 89 e5             	mov    %rsp,%rbp
   8000e9:	48 83 ec 20          	sub    $0x20,%rsp
@@ -167,20 +167,20 @@ Disassembly of section .text:
   8001f6:	00 00 00 
   8001f9:	48 89 10             	mov    %rdx,(%rax)
   8001fc:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
-  800200:	c9                   	leave  
-  800201:	c3                   	ret    
+  800200:	c9                   	leave
+  800201:	c3                   	ret
 
 0000000000800202 <free>:
-  800202:	f3 0f 1e fa          	endbr64 
+  800202:	f3 0f 1e fa          	endbr64
   800206:	55                   	push   %rbp
   800207:	48 89 e5             	mov    %rsp,%rbp
   80020a:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
   80020e:	90                   	nop
   80020f:	5d                   	pop    %rbp
-  800210:	c3                   	ret    
+  800210:	c3                   	ret
 
 0000000000800211 <skip_atoi>:
-  800211:	f3 0f 1e fa          	endbr64 
+  800211:	f3 0f 1e fa          	endbr64
   800215:	55                   	push   %rbp
   800216:	48 89 e5             	mov    %rsp,%rbp
   800219:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
@@ -214,10 +214,10 @@ Disassembly of section .text:
   80026e:	7e b6                	jle    800226 <skip_atoi+0x15>
   800270:	8b 45 fc             	mov    -0x4(%rbp),%eax
   800273:	5d                   	pop    %rbp
-  800274:	c3                   	ret    
+  800274:	c3                   	ret
 
 0000000000800275 <number>:
-  800275:	f3 0f 1e fa          	endbr64 
+  800275:	f3 0f 1e fa          	endbr64
   800279:	55                   	push   %rbp
   80027a:	48 89 e5             	mov    %rsp,%rbp
   80027d:	48 89 7d a8          	mov    %rdi,-0x58(%rbp)
@@ -295,7 +295,7 @@ Disassembly of section .text:
   80036a:	8b 45 ec             	mov    -0x14(%rbp),%eax
   80036d:	8d 50 01             	lea    0x1(%rax),%edx
   800370:	89 55 ec             	mov    %edx,-0x14(%rbp)
-  800373:	48 98                	cltq   
+  800373:	48 98                	cltq
   800375:	c6 44 05 b0 30       	movb   $0x30,-0x50(%rbp,%rax,1)
   80037a:	eb 3d                	jmp    8003b9 <number+0x144>
   80037c:	48 8b 45 a0          	mov    -0x60(%rbp),%rax
@@ -312,7 +312,7 @@ Disassembly of section .text:
   8003a3:	8d 50 01             	lea    0x1(%rax),%edx
   8003a6:	89 55 ec             	mov    %edx,-0x14(%rbp)
   8003a9:	0f b6 11             	movzbl (%rcx),%edx
-  8003ac:	48 98                	cltq   
+  8003ac:	48 98                	cltq
   8003ae:	88 54 05 b0          	mov    %dl,-0x50(%rbp,%rax,1)
   8003b2:	48 83 7d a0 00       	cmpq   $0x0,-0x60(%rbp)
   8003b7:	75 c3                	jne    80037c <number+0x107>
@@ -418,10 +418,10 @@ Disassembly of section .text:
   8004ea:	7f e4                	jg     8004d0 <number+0x25b>
   8004ec:	48 8b 45 a8          	mov    -0x58(%rbp),%rax
   8004f0:	5d                   	pop    %rbp
-  8004f1:	c3                   	ret    
+  8004f1:	c3                   	ret
 
 00000000008004f2 <vsprintf>:
-  8004f2:	f3 0f 1e fa          	endbr64 
+  8004f2:	f3 0f 1e fa          	endbr64
   8004f6:	55                   	push   %rbp
   8004f7:	48 89 e5             	mov    %rsp,%rbp
   8004fa:	48 83 ec 60          	sub    $0x60,%rsp
@@ -1117,11 +1117,11 @@ Disassembly of section .text:
   800de4:	c6 00 00             	movb   $0x0,(%rax)
   800de7:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
   800deb:	48 2b 45 b8          	sub    -0x48(%rbp),%rax
-  800def:	c9                   	leave  
-  800df0:	c3                   	ret    
+  800def:	c9                   	leave
+  800df0:	c3                   	ret
 
 0000000000800df1 <sprintf>:
-  800df1:	f3 0f 1e fa          	endbr64 
+  800df1:	f3 0f 1e fa          	endbr64
   800df5:	55                   	push   %rbp
   800df6:	48 89 e5             	mov    %rsp,%rbp
   800df9:	48 81 ec e0 00 00 00 	sub    $0xe0,%rsp
@@ -1161,11 +1161,11 @@ Disassembly of section .text:
   800eaa:	ff d0                	call   *%rax
   800eac:	89 85 4c ff ff ff    	mov    %eax,-0xb4(%rbp)
   800eb2:	8b 85 4c ff ff ff    	mov    -0xb4(%rbp),%eax
-  800eb8:	c9                   	leave  
-  800eb9:	c3                   	ret    
+  800eb8:	c9                   	leave
+  800eb9:	c3                   	ret
 
 0000000000800eba <printf>:
-  800eba:	f3 0f 1e fa          	endbr64 
+  800eba:	f3 0f 1e fa          	endbr64
   800ebe:	55                   	push   %rbp
   800ebf:	48 89 e5             	mov    %rsp,%rbp
   800ec2:	48 81 ec d0 04 00 00 	sub    $0x4d0,%rsp
@@ -1210,11 +1210,11 @@ Disassembly of section .text:
   800f8c:	00 00 00 
   800f8f:	ff d0                	call   *%rax
   800f91:	8b 85 4c ff ff ff    	mov    -0xb4(%rbp),%eax
-  800f97:	c9                   	leave  
-  800f98:	c3                   	ret    
+  800f97:	c9                   	leave
+  800f98:	c3                   	ret
 
 0000000000800f99 <memcpy>:
-  800f99:	f3 0f 1e fa          	endbr64 
+  800f99:	f3 0f 1e fa          	endbr64
   800f9d:	55                   	push   %rbp
   800f9e:	48 89 e5             	mov    %rsp,%rbp
   800fa1:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
@@ -1230,7 +1230,7 @@ Disassembly of section .text:
   800fc7:	48 8b 55 e0          	mov    -0x20(%rbp),%rdx
   800fcb:	48 8b 75 e8          	mov    -0x18(%rbp),%rsi
   800fcf:	48 89 d7             	mov    %rdx,%rdi
-  800fd2:	fc                   	cld    
+  800fd2:	fc                   	cld
   800fd3:	f3 48 a5             	rep movsq %ds:(%rsi),%es:(%rdi)
   800fd6:	a8 04                	test   $0x4,%al
   800fd8:	74 01                	je     800fdb <memcpy+0x42>
@@ -1247,10 +1247,10 @@ Disassembly of section .text:
   800fee:	89 55 f4             	mov    %edx,-0xc(%rbp)
   800ff1:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
   800ff5:	5d                   	pop    %rbp
-  800ff6:	c3                   	ret    
+  800ff6:	c3                   	ret
 
 0000000000800ff7 <memset>:
-  800ff7:	f3 0f 1e fa          	endbr64 
+  800ff7:	f3 0f 1e fa          	endbr64
   800ffb:	55                   	push   %rbp
   800ffc:	48 89 e5             	mov    %rsp,%rbp
   800fff:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
@@ -1272,7 +1272,7 @@ Disassembly of section .text:
   80103c:	48 8b 75 d8          	mov    -0x28(%rbp),%rsi
   801040:	48 8b 55 e8          	mov    -0x18(%rbp),%rdx
   801044:	48 89 d7             	mov    %rdx,%rdi
-  801047:	fc                   	cld    
+  801047:	fc                   	cld
   801048:	f3 48 ab             	rep stos %rax,%es:(%rdi)
   80104b:	40 f6 c6 04          	test   $0x4,%sil
   80104f:	74 01                	je     801052 <memset+0x5b>
@@ -1289,10 +1289,10 @@ Disassembly of section .text:
   801068:	89 45 f0             	mov    %eax,-0x10(%rbp)
   80106b:	90                   	nop
   80106c:	5d                   	pop    %rbp
-  80106d:	c3                   	ret    
+  80106d:	c3                   	ret
 
 000000000080106e <strncpy>:
-  80106e:	f3 0f 1e fa          	endbr64 
+  80106e:	f3 0f 1e fa          	endbr64
   801072:	55                   	push   %rbp
   801073:	48 89 e5             	mov    %rsp,%rbp
   801076:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
@@ -1303,7 +1303,7 @@ Disassembly of section .text:
   80108a:	48 8b 4d e8          	mov    -0x18(%rbp),%rcx
   80108e:	48 89 c6             	mov    %rax,%rsi
   801091:	48 89 d7             	mov    %rdx,%rdi
-  801094:	fc                   	cld    
+  801094:	fc                   	cld
   801095:	48 ff c9             	dec    %rcx
   801098:	78 08                	js     8010a2 <strncpy+0x34>
   80109a:	ac                   	lods   %ds:(%rsi),%al
@@ -1313,10 +1313,10 @@ Disassembly of section .text:
   8010a0:	f3 aa                	rep stos %al,%es:(%rdi)
   8010a2:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
   8010a6:	5d                   	pop    %rbp
-  8010a7:	c3                   	ret    
+  8010a7:	c3                   	ret
 
 00000000008010a8 <strlen>:
-  8010a8:	f3 0f 1e fa          	endbr64 
+  8010a8:	f3 0f 1e fa          	endbr64
   8010ac:	55                   	push   %rbp
   8010ad:	48 89 e5             	mov    %rsp,%rbp
   8010b0:	53                   	push   %rbx
@@ -1326,7 +1326,7 @@ Disassembly of section .text:
   8010be:	ba ff ff ff ff       	mov    $0xffffffff,%edx
   8010c3:	89 d1                	mov    %edx,%ecx
   8010c5:	48 89 f7             	mov    %rsi,%rdi
-  8010c8:	fc                   	cld    
+  8010c8:	fc                   	cld
   8010c9:	f2 ae                	repnz scas %es:(%rdi),%al
   8010cb:	f7 d1                	not    %ecx
   8010cd:	ff c9                	dec    %ecx
@@ -1334,11 +1334,11 @@ Disassembly of section .text:
   8010d1:	89 d3                	mov    %edx,%ebx
   8010d3:	89 d8                	mov    %ebx,%eax
   8010d5:	48 8b 5d f8          	mov    -0x8(%rbp),%rbx
-  8010d9:	c9                   	leave  
-  8010da:	c3                   	ret    
+  8010d9:	c9                   	leave
+  8010da:	c3                   	ret
 
 00000000008010db <strcmp>:
-  8010db:	f3 0f 1e fa          	endbr64 
+  8010db:	f3 0f 1e fa          	endbr64
   8010df:	55                   	push   %rbp
   8010e0:	48 89 e5             	mov    %rsp,%rbp
   8010e3:	53                   	push   %rbx
@@ -1348,7 +1348,7 @@ Disassembly of section .text:
   8010f0:	48 8b 55 e8          	mov    -0x18(%rbp),%rdx
   8010f4:	48 89 c7             	mov    %rax,%rdi
   8010f7:	48 89 d6             	mov    %rdx,%rsi
-  8010fa:	fc                   	cld    
+  8010fa:	fc                   	cld
   8010fb:	ac                   	lods   %ds:(%rsi),%al
   8010fc:	ae                   	scas   %es:(%rdi),%al
   8010fd:	75 08                	jne    801107 <strcmp+0x2c>
@@ -1362,11 +1362,11 @@ Disassembly of section .text:
   801110:	89 c3                	mov    %eax,%ebx
   801112:	89 d8                	mov    %ebx,%eax
   801114:	48 8b 5d f8          	mov    -0x8(%rbp),%rbx
-  801118:	c9                   	leave  
-  801119:	c3                   	ret    
+  801118:	c9                   	leave
+  801119:	c3                   	ret
 
 000000000080111a <strcpy>:
-  80111a:	f3 0f 1e fa          	endbr64 
+  80111a:	f3 0f 1e fa          	endbr64
   80111e:	55                   	push   %rbp
   80111f:	48 89 e5             	mov    %rsp,%rbp
   801122:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
@@ -1375,17 +1375,17 @@ Disassembly of section .text:
   80112e:	48 8b 4d f8          	mov    -0x8(%rbp),%rcx
   801132:	48 89 d6             	mov    %rdx,%rsi
   801135:	48 89 cf             	mov    %rcx,%rdi
-  801138:	fc                   	cld    
+  801138:	fc                   	cld
   801139:	ac                   	lods   %ds:(%rsi),%al
   80113a:	aa                   	stos   %al,%es:(%rdi)
   80113b:	84 c0                	test   %al,%al
   80113d:	75 fa                	jne    801139 <strcpy+0x1f>
   80113f:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
   801143:	5d                   	pop    %rbp
-  801144:	c3                   	ret    
+  801144:	c3                   	ret
 
 0000000000801145 <strcat>:
-  801145:	f3 0f 1e fa          	endbr64 
+  801145:	f3 0f 1e fa          	endbr64
   801149:	55                   	push   %rbp
   80114a:	48 89 e5             	mov    %rsp,%rbp
   80114d:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
@@ -1395,7 +1395,7 @@ Disassembly of section .text:
   80115d:	b8 00 00 00 00       	mov    $0x0,%eax
   801162:	b9 ff ff ff ff       	mov    $0xffffffff,%ecx
   801167:	48 89 d6             	mov    %rdx,%rsi
-  80116a:	fc                   	cld    
+  80116a:	fc                   	cld
   80116b:	f2 ae                	repnz scas %es:(%rdi),%al
   80116d:	48 ff cf             	dec    %rdi
   801170:	ac                   	lods   %ds:(%rsi),%al
@@ -1404,7 +1404,7 @@ Disassembly of section .text:
   801174:	75 fa                	jne    801170 <strcat+0x2b>
   801176:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
   80117a:	5d                   	pop    %rbp
-  80117b:	c3                   	ret    
+  80117b:	c3                   	ret
 
 Disassembly of section .data:
 
@@ -1437,7 +1437,7 @@ Disassembly of section .data:
   8011d9:	00 00                	add    %al,(%rax)
   8011db:	00 5e 00             	add    %bl,0x0(%rsi)
   8011de:	00 00                	add    %al,(%rax)
-  8011e0:	37                   	(bad)  
+  8011e0:	37                   	(bad)
   8011e1:	00 00                	add    %al,(%rax)
   8011e3:	00 26                	add    %ah,(%rsi)
   8011e5:	00 00                	add    %al,(%rax)
@@ -1663,8 +1663,9 @@ Disassembly of section .rodata:
 00000000008015a0 <_rodata>:
   8015a0:	74 65                	je     801607 <_rodata+0x67>
   8015a2:	73 74                	jae    801618 <_rodata+0x78>
-  8015a4:	2e 62                	cs (bad) 
-  8015a6:	69 6e 3a 48 65 6c 6c 	imul   $0x6c6c6548,0x3a(%rsi),%ebp
+  8015a4:	2e 62 69 6e 3a 48    	(bad)
+  8015aa:	65 6c                	gs insb (%dx),%es:(%rdi)
+  8015ac:	6c                   	insb   (%dx),%es:(%rdi)
   8015ad:	6f                   	outsl  %ds:(%rsi),(%dx)
   8015ae:	20 77 6f             	and    %dh,0x6f(%rdi)
   8015b1:	72 6c                	jb     80161f <_rodata+0x7f>
@@ -1673,7 +1674,7 @@ Disassembly of section .rodata:
   8015b8:	30 31                	xor    %dh,(%rcx)
   8015ba:	32 33                	xor    (%rbx),%dh
   8015bc:	34 35                	xor    $0x35,%al
-  8015be:	36 37                	ss (bad) 
+  8015be:	36 37                	ss (bad)
   8015c0:	38 39                	cmp    %bh,(%rcx)
   8015c2:	41                   	rex.B
   8015c3:	42                   	rex.X
@@ -1705,9 +1706,9 @@ Disassembly of section .rodata:
   8015e0:	30 31                	xor    %dh,(%rcx)
   8015e2:	32 33                	xor    (%rbx),%dh
   8015e4:	34 35                	xor    $0x35,%al
-  8015e6:	36 37                	ss (bad) 
+  8015e6:	36 37                	ss (bad)
   8015e8:	38 39                	cmp    %bh,(%rcx)
-  8015ea:	61                   	(bad)  
+  8015ea:	61                   	(bad)
   8015eb:	62 63 64 65 66       	(bad)
   8015f0:	67 68 69 6a 6b 6c    	addr32 push $0x6c6b6a69
   8015f6:	6d                   	insl   (%dx),%es:(%rdi)
@@ -1724,36 +1725,36 @@ Disassembly of section .rodata:
   80160d:	00 00                	add    %al,(%rax)
   80160f:	00 9c 05 80 00 00 00 	add    %bl,0x80(%rbp,%rax,1)
   801616:	00 00                	add    %al,(%rax)
-  801618:	9c                   	pushf  
+  801618:	9c                   	pushf
   801619:	05 80 00 00 00       	add    $0x80,%eax
   80161e:	00 00                	add    %al,(%rax)
   801620:	90                   	nop
   801621:	05 80 00 00 00       	add    $0x80,%eax
   801626:	00 00                	add    %al,(%rax)
-  801628:	9c                   	pushf  
+  801628:	9c                   	pushf
   801629:	05 80 00 00 00       	add    $0x80,%eax
   80162e:	00 00                	add    %al,(%rax)
-  801630:	9c                   	pushf  
+  801630:	9c                   	pushf
   801631:	05 80 00 00 00       	add    $0x80,%eax
   801636:	00 00                	add    %al,(%rax)
-  801638:	9c                   	pushf  
+  801638:	9c                   	pushf
   801639:	05 80 00 00 00       	add    $0x80,%eax
   80163e:	00 00                	add    %al,(%rax)
-  801640:	9c                   	pushf  
+  801640:	9c                   	pushf
   801641:	05 80 00 00 00       	add    $0x80,%eax
   801646:	00 00                	add    %al,(%rax)
-  801648:	9c                   	pushf  
+  801648:	9c                   	pushf
   801649:	05 80 00 00 00       	add    $0x80,%eax
   80164e:	00 00                	add    %al,(%rax)
-  801650:	9c                   	pushf  
+  801650:	9c                   	pushf
   801651:	05 80 00 00 00       	add    $0x80,%eax
   801656:	00 00                	add    %al,(%rax)
-  801658:	9c                   	pushf  
+  801658:	9c                   	pushf
   801659:	05 80 00 00 00       	add    $0x80,%eax
   80165e:	00 00                	add    %al,(%rax)
   801660:	84 05 80 00 00 00    	test   %al,0x80(%rip)        # 8016e6 <_rodata+0x146>
   801666:	00 00                	add    %al,(%rax)
-  801668:	9c                   	pushf  
+  801668:	9c                   	pushf
   801669:	05 80 00 00 00       	add    $0x80,%eax
   80166e:	00 00                	add    %al,(%rax)
   801670:	7e 05                	jle    801677 <_rodata+0xd7>
@@ -1761,7 +1762,7 @@ Disassembly of section .rodata:
   801675:	00 00                	add    %al,(%rax)
   801677:	00 9c 05 80 00 00 00 	add    %bl,0x80(%rbp,%rax,1)
   80167e:	00 00                	add    %al,(%rax)
-  801680:	9c                   	pushf  
+  801680:	9c                   	pushf
   801681:	05 80 00 00 00       	add    $0x80,%eax
   801686:	00 00                	add    %al,(%rax)
   801688:	96                   	xchg   %eax,%esi
@@ -1958,14 +1959,14 @@ Disassembly of section .eh_frame:
   80194b:	00 1c 00             	add    %bl,(%rax,%rax,1)
   80194e:	00 00                	add    %al,(%rax)
   801950:	b0 e6                	mov    $0xe6,%al
-  801952:	ff                   	(bad)  
-  801953:	ff                   	(bad)  
+  801952:	ff                   	(bad)
+  801953:	ff                   	(bad)
   801954:	3e 00 00             	ds add %al,(%rax)
   801957:	00 00                	add    %al,(%rax)
-  801959:	45 0e                	rex.RB (bad) 
+  801959:	45 0e                	rex.RB (bad)
   80195b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801961:	75 0c                	jne    80196f <_erodata+0x3f>
-  801963:	07                   	(bad)  
+  801963:	07                   	(bad)
   801964:	08 00                	or     %al,(%rax)
   801966:	00 00                	add    %al,(%rax)
   801968:	1c 00                	sbb    $0x0,%al
@@ -1973,11 +1974,11 @@ Disassembly of section .eh_frame:
   80196c:	3c 00                	cmp    $0x0,%al
   80196e:	00 00                	add    %al,(%rax)
   801970:	71 e7                	jno    801959 <_erodata+0x29>
-  801972:	ff                   	(bad)  
+  801972:	ff                   	(bad)
   801973:	ff 21                	jmp    *(%rcx)
   801975:	01 00                	add    %eax,(%rax)
   801977:	00 00                	add    %al,(%rax)
-  801979:	45 0e                	rex.RB (bad) 
+  801979:	45 0e                	rex.RB (bad)
   80197b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801981:	03 18                	add    (%rax),%ebx
   801983:	01 0c 07             	add    %ecx,(%rdi,%rax,1)
@@ -1987,11 +1988,11 @@ Disassembly of section .eh_frame:
   80198c:	5c                   	pop    %rsp
   80198d:	00 00                	add    %al,(%rax)
   80198f:	00 72 e8             	add    %dh,-0x18(%rdx)
-  801992:	ff                   	(bad)  
+  801992:	ff                   	(bad)
   801993:	ff 0f                	decl   (%rdi)
   801995:	00 00                	add    %al,(%rax)
   801997:	00 00                	add    %al,(%rax)
-  801999:	45 0e                	rex.RB (bad) 
+  801999:	45 0e                	rex.RB (bad)
   80199b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   8019a1:	46 0c 07             	rex.RX or $0x7,%al
   8019a4:	08 00                	or     %al,(%rax)
@@ -2000,31 +2001,31 @@ Disassembly of section .eh_frame:
   8019aa:	00 00                	add    %al,(%rax)
   8019ac:	7c 00                	jl     8019ae <_erodata+0x7e>
   8019ae:	00 00                	add    %al,(%rax)
-  8019b0:	61                   	(bad)  
+  8019b0:	61                   	(bad)
   8019b1:	e8 ff ff 64 00       	call   e519b5 <_ebss+0x64fe4d>
   8019b6:	00 00                	add    %al,(%rax)
   8019b8:	00 45 0e             	add    %al,0xe(%rbp)
   8019bb:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   8019c1:	02 5b 0c             	add    0xc(%rbx),%bl
-  8019c4:	07                   	(bad)  
+  8019c4:	07                   	(bad)
   8019c5:	08 00                	or     %al,(%rax)
   8019c7:	00 1c 00             	add    %bl,(%rax,%rax,1)
   8019ca:	00 00                	add    %al,(%rax)
-  8019cc:	9c                   	pushf  
+  8019cc:	9c                   	pushf
   8019cd:	00 00                	add    %al,(%rax)
   8019cf:	00 a5 e8 ff ff 7d    	add    %ah,0x7dffffe8(%rbp)
   8019d5:	02 00                	add    (%rax),%al
   8019d7:	00 00                	add    %al,(%rax)
-  8019d9:	45 0e                	rex.RB (bad) 
+  8019d9:	45 0e                	rex.RB (bad)
   8019db:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   8019e1:	03 74 02 0c          	add    0xc(%rdx,%rax,1),%esi
-  8019e5:	07                   	(bad)  
+  8019e5:	07                   	(bad)
   8019e6:	08 00                	or     %al,(%rax)
   8019e8:	1c 00                	sbb    $0x0,%al
   8019ea:	00 00                	add    %al,(%rax)
   8019ec:	bc 00 00 00 02       	mov    $0x2000000,%esp
   8019f1:	eb ff                	jmp    8019f2 <_erodata+0xc2>
-  8019f3:	ff                   	(bad)  
+  8019f3:	ff                   	(bad)
   8019f4:	ff 08                	decl   (%rax)
   8019f6:	00 00                	add    %al,(%rax)
   8019f8:	00 45 0e             	add    %al,0xe(%rbp)
@@ -2037,23 +2038,23 @@ Disassembly of section .eh_frame:
   801a0c:	dc 00                	faddl  (%rax)
   801a0e:	00 00                	add    %al,(%rax)
   801a10:	e1 f3                	loope  801a05 <_erodata+0xd5>
-  801a12:	ff                   	(bad)  
+  801a12:	ff                   	(bad)
   801a13:	ff c9                	dec    %ecx
   801a15:	00 00                	add    %al,(%rax)
   801a17:	00 00                	add    %al,(%rax)
-  801a19:	45 0e                	rex.RB (bad) 
+  801a19:	45 0e                	rex.RB (bad)
   801a1b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801a21:	02 c0                	add    %al,%al
   801a23:	0c 07                	or     $0x7,%al
   801a25:	08 00                	or     %al,(%rax)
   801a27:	00 1c 00             	add    %bl,(%rax,%rax,1)
   801a2a:	00 00                	add    %al,(%rax)
-  801a2c:	fc                   	cld    
+  801a2c:	fc                   	cld
   801a2d:	00 00                	add    %al,(%rax)
   801a2f:	00 8a f4 ff ff df    	add    %cl,-0x2000000c(%rdx)
   801a35:	00 00                	add    %al,(%rax)
   801a37:	00 00                	add    %al,(%rax)
-  801a39:	45 0e                	rex.RB (bad) 
+  801a39:	45 0e                	rex.RB (bad)
   801a3b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801a41:	02 d6                	add    %dh,%dl
   801a43:	0c 07                	or     $0x7,%al
@@ -2062,69 +2063,69 @@ Disassembly of section .eh_frame:
   801a4a:	00 00                	add    %al,(%rax)
   801a4c:	1c 01                	sbb    $0x1,%al
   801a4e:	00 00                	add    %al,(%rax)
-  801a50:	49 f5                	rex.WB cmc 
-  801a52:	ff                   	(bad)  
+  801a50:	49 f5                	rex.WB cmc
+  801a52:	ff                   	(bad)
   801a53:	ff 5e 00             	lcall  *0x0(%rsi)
   801a56:	00 00                	add    %al,(%rax)
   801a58:	00 45 0e             	add    %al,0xe(%rbp)
   801a5b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801a61:	02 55 0c             	add    0xc(%rbp),%dl
-  801a64:	07                   	(bad)  
+  801a64:	07                   	(bad)
   801a65:	08 00                	or     %al,(%rax)
   801a67:	00 1c 00             	add    %bl,(%rax,%rax,1)
   801a6a:	00 00                	add    %al,(%rax)
   801a6c:	3c 01                	cmp    $0x1,%al
   801a6e:	00 00                	add    %al,(%rax)
   801a70:	87 f5                	xchg   %esi,%ebp
-  801a72:	ff                   	(bad)  
+  801a72:	ff                   	(bad)
   801a73:	ff 77 00             	push   0x0(%rdi)
   801a76:	00 00                	add    %al,(%rax)
   801a78:	00 45 0e             	add    %al,0xe(%rbp)
   801a7b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801a81:	02 6e 0c             	add    0xc(%rsi),%ch
-  801a84:	07                   	(bad)  
+  801a84:	07                   	(bad)
   801a85:	08 00                	or     %al,(%rax)
   801a87:	00 1c 00             	add    %bl,(%rax,%rax,1)
   801a8a:	00 00                	add    %al,(%rax)
   801a8c:	5c                   	pop    %rsp
   801a8d:	01 00                	add    %eax,(%rax)
   801a8f:	00 de                	add    %bl,%dh
-  801a91:	f5                   	cmc    
-  801a92:	ff                   	(bad)  
-  801a93:	ff                   	(bad)  
+  801a91:	f5                   	cmc
+  801a92:	ff                   	(bad)
+  801a93:	ff                   	(bad)
   801a94:	3a 00                	cmp    (%rax),%al
   801a96:	00 00                	add    %al,(%rax)
   801a98:	00 45 0e             	add    %al,0xe(%rbp)
   801a9b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801aa1:	71 0c                	jno    801aaf <_erodata+0x17f>
-  801aa3:	07                   	(bad)  
+  801aa3:	07                   	(bad)
   801aa4:	08 00                	or     %al,(%rax)
   801aa6:	00 00                	add    %al,(%rax)
   801aa8:	1c 00                	sbb    $0x0,%al
   801aaa:	00 00                	add    %al,(%rax)
   801aac:	7c 01                	jl     801aaf <_erodata+0x17f>
   801aae:	00 00                	add    %al,(%rax)
-  801ab0:	f8                   	clc    
-  801ab1:	f5                   	cmc    
-  801ab2:	ff                   	(bad)  
+  801ab0:	f8                   	clc
+  801ab1:	f5                   	cmc
+  801ab2:	ff                   	(bad)
   801ab3:	ff 33                	push   (%rbx)
   801ab5:	00 00                	add    %al,(%rax)
   801ab7:	00 00                	add    %al,(%rax)
-  801ab9:	45 0e                	rex.RB (bad) 
+  801ab9:	45 0e                	rex.RB (bad)
   801abb:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801ac1:	41 83 03 69          	addl   $0x69,(%r11)
   801ac5:	0c 07                	or     $0x7,%al
   801ac7:	08 1c 00             	or     %bl,(%rax,%rax,1)
   801aca:	00 00                	add    %al,(%rax)
-  801acc:	9c                   	pushf  
+  801acc:	9c                   	pushf
   801acd:	01 00                	add    %eax,(%rax)
   801acf:	00 0b                	add    %cl,(%rbx)
   801ad1:	f6 ff                	idiv   %bh
-  801ad3:	ff                   	(bad)  
-  801ad4:	3f                   	(bad)  
+  801ad3:	ff                   	(bad)
+  801ad4:	3f                   	(bad)
   801ad5:	00 00                	add    %al,(%rax)
   801ad7:	00 00                	add    %al,(%rax)
-  801ad9:	45 0e                	rex.RB (bad) 
+  801ad9:	45 0e                	rex.RB (bad)
   801adb:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801ae1:	41 83 03 75          	addl   $0x75,(%r11)
   801ae5:	0c 07                	or     $0x7,%al
@@ -2135,10 +2136,9 @@ Disassembly of section .eh_frame:
   801af3:	ff 2b                	ljmp   *(%rbx)
   801af5:	00 00                	add    %al,(%rax)
   801af7:	00 00                	add    %al,(%rax)
-  801af9:	45 0e                	rex.RB (bad) 
+  801af9:	45 0e                	rex.RB (bad)
   801afb:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
-  801b01:	62                   	(bad)  
-  801b02:	0c 07                	or     $0x7,%al
+  801b01:	62 0c 07             	(bad)
   801b04:	08 00                	or     %al,(%rax)
   801b06:	00 00                	add    %al,(%rax)
   801b08:	1c 00                	sbb    $0x0,%al
@@ -2148,7 +2148,7 @@ Disassembly of section .eh_frame:
   801b10:	35 f6 ff ff 37       	xor    $0x37fffff6,%eax
   801b15:	00 00                	add    %al,(%rax)
   801b17:	00 00                	add    %al,(%rax)
-  801b19:	45 0e                	rex.RB (bad) 
+  801b19:	45 0e                	rex.RB (bad)
   801b1b:	10 86 02 43 0d 06    	adc    %al,0x60d4302(%rsi)
   801b21:	6e                   	outsb  %ds:(%rsi),(%dx)
   801b22:	0c 07                	or     $0x7,%al
@@ -2173,20 +2173,6 @@ Disassembly of section .note.gnu.property:
   801b45:	00 00                	add    %al,(%rax)
 	...
 
-Disassembly of section .bss:
-
-0000000000801b48 <errno>:
-	...
-
-0000000000801b50 <brk_start_address>:
-	...
-
-0000000000801b58 <brk_used_address>:
-	...
-
-0000000000801b60 <brk_end_address>:
-	...
-
 Disassembly of section .comment:
 
 0000000000000000 <.comment>:
@@ -2197,15 +2183,13 @@ Disassembly of section .comment:
    8:	75 6e                	jne    78 <main-0x7fff88>
    a:	74 75                	je     81 <main-0x7fff7f>
    c:	20 31                	and    %dh,(%rcx)
-   e:	31 2e                	xor    %ebp,(%rsi)
-  10:	34 2e                	xor    $0x2e,%al
-  12:	30 2d 31 75 62 75    	xor    %ch,0x75627531(%rip)        # 75627549 <_ebss+0x74e259e1>
-  18:	6e                   	outsb  %ds:(%rsi),(%dx)
-  19:	74 75                	je     90 <main-0x7fff70>
-  1b:	31 7e 32             	xor    %edi,0x32(%rsi)
-  1e:	32 2e                	xor    (%rsi),%ch
-  20:	30 34 29             	xor    %dh,(%rcx,%rbp,1)
-  23:	20 31                	and    %dh,(%rcx)
-  25:	31 2e                	xor    %ebp,(%rsi)
-  27:	34 2e                	xor    $0x2e,%al
-  29:	30 00                	xor    %al,(%rax)
+   e:	33 2e                	xor    (%rsi),%ebp
+  10:	32 2e                	xor    (%rsi),%ch
+  12:	30 2d 32 33 75 62    	xor    %ch,0x62753332(%rip)        # 6275334a <_ebss+0x61f517e2>
+  18:	75 6e                	jne    88 <main-0x7fff78>
+  1a:	74 75                	je     91 <main-0x7fff6f>
+  1c:	34 29                	xor    $0x29,%al
+  1e:	20 31                	and    %dh,(%rcx)
+  20:	33 2e                	xor    (%rsi),%ebp
+  22:	32 2e                	xor    (%rsi),%ch
+  24:	30 00                	xor    %al,(%rax)

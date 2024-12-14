@@ -37,6 +37,7 @@ void kernel(void)
 
     vbe_buffer_init();
     pagetable_init();
+
     local_apic_init();
     apic_ioapic_init();
     disk_init();

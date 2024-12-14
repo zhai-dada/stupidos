@@ -8,6 +8,7 @@
         "memory.h": "c",
         "pci.h": "c",
         "gate.h": "c",
-        "schedule.h": "c"
+        "schedule.h": "c",
+        "serial.h": "c"
     }
 }

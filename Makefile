@@ -17,7 +17,7 @@ qemu:
 	sudo umount ./tmp
 	sudo losetup -D
 	sudo sync
-	sudo qemu-system-x86_64 -bios OVMF.fd -hda disk.img -cpu host -enable-kvm -m 4096 -smp 4 -netdev tap,id=mytap,ifname=tap0,script=no,downscript=no -device e1000,netdev=mytap -display vnc=:0 -vga virtio -monitor stdio -serial stdio
+	sudo qemu-system-x86_64 -bios OVMF.fd -hda disk.img -cpu host -enable-kvm -m 4096 -smp 4 -netdev tap,id=mytap,ifname=tap0,script=no,downscript=no -device e1000,netdev=mytap -vga std -serial stdio
 clean:
 	rm -rf ./build
 
