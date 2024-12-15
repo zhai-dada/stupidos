@@ -8,7 +8,7 @@
 #include <apic.h>
 
 #define VENDORID 0x8086 // 供应商英特尔
-#define DEVICEID_E1000 0x100e
+#define DEVICEID_E1000 0x10d3
 
 // 寄存器偏移
 enum REGISTERS
@@ -369,7 +369,7 @@ static void e1000_eeprom_detect(e1000_t *e1000)
     for (uint64_t i = 0; i < 1000; i++)
     {
         uint32_t val = min32(e1000->membase + E1000_EERD);
-        if (val & 0x10)
+        if (val & 0x02)
         {
             e1000->eeprom = 1;
         }
@@ -387,8 +387,8 @@ static uint16_t e1000_eeprom_read(e1000_t *e1000, uint8_t addr)
     uint32_t tmp;
     if (e1000->eeprom)
     {
-        mout32(e1000->membase + E1000_EERD, 1 | (uint32_t)addr << 8);
-        while (!((tmp = min32(e1000->membase + E1000_EERD)) & (1 << 4)))
+        mout32(e1000->membase + E1000_EERD, 1 | (uint32_t)addr << 2);
+        while (!((tmp = min32(e1000->membase + E1000_EERD)) & (1 << 1)))
             ;
     }
     else
@@ -430,7 +430,7 @@ static void e1000_read_mac(e1000_t *e1000)
 
     color_printk
     (
-        YELLOW, BLACK, "E1000 MAC: %x:%x:%x:%x:%x:%x\n",
+        YELLOW, BLACK, "E1000e MAC: %x:%x:%x:%x:%x:%x\n",
         e1000->mac[0], e1000->mac[1], e1000->mac[2],
         e1000->mac[3], e1000->mac[4], e1000->mac[5]
     );
@@ -541,21 +541,6 @@ void e1000_init()
     e1000->membase = buffer_remap(device->bar[0].iobase, device->bar[0].size);
 
     e1000_reset(e1000);
-
-    uint32_t intr = pci_interrupt(device);
-    entry.vector_num = intr;
-    entry.deliver_mode = IOAPIC_FIXED;
-    entry.deliver_status = IOAPIC_DELI_STATUS_IDLE;
-    entry.dest_mode = IOAPIC_DEST_MODE_PHYSICAL;
-    entry.polarity = IOAPIC_POLARITY_HIGH;
-    entry.mask = IOAPIC_MASK_MASKED;
-    entry.irr = IOAPIC_IRR_RESET;
-    entry.trigger = IOAPIC_TRIGGER_EDGE;
-    entry.reserved = 0;
-    entry.destination.physical.reserved1 = 0;
-    entry.destination.physical.reserved2 = 0;
-    entry.destination.physical.phy_dest = 0;
-    register_irq(intr, &entry, &e1000_handler, NULL, &e1000_controller, "e1000 eth");
     test_e1000_send_packet();
     return;
 }

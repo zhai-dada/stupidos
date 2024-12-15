@@ -2184,12 +2184,14 @@ Disassembly of section .comment:
    a:	74 75                	je     81 <main-0x7fff7f>
    c:	20 31                	and    %dh,(%rcx)
    e:	33 2e                	xor    (%rsi),%ebp
-  10:	32 2e                	xor    (%rsi),%ch
-  12:	30 2d 32 33 75 62    	xor    %ch,0x62753332(%rip)        # 6275334a <_ebss+0x61f517e2>
-  18:	75 6e                	jne    88 <main-0x7fff78>
-  1a:	74 75                	je     91 <main-0x7fff6f>
-  1c:	34 29                	xor    $0x29,%al
-  1e:	20 31                	and    %dh,(%rcx)
-  20:	33 2e                	xor    (%rsi),%ebp
-  22:	32 2e                	xor    (%rsi),%ch
-  24:	30 00                	xor    %al,(%rax)
+  10:	33 2e                	xor    (%rsi),%ebp
+  12:	30 2d 36 75 62 75    	xor    %ch,0x75627536(%rip)        # 7562754e <_ebss+0x74e259e6>
+  18:	6e                   	outsb  %ds:(%rsi),(%dx)
+  19:	74 75                	je     90 <main-0x7fff70>
+  1b:	32 7e 32             	xor    0x32(%rsi),%bh
+  1e:	34 2e                	xor    $0x2e,%al
+  20:	30 34 29             	xor    %dh,(%rcx,%rbp,1)
+  23:	20 31                	and    %dh,(%rcx)
+  25:	33 2e                	xor    (%rsi),%ebp
+  27:	33 2e                	xor    (%rsi),%ebp
+  29:	30 00                	xor    %al,(%rax)
