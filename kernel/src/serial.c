@@ -96,6 +96,11 @@ void serial_clear_line()
     serial_string("\x1b[1A");  // 清除当前行内容
     serial_string("\r");      // 回到行首
 }
+void serial_helloworld()
+{
+    serial_string("Hello World!\n");
+}
+
 void serial_interrupt_handler()
 {
     // 检查是否有数据可读
@@ -169,7 +174,7 @@ void serial_init()
     entry.destination.physical.reserved2 = 0;
     entry.destination.physical.phy_dest = 0;
     register_irq(0x24, &entry, &serial_interrupt_handler, NULL, &serial_controller, "serial");
-    
+
     serial_test();
     serial_set_color(92, 40, 1);
     // serial_string("serial init ok!!!\n");

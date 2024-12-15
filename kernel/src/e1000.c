@@ -209,18 +209,18 @@ typedef struct e1000_t
     uint8_t name[NAME_LEN]; // 名称
 
     pci_device_t *device; // PCI 设备
-    uint64_t membase;          // 映射内存基地址
+    uint64_t membase;     // 映射内存基地址
 
-    uint8_t mac[6];   // MAC 地址
-    _Bool link;   // 网络连接状态
-    _Bool eeprom; // 只读存储器可用
+    uint8_t mac[6]; // MAC 地址
+    _Bool link;     // 网络连接状态
+    _Bool eeprom;   // 只读存储器可用
 
     rx_desc_t *rx_desc; // 接收描述符
-    uint16_t rx_cur;         // 接收描述符指针
+    uint16_t rx_cur;    // 接收描述符指针
 
-    tx_desc_t *tx_desc; // 传输描述符
-    uint16_t tx_cur;         // 传输描述符指针
-    struct task_struct *tx_waiter;  // 传输等待进程
+    tx_desc_t *tx_desc;            // 传输描述符
+    uint16_t tx_cur;               // 传输描述符指针
+    struct task_struct *tx_waiter; // 传输等待进程
 } e1000_t;
 
 static e1000_t obj;
@@ -243,14 +243,12 @@ static void recv_packet(e1000_t *e1000)
         }
         // TODO RECEIVE PACKET
         eth_t *eth = (eth_t *)rx->addr;
-        color_printk
-        (
+        color_printk(
             YELLOW, BLACK, "ETH R [0x%04X]: %lx -> %lx, %d\n",
             ntohs(eth->type),
             eth->src,
             eth->dst,
-            rx->length
-        );
+            rx->length);
 
         rx->status = 0;
 
@@ -264,12 +262,12 @@ void send_packet(eth_t *eth, uint16_t len)
 {
     e1000_t *e1000 = &obj;
     tx_desc_t *tx = &e1000->tx_desc[e1000->tx_cur];
-    while (tx->status == 0)
-    {
-        e1000->tx_waiter = current;
-    }
+    // while (tx->status == 0)
+    // {
+    //     e1000->tx_waiter = current;
+    // }
 
-    memcpy((void *)tx->addr, eth, len);
+    memcpy(eth, (void *)tx->addr, len);
 
     tx->length = len;
     tx->cmd = TCMD_EOP | TCMD_RS | TCMD_RPS | TCMD_IFCS;
@@ -277,14 +275,12 @@ void send_packet(eth_t *eth, uint16_t len)
     e1000->tx_cur = (e1000->tx_cur + 1) % TX_DESC_NR;
     mout32(e1000->membase + E1000_TDT, e1000->tx_cur);
 
-    color_printk
-    (
+    color_printk(
         YELLOW, BLACK, "ETH S [0x%04x]: %m -> %m %d\n",
-        ntohs(eth->type),
+        htons(eth->type),
         eth->src,
         eth->dst,
-        len
-    );
+        len);
 }
 
 // 发送测试数据包
@@ -292,12 +288,14 @@ void test_e1000_send_packet()
 {
     e1000_t *e1000 = &obj;
     eth_t *eth = (eth_t *)kmalloc(4096, 0);
-    memcpy(eth->src, e1000->mac, 6);
-    memcpy(eth->dst, "\x55\xaa\x55\xaa\x55\xff", 6);
+    memcpy(e1000->mac, eth->src, 6);
+    memcpy("\xff\xff\xff\xff\xff\xff", eth->dst, 6);
+    memcpy(e1000->mac, eth->dst, 6);
     eth->type = 0x0090; // LOOP 0x9000
 
     uint32_t len = 1500;
-    memset(eth->payload, 'A', len);
+    memset(eth->payload, 0xaa, len);
+    send_packet(eth, len + sizeof(eth_t));
     send_packet(eth, len + sizeof(eth_t));
     kfree(eth);
 }
@@ -428,12 +426,10 @@ static void e1000_read_mac(e1000_t *e1000)
         }
     }
 
-    color_printk
-    (
+    color_printk(
         YELLOW, BLACK, "E1000e MAC: %x:%x:%x:%x:%x:%x\n",
         e1000->mac[0], e1000->mac[1], e1000->mac[2],
-        e1000->mac[3], e1000->mac[4], e1000->mac[5]
-    );
+        e1000->mac[3], e1000->mac[4], e1000->mac[5]);
 }
 
 // 重置网卡
@@ -452,8 +448,8 @@ static void e1000_reset(e1000_t *e1000)
     // 接收初始化
     e1000->rx_desc = (rx_desc_t *)kmalloc(4096, 0); // TODO: free
     e1000->rx_cur = 0;
-    mout64(e1000->membase + E1000_RDBAL, (uint64_t)e1000->rx_desc);
-    mout32(e1000->membase + E1000_RDLEN, sizeof(rx_desc_t) * RX_DESC_NR);
+    mout64(e1000->membase + E1000_RDBAL, (uint64_t)e1000->rx_desc & 0xffffffff);
+    mout32(e1000->membase + E1000_RDLEN, sizeof(rx_desc_t) * RX_DESC_NR << 7);
 
     // 接收描述符头尾指针
     mout32(e1000->membase + E1000_RDH, 0);
@@ -476,8 +472,9 @@ static void e1000_reset(e1000_t *e1000)
     // 传输初始化
     e1000->tx_desc = (tx_desc_t *)kmalloc(4096, 0); // TODO:free
     e1000->tx_cur = 0;
-    mout64(e1000->membase + E1000_TDBAL, (uint64_t)e1000->tx_desc);
-    mout32(e1000->membase + E1000_TDLEN, sizeof(tx_desc_t) * TX_DESC_NR);
+    mout64(e1000->membase + E1000_TDBAL, ((uint64_t)e1000->tx_desc) & 0xffffffff);
+    color_printk(YELLOW, BLACK, "%40lx\n", ((uint64_t)e1000->tx_desc) & 0xffffffff);
+    mout32(e1000->membase + E1000_TDLEN, sizeof(tx_desc_t) * TX_DESC_NR << 7);
 
     // 传输描述符头尾指针
     mout32(e1000->membase + E1000_TDH, 0);
@@ -503,21 +500,48 @@ static void e1000_reset(e1000_t *e1000)
     value |= IM_TXQE | IM_TXDW | IM_TXDLOW;
     mout32(e1000->membase + E1000_IMS, value);
 }
-
+irq_controller e1000e_controller =
+    {
+        .enable = ioapic_enable,
+        .disable = ioapic_disable,
+        .install = ioapic_install,
+        .uninstall = ioapic_uninstall,
+        .ack = ioapic_edge_ack,
+};
 // 查找网卡设备
 static pci_device_t *find_e1000_device()
 {
     pci_device_t *device = NULL;
     device = pci_find_device(VENDORID, DEVICEID_E1000);
+
+    struct IOAPIC_RET_ENTRY entry;
+    entry.vector_num = 0x37;
+    entry.deliver_mode = IOAPIC_FIXED;
+    entry.dest_mode = IOAPIC_DEST_MODE_PHYSICAL;
+    entry.deliver_status = IOAPIC_DELI_STATUS_IDLE;
+    entry.irr = IOAPIC_IRR_RESET;
+    entry.trigger = IOAPIC_TRIGGER_EDGE;
+    entry.polarity = IOAPIC_POLARITY_HIGH;
+    entry.mask = IOAPIC_MASK_MASKED;
+    entry.reserved = 0;
+    entry.destination.physical.reserved1 = 0;
+    entry.destination.physical.reserved2 = 0;
+    entry.destination.physical.phy_dest = 0;
+    register_irq(0x37, &entry, &e1000_handler, NULL, &e1000e_controller, "e1000e");
+
+    pci_out32(device->bus, device->dev, device->func, 0xd0, pci_in32(device->bus, device->dev, device->func, 0xd0) | 0x10000);
+    pci_out32(device->bus, device->dev, device->func, 0xd4, 0xfee00000);
+    pci_out32(device->bus, device->dev, device->func, 0xdc, 0x37);
+    buffer_remap(0xfee00000, 4096);
     return device;
 }
 irq_controller e1000_controller =
-{
-    .enable = ioapic_enable,
-    .disable = ioapic_disable,
-    .install = ioapic_install,
-    .uninstall = ioapic_uninstall,
-    .ack = ioapic_edge_ack,
+    {
+        .enable = ioapic_enable,
+        .disable = ioapic_disable,
+        .install = ioapic_install,
+        .uninstall = ioapic_uninstall,
+        .ack = ioapic_edge_ack,
 };
 // 初始化 e1000
 void e1000_init()

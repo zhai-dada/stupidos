@@ -59,6 +59,7 @@ void kernel(void)
     char test;
     while (1)
     {
+        // test_e1000_send_packet();
         if(serial_recv(&test) == 0)
         {
             serial_send(test);
