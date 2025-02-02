@@ -56,7 +56,7 @@ void smp_init()
     memcpy(apu_boot_start, (u8*)0xffff800000020000, (u64)&apu_boot_end - (u64)&apu_boot_start);
     for(i = 0xc8; i <= 0xd1; i++)
     {
-        set_intr_gate(i, 2, smp_interrupt[i - 0xc8]);
+        set_intr_gate(i, 0, smp_interrupt[i - 0xc8]);
     }
     memset(smp_ipi_desc, 0, sizeof(irq_desc_t) * 10);
     register_ipi(200, NULL, &ipi_200, NULL, NULL, "IPI 200");
