@@ -5,7 +5,7 @@
 
 static u64 arp_reply(netif_t *netif, pbuf_t *pbuf)
 {
-    arp_t *arp = pbuf->eth->arp;
+    arp_t *arp = (arp_t*)pbuf->eth->arp;
 
     arp->opcode = htons(ARP_OP_REPLY);
 
@@ -22,14 +22,12 @@ static u64 arp_reply(netif_t *netif, pbuf_t *pbuf)
 
 u64 arp_input(netif_t *netif, pbuf_t *pbuf)
 {
-    arp_t *arp = pbuf->eth->arp;
-
+    arp_t *arp = (arp_t*)pbuf->eth->arp;
     // 只支持 以太网
     if (ntohs(arp->hwtype) != ARP_HARDWARE_ETH)
     {
         return -EPROTO;
     }
-
     // 只支持 IP
     if (ntohs(arp->proto) != ARP_PROTOCOL_IP)
     {
