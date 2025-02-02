@@ -395,8 +395,7 @@ u64 sys_reboot(u64 cmd, void* arg)
     switch (cmd)
     {
     case SYSTEM_REBOOT:
-        // io_out8(0xcf9, 0x06); // 直接控制芯片组复位
-        test_e1000_send_packet("Hello");
+        io_out8(0xcf9, 0x06); // 直接控制芯片组复位
         break;
     case SYSTEM_POWEROFF:
         break;

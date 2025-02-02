@@ -54,7 +54,12 @@ void kernel(void)
     e1000_init();
     // minix_fs_init();
     task_init();
-    set_tss64((u32 *)&init_tss[0], init_tss[0].rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2, init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);
+    set_tss64((u32 *)&init_tss[current->cpu_id], init_tss[current->cpu_id].rsp0, \
+        init_tss[current->cpu_id].rsp1, init_tss[current->cpu_id].rsp2, \
+        init_tss[current->cpu_id].ist1, init_tss[current->cpu_id].ist2, \
+        init_tss[current->cpu_id].ist3, init_tss[current->cpu_id].ist4, \
+        init_tss[current->cpu_id].ist5, init_tss[current->cpu_id].ist6, init_tss[current->cpu_id].ist7);
+
     sti();
     kernel_thread(net_output_thread, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);
     kernel_thread(net_input_thread, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);

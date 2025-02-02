@@ -565,13 +565,14 @@ void task_init(void)
     current->mm->start_bss = (u64)&_bss;
     current->mm->end_bss = (u64)&_ebss;
     current->mm->start_stack = init_task[smp_cpu_id()]->thread->rsp0;
+    
     wrmsr(0x174, KERNEL_CODE_SEGMENT);
     wrmsr(0x175, init_task[smp_cpu_id()]->thread->rsp0);
     wrmsr(0x176, (u64)system_call);
     barrier();
     list_init(&init_task[smp_cpu_id()]->list);
-    wait_queue_init(&init_task[smp_cpu_id()]->childexit_wait, NULL);
-    if(smp_cpu_id() == 0)
+    wait_queue_init(&init_task_stack.task.childexit_wait, NULL);
+    if(current->cpu_id == 0)
     {
         kernel_thread(init, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);
     }
