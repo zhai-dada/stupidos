@@ -1,0 +1,67 @@
+#include <global.h>
+#include <sched.h>
+void kernel(void)
+{
+    memset((void *)&_bss, 0, (u64)&_end - (u64)&_bss);
+    mem_structure.start_code = (u64)&_text;
+    mem_structure.end_code = (u64)&_etext;
+    mem_structure.start_data = (u64)&_data;
+    mem_structure.end_data = (u64)&_edata;
+    mem_structure.start_brk = (u64)&_end;
+    mem_structure.end_rodata = (u64)&_erodata;
+
+    serial_init();
+
+    global_pid = 1;
+    s32 i = 0;
+    u64 *ptr = NULL;
+    init_printk();
+    load_tr(10);
+    set_tss64((u32 *)&init_tss[0], _stack_start_, _stack_start_, _stack_start_, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00);
+    sys_vector_init();
+    init_memory();
+    get_cpuinfo();
+    kmem_init();
+
+    for (i = 0; i < CPUNUM; ++i)
+    {
+        ptr = (u64 *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
+        ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = i;
+        init_tss[i].ist1 = (u64)ptr;
+        init_tss[i].ist2 = (u64)ptr;
+        init_tss[i].ist3 = (u64)ptr;
+        init_tss[i].ist4 = (u64)ptr;
+        init_tss[i].ist5 = (u64)ptr;
+        init_tss[i].ist6 = (u64)ptr;
+        init_tss[i].ist7 = (u64)ptr;
+    }
+
+    vbe_buffer_init();
+    pagetable_init();
+   
+    local_apic_init();
+    apic_ioapic_init();
+    disk_init();
+    schedule_init();
+    spinlock_init(&smp_lock);
+    softirq_init();
+    hpet_init();
+    timer_init();
+    keyboard_init();
+    pci_init();
+    serial_irq_en();
+    smp_init();
+    e1000_init();
+    // minix_fs_init();
+    task_init();
+    set_tss64((u32 *)&init_tss[0], init_tss[0].rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2, init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);
+    sti();
+    kernel_thread(net_output_thread, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);
+    kernel_thread(net_input_thread, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);
+
+    while (1)
+    {
+        hlt();
+    }
+    return;
+}

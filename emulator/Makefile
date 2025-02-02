@@ -1,0 +1,2 @@
+disk:
+	sh disk.sh
