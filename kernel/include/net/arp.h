@@ -23,6 +23,7 @@ enum
 #define ARP_DELAY 2            // ARP 请求延迟秒
 #define ARP_REFRESH_DELAY 1000 // ARP 刷新间隔毫秒
 
+// arp协议
 typedef struct arp_t
 {
     u16 hwtype;       // 硬件类型

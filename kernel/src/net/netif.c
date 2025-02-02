@@ -89,7 +89,6 @@ void netif_output(netif_t *netif, pbuf_t *pbuf)
     spinlock_lock(&netif->tx_lock);
     list_add_behind(&netif->tx_pbuf_list, &pbuf->node);
     netif->tx_pbuf_size++;
-
     wakeup(&output_queue, TASK_UNINTERRUPTIBLE);
     
     spinlock_unlock(&netif->tx_lock);
@@ -111,11 +110,11 @@ u64 net_output_thread(u64 arg)
                 spinlock_lock(&netif->tx_lock);
                 pbuf = container_of(list_prev(&netif->tx_pbuf_list), pbuf_t, node);
                 netif->tx_pbuf_size--;
+                list_delete(&pbuf->node);
                 spinlock_unlock(&netif->tx_lock);
 
                 netif->nic_output(netif, pbuf);
                 count++;
-                pbuf_release(pbuf);
             }
         }
         if (!count)
@@ -146,9 +145,7 @@ u64 net_input_thread(u64 arg)
 
                 eth_input(netif, pbuf);
                 
-                count++;
-                pbuf_release(pbuf);
-                
+                count++;                
             }
         }
         if (!count)

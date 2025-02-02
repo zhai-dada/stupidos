@@ -60,7 +60,7 @@ void send_packet(netif_t *netif, pbuf_t *pbuf)
     mout32(e1000->membase + E1000_TDH, e1000->tx_cur);
     e1000->tx_cur = (e1000->tx_cur + 1) % TX_DESC_NR;
     mout32(e1000->membase + E1000_TDT, e1000->tx_cur);
-    
+    pbuf_release(pbuf);
     
     DBG_SERIAL(
         SERIAL_ATTR_FRONT_BLUE, SERIAL_ATTR_BACK_BLACK, "head %lx tail %lx current %lx ETH S %018lx [0x%04x]: %m -> %m %d\n",
@@ -102,7 +102,7 @@ void test_e1000_send_packet(s8 *data)
 
     strcpy(pbuf->eth->payload, data);
     // netif_output(netif, pbuf);
-    eth_output(netif, pbuf, ETH_BROADCAST, ETH_TYPE_ARP, 32);
+    eth_output(netif, pbuf, ETH_BROADCAST, ETH_TYPE_IGMP, 32);
     // send_packet(e1000->netif, pbuf);
     // pbuf_put(pbuf);
 }

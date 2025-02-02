@@ -18,6 +18,8 @@ enum
     ETH_TYPE_IP = 0x0800,     // IPv4 协议
     ETH_TYPE_ARP = 0x0806,    // ARP 协议
     ETH_TYPE_IPV6 = 0x86DD,   // IPv6 协议
+
+    
     ETH_TYPE_MPLS = 0x8847,   // MPLS 协议
     ETH_TYPE_MPLS_MCAST = 0x8848, // MPLS 多播协议
     ETH_TYPE_VLAN = 0x8100,   // VLAN 协议
@@ -30,7 +32,7 @@ enum
     ETH_TYPE_FCOE = 0x8914,   // FCoE (Fibre Channel over Ethernet)
     ETH_TYPE_IGMP = 0x0800,   // IGMP (Internet Group Management Protocol)
     ETH_TYPE_EAPOL = 0x888E,  // EAP over LAN (802.1X认证)
-    ETH_TYPE_802_3 = 0x600,   // 802.3 以太网协议
+    ETH_TYPE_802_3 = 0x0600,   // 802.3 以太网协议
     ETH_TYPE_802_11 = 0x8906  // 802.11 无线网络协议
 };
 
