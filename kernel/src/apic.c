@@ -5,7 +5,7 @@
 #include <memory.h>
 #include <gate.h>
 #include <lib.h>
-
+#include <debug.h>
 
 void local_apic_init()
 {
@@ -189,14 +189,20 @@ void ioapic_init()
     u32 i = 0;
     *ioapic_map.virtual_index_address = 0x00;
     io_mfence();
-    *ioapic_map.virtual_data_address = 0x0f000000;
+    *ioapic_map.virtual_data_address = 0x0f000000;// 在使用IOAPIC之前，处理器必须给IOAPICID寄存器写入正确的ID，并且保证该ID在APIC总线上唯一
     io_mfence();
+    u16 ioapic_id = ((*ioapic_map.virtual_data_address) >> 24) & 0xff;
 	io_mfence();
 	*ioapic_map.virtual_index_address = 0x01;
 	io_mfence();
-    for(i = 0x10; i < 0x100; i = i + 2)
+    u16 ioapic_rtenum = ((*ioapic_map.virtual_data_address) >> 16) & 0xff;
+    u8 apic_version = ((*ioapic_map.virtual_data_address) >> 0) & 0xf;
+
+    DBG_SERIAL(SERIAL_ATTR_FRONT_CYAN, SERIAL_ATTR_BACK_BLACK, "ioapic id : %x rte num : %x apic version : %x\n", ioapic_id, ioapic_rtenum, apic_version);
+
+    for(i = 0x10; i < 0x10 + ioapic_rtenum; i = i + 2)
 	{
-        ioapic_rte_write(i, 0x10020 + ((i - 0x10) >> 1));
+        ioapic_rte_write(i, 0x10020 + ((i - 0x10) >> 1)); // 屏蔽中断
     }
     return;
 }
