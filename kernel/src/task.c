@@ -539,41 +539,42 @@ void task_init(void)
     u64 *vaddr = NULL;
     u64 *virtual = NULL;
     s32 i = 0;
-    if(smp_cpu_id() == 0)
+
+    vaddr = (u64 *)P_TO_V((u64)get_gdt() & (~0xfffUL));
+    *vaddr = 0UL;
+    for (i = 256; i < 512; ++i)
     {
-        vaddr = (u64 *)P_TO_V((u64)get_gdt() & (~0xfffUL));
-        *vaddr = 0UL;
-        for (i = 256; i < 512; ++i)
+        tmp = vaddr + i;
+        if (*tmp == 0)
         {
-            tmp = vaddr + i;
-            if (*tmp == 0)
-            {
-                virtual = (u64 *)kmalloc(PAGE_4K_SIZE, 0);
-                memset(virtual, 0, PAGE_4K_SIZE);
-                set_pml4t(tmp, make_pml4t(V_TO_P(virtual), PAGE_KERNEL_GDT));
-            }
+            virtual = (u64 *)kmalloc(PAGE_4K_SIZE, 0);
+            memset(virtual, 0, PAGE_4K_SIZE);
+            set_pml4t(tmp, make_pml4t(V_TO_P(virtual), PAGE_KERNEL_GDT));
         }
-        flush_tlb();
-        current->mm->pgd = (pml4t_t *)get_gdt();
-        current->mm->start_code = (u64)&_text;
-        current->mm->end_code = (u64)&_etext;
-        current->mm->start_data = (u64)&_data;
-        current->mm->end_data = (u64)&_edata;
-        current->mm->start_rodata = (u64)&_rodata;
-        current->mm->end_rodata = (u64)&_erodata;
-        current->mm->start_brk = (u64)&_bss;
-        current->mm->end_brk = init_task[smp_cpu_id()]->addr_limit;
-        current->mm->start_bss = (u64)&_bss;
-        current->mm->end_bss = (u64)&_ebss;
-        current->mm->start_stack = init_task[smp_cpu_id()]->thread->rsp0;
     }
+    flush_tlb();
+    current->mm->pgd = (pml4t_t *)get_gdt();
+    current->mm->start_code = (u64)&_text;
+    current->mm->end_code = (u64)&_etext;
+    current->mm->start_data = (u64)&_data;
+    current->mm->end_data = (u64)&_edata;
+    current->mm->start_rodata = (u64)&_rodata;
+    current->mm->end_rodata = (u64)&_erodata;
+    current->mm->start_brk = (u64)&_bss;
+    current->mm->end_brk = init_task[smp_cpu_id()]->addr_limit;
+    current->mm->start_bss = (u64)&_bss;
+    current->mm->end_bss = (u64)&_ebss;
+    current->mm->start_stack = init_task[smp_cpu_id()]->thread->rsp0;
     wrmsr(0x174, KERNEL_CODE_SEGMENT);
     wrmsr(0x175, init_task[smp_cpu_id()]->thread->rsp0);
     wrmsr(0x176, (u64)system_call);
     barrier();
     list_init(&init_task[smp_cpu_id()]->list);
-    wait_queue_init(&init_task_stack.task.childexit_wait, NULL);
-    kernel_thread(init, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);
+    wait_queue_init(&init_task[smp_cpu_id()]->childexit_wait, NULL);
+    if(smp_cpu_id() == 0)
+    {
+        kernel_thread(init, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);
+    }
     init_task[smp_cpu_id()]->preempt_count = 0;
     init_task[smp_cpu_id()]->state = TASK_RUNNING;
     return;

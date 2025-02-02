@@ -200,7 +200,8 @@ void ioapic_init()
 
     DBG_SERIAL(SERIAL_ATTR_FRONT_CYAN, SERIAL_ATTR_BACK_BLACK, "ioapic id : %x rte num : %x apic version : %x\n", ioapic_id, ioapic_rtenum, apic_version);
 
-    for(i = 0x10; i < 0x10 + ioapic_rtenum; i = i + 2)
+    // for(i = 0x10; i < 0x10 + ioapic_rtenum; i = i + 2) // qemu模拟的也不是很对，这个RTE仅供参考
+    for(i = 0x10; i < 0xff; i = i + 2)
 	{
         ioapic_rte_write(i, 0x10020 + ((i - 0x10) >> 1)); // 屏蔽中断
     }

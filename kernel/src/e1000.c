@@ -102,7 +102,7 @@ void test_e1000_send_packet(s8 *data)
 
     strcpy(pbuf->eth->payload, data);
     // netif_output(netif, pbuf);
-    eth_output(netif, pbuf, ETH_BROADCAST, ETH_TYPE_IGMP, 32);
+    eth_output(netif, pbuf, ETH_BROADCAST, ETH_TYPE_IP, 32);
     // send_packet(e1000->netif, pbuf);
     // pbuf_put(pbuf);
 }

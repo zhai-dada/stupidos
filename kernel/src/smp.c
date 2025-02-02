@@ -172,9 +172,9 @@ void start_smp()
     load_tr(10 + smp_cpu_id() * 2);
     spinlock_unlock(&smp_lock);
     current->preempt_count = 0;
-
-    task_init();
-    // sti();
+    // current->flags &= (~NEED_SCHEDULE);
+    // task_init();
+    sti();
     while(1)
     {
         hlt();

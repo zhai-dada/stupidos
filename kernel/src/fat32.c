@@ -915,8 +915,7 @@ void disk_fat32_fs_init()
     // color_printk(BLUE, BLACK, "dpte start_LBA:%#018lx\tsectors_limit:%#018lx\n", dpte.start_lba, dpte.sectors_limit);
 
     root_sb = mount_fs("FAT32", &dpte, buf); // not dev node
-    my_mkdir("1234", 0);
-    my_create("Hello", 0);
+
     kfree(buf);
     return;
 }

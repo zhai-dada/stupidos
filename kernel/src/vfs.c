@@ -150,7 +150,8 @@ struct dir_entry *my_create(s8 *name, u64 flags)
 
     // 分配目录名存储空间
     path->name = (s8 *)kmalloc(strlen(name) + 1, 0);
-    if (!path->name) {
+    if (!path->name)
+    {
         kfree(path);
         return NULL;
     }

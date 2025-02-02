@@ -11,6 +11,7 @@ void schedule()
     struct task_struct* task = NULL;
     current->flags &= ~NEED_SCHEDULE;
     u8 cpu_id = smp_cpu_id();
+    if(cpu_id != 0) return;
     cli();
     task = get_next_task();
 
