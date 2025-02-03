@@ -267,7 +267,6 @@ u64 do_fork(struct stackregs *regs, u64 clone_flags, u64 stack_start, u64 stack_
     s32 retval = 0;
     struct task_struct *task = NULL;
     task = (struct task_struct *)kmalloc(STACK_SIZE, 0);
-    // DBG_SERIAL(SERIAL_ATTR_FRONT_RED, SERIAL_ATTR_BACK_BLACK, "struct task_struct address:%#018lx\n", (u64)task);
     if (task == NULL)
     {
         retval = -EAGAIN;
@@ -326,7 +325,6 @@ void _switch_to_(struct task_struct *prev, struct task_struct *next)
     asm volatile("movq %0, %%fs\n" ::"a"(next->thread->fs));
     asm volatile("movq %0, %%gs\n" ::"a"(next->thread->gs));
     wrmsr(0x175, next->thread->rsp0);
-    // DBG_SERIAL(SERIAL_ATTR_FRONT_GREEN, SERIAL_ATTR_BACK_BLACK, "%0#018lx %#018lx\n", current->thread->rsp0, next->thread->rsp0);
 }
 
 asm
@@ -541,7 +539,7 @@ void task_init(void)
     s32 i = 0;
 
     vaddr = (u64 *)P_TO_V((u64)get_gdt() & (~0xfffUL));
-    *vaddr = 0UL;
+    // *vaddr = 0UL;
     for (i = 256; i < 512; ++i)
     {
         tmp = vaddr + i;
@@ -561,17 +559,17 @@ void task_init(void)
     current->mm->start_rodata = (u64)&_rodata;
     current->mm->end_rodata = (u64)&_erodata;
     current->mm->start_brk = (u64)&_bss;
-    current->mm->end_brk = init_task[smp_cpu_id()]->addr_limit;
+    current->mm->end_brk = init_task[current->cpu_id]->addr_limit;
     current->mm->start_bss = (u64)&_bss;
     current->mm->end_bss = (u64)&_ebss;
-    current->mm->start_stack = init_task[smp_cpu_id()]->thread->rsp0;
+    current->mm->start_stack = init_task[current->cpu_id]->thread->rsp0;
     
     wrmsr(0x174, KERNEL_CODE_SEGMENT);
-    wrmsr(0x175, init_task[smp_cpu_id()]->thread->rsp0);
+    wrmsr(0x175, init_task[current->cpu_id]->thread->rsp0);
     wrmsr(0x176, (u64)system_call);
     barrier();
-    list_init(&init_task[smp_cpu_id()]->list);
-    wait_queue_init(&init_task_stack.task.childexit_wait, NULL);
+    list_init(&init_task[current->cpu_id]->list);
+    wait_queue_init(&init_task[current->cpu_id]->childexit_wait, NULL);
     if(current->cpu_id == 0)
     {
         kernel_thread(init, 10, CLONE_FS | CLONE_SIGNAL | CLONE_VM);

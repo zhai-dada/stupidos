@@ -6,6 +6,7 @@
 #include <time.h>
 #include <softirq.h>
 #include <stackregs.h>
+#include <debug.h>
 
 extern struct time time;
 extern struct timer_list timer_list_head;
@@ -18,6 +19,7 @@ irq_controller HPET_controller =
     .uninstall = ioapic_uninstall,
     .ack = ioapic_edge_ack,
 };
+
 void hpet_handler(u64 nr, u64 parameter, struct stackregs* reg)
 {
     jiffies++;

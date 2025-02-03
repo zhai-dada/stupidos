@@ -247,7 +247,6 @@ void ioapic_edge_ack(u64 irq)
 }
 void do_irq(struct stackregs* regs, u64 nr)
 {
-    // color_printk(RED, GREEN, "IRQ %d\t", nr);
     switch(nr & 0x80)
     {
         case 0x00:

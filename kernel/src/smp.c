@@ -79,6 +79,7 @@ void smp_init()
     {
         spinlock_lock(&smp_lock);
         ptr = (u8 *)((u64)kmalloc(STACK_SIZE, 0));
+        memset(ptr, 0, STACK_SIZE);
         if (ptr == NULL)
         {
             DBG_SERIAL(SERIAL_ATTR_FRONT_RED, SERIAL_ATTR_BACK_BLACK, "kmalloc NULL\n");
@@ -91,6 +92,7 @@ void smp_init()
         init_tss[global_i].rsp1 = (u64)_stack_start_;
         init_tss[global_i].rsp2 = (u64)_stack_start_;
         ptr = (u8 *)kmalloc(STACK_SIZE, 0) + STACK_SIZE;
+        memset((u8 *)((u64)ptr - STACK_SIZE), 0, STACK_SIZE);
         ((struct task_struct *)(ptr - STACK_SIZE))->cpu_id = global_i;
         init_tss[global_i].ist1 = (u64)ptr;
         init_tss[global_i].ist2 = (u64)ptr;
@@ -160,7 +162,6 @@ void start_smp()
     current->priority = 2;
     current->vruntime = 0;
     current->thread = (struct thread_struct*)(current + 1);
-
     memset(current->thread, 0, sizeof(struct thread_struct));
     current->thread->rsp0 = init_tss[smp_cpu_id()].rsp0;
     current->thread->rsp = init_tss[smp_cpu_id()].rsp0;
@@ -168,13 +169,14 @@ void start_smp()
     current->thread->gs = KERNEL_DATA_SEGMENT;
     init_task[smp_cpu_id()] = current;
 
-    current->next = current;
     load_tr(10 + smp_cpu_id() * 2);
     spinlock_unlock(&smp_lock);
+
     current->preempt_count = 0;
-    // current->flags &= (~NEED_SCHEDULE);
+
+    current->flags |= (NEED_SCHEDULE);
     // task_init();
-    sti();
+    // sti();
     while(1)
     {
         hlt();
