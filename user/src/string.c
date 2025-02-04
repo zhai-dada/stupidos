@@ -72,28 +72,22 @@ int strlen(char *S)
 }
 int strcmp(char *FirstPart, char *SecondPart)
 {
-    register int res;
-    asm volatile(
-        "cld	\n"
-        "1:	\n"
-        "lodsb	\n"
-        "scasb	\n"
-        "jne	2f	\n"
-        "testb	%%al,	%%al	\n"
-        "jne	1b	\n"
-        "xorl	%%eax,	%%eax	\n"
-        "jmp	3f	\n"
-        "2:	\n"
-        "movl	$1,	%%eax	\n"
-        "jl	3f	\n"
-        "negl	%%eax	\n"
-        "3:	\n"
-        : "=a"(res)
-        : "D"(FirstPart), "S"(SecondPart)
-        :);
-    return res;
-}
+    long len1 = strlen(FirstPart);
+    long len2 = strlen(SecondPart);
+    if(len1 != len2)
+    {
+        return 1;
+    }
+    for(int i = 0; i < len1; i++)
+    {
+        if(FirstPart[i] != SecondPart[i])
+        {
+            return 1;
+        }
 
+    }
+    return 0;
+}
 char *strcpy(char *Dest, char *Src)
 {
     asm volatile("cld	                \n\t"

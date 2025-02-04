@@ -404,3 +404,35 @@ u64 sys_reboot(u64 cmd, void* arg)
     }
     return 0;
 }
+
+u64 sys_chdir(s8* dirname)
+{
+    s8* path = NULL;
+    s64 path_len = 0;
+    struct dir_entry* dentry = NULL;
+    path = (s8*)kmalloc(PAGE_4K_SIZE, 0);
+    memset(path, 0, PAGE_4K_SIZE);
+    path_len = strnlen_user(dirname, PAGE_4K_SIZE);
+    if(path_len <= 0)
+    {
+        kfree(path);
+        return -EFAULT;
+    }
+    else if(path_len >= PAGE_4K_SIZE)
+    {
+        kfree(path);
+        return -ENAMETOOLONG;
+    }
+    strncpy_from_user(dirname, path, path_len);
+    dentry = path_walk(path, 0);
+    kfree(path);
+    if(dentry == NULL)
+    {
+        return -ENOENT;
+    }
+    if(dentry->dir_inode->attribute != FS_ATTR_DIR)
+    {
+        return -ENOTDIR;
+    }
+    return 0;
+}

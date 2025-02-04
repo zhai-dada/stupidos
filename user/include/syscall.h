@@ -15,5 +15,7 @@
 #define	exit_nr		    12
 #define	wait4_nr		13
 #define	reboot_nr		14
+#define	chdir_nr		15
+
 
 #endif

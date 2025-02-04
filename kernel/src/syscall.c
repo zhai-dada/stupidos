@@ -26,4 +26,5 @@ system_call_t system_call_table[SYS_CALL_NUM] =
         [12] = sys_exit,
         [13] = sys_wait4,
         [14] = sys_reboot,
+        [15] = sys_chdir,
     };

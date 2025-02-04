@@ -4,4 +4,6 @@
 void * malloc(unsigned long size);
 void free(void * address);
 
+int chdir(char* dirname);
+
 #endif

@@ -28,6 +28,8 @@ SYSFUNC_DEF(exit)
 SYSFUNC_DEF(wait4)
 SYSFUNC_DEF(device_openkeyboard)
 SYSFUNC_DEF(reboot)
+SYSFUNC_DEF(chdir)
+
 
 asm
 (

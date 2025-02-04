@@ -53,7 +53,61 @@ int main()
 
 char *current_dir = NULL;
 
-int cd_command(int argc, char **argv) {}
+int cd_command(int argc, char **argv)
+{
+	char *path = NULL;
+	int len = 0;
+	int i = 0;
+	len = strlen(current_dir);
+	if (argc == 1)
+	{
+		goto cdbase;
+	}
+	if (!strcmp(".", argv[1]))
+	{
+		return 1;
+	}
+	else if (!strcmp("..", argv[1]))
+	{
+		if (!strcmp("/", current_dir))
+		{
+			return 1;
+		}
+		for (i = len - 1; i > 1; i--)
+		{
+			if (current_dir[i] == '/')
+			{
+				break;
+			}
+		}
+		current_dir[i] = '\0';
+		return 1;
+	}
+	else if (!strcmp("/", argv[1]))
+	{
+	cdbase:
+		current_dir[0] = '/';
+		current_dir[1] = '\0';
+		chdir("/");
+		return 1;
+	}
+	i = len + strlen(argv[1]);
+	path = malloc(i + 2);
+	memset(path, 0, i + 2);
+	strcpy(path, current_dir);
+	if (len > 1)
+	{
+		path[len] = '/';
+	}
+	strcat(path, argv[1]);
+	i = chdir(path);
+	if (!i)
+	{
+		current_dir = path;
+	}
+	return 1;
+}
+
 int ls_command(int argc, char **argv) {}
 int pwd_command(int argc, char **argv)
 {
@@ -63,7 +117,39 @@ int pwd_command(int argc, char **argv)
 	}
 	return 1;
 }
-int cat_command(int argc, char **argv) {}
+int cat_command(int argc, char **argv)
+{
+	int len = 0;
+	char *filename = NULL;
+	int fd = 0;
+	char *buf = NULL;
+	int i = 0;
+	if (argc == 1)
+	{
+		printf("cat : No file\n");
+		return 1;
+	}
+	len = strlen(current_dir);
+	i = len + strlen(argv[1]);
+	filename = malloc(i + 2);
+	memset(filename, 0, i + 2);
+	strcpy(filename, current_dir);
+	if (len > 1)
+	{
+		filename[len] = '/';
+	}
+	strcat(filename, argv[1]);
+	fd = open(filename, 0);
+	i = lseek(fd, 0, SEEK_END);
+	lseek(fd, 0, SEEK_SET);
+	buf = malloc(i + 1);
+	memset(buf, 0, i + 1);
+	len = read(fd, buf, i);
+	printf("%s\n", buf);
+	close(fd);
+	return 1;
+}
+
 int touch_command(int argc, char **argv) {}
 int rm_command(int argc, char **argv) {}
 int mkdir_command(int argc, char **argv) {}
@@ -98,7 +184,7 @@ int exec_command(int argc, char **argv)
 			filename[len] = '/';
 		}
 		strcat(filename, argv[1]);
-		
+
 		execve(filename, argv, NULL);
 		exit(0);
 	}

@@ -17,5 +17,7 @@ SYS_CALL(sys_execve_nr, sys_execve)
 SYS_CALL(sys_exit_nr, sys_exit)
 SYS_CALL(sys_wait4_nr, sys_wait4)
 SYS_CALL(sys_reboot_nr, sys_reboot)
+SYS_CALL(sys_chdir_nr, sys_chdir)
+
 
 #endif

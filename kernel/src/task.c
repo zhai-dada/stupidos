@@ -539,7 +539,7 @@ void task_init(void)
     s32 i = 0;
 
     vaddr = (u64 *)P_TO_V((u64)get_gdt() & (~0xfffUL));
-    // *vaddr = 0UL;
+    *vaddr = 0UL;
     for (i = 256; i < 512; ++i)
     {
         tmp = vaddr + i;

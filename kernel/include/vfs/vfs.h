@@ -41,8 +41,6 @@ struct index_node
 #define FS_ATTR_FILE (1UL << 0)
 #define FS_ATTR_DIR (1UL << 1)
 
-#define	FS_ATTR_DEVICE_KEYBOARD	(1UL << 2)
-
 
 struct dir_entry
 {
