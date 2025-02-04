@@ -9,7 +9,7 @@ void spinlock_init(spinlock_t* lock)
 }
 void spinlock_lock(spinlock_t* lock)
 {
-    // preempt_disable();
+    preempt_disable();
     asm volatile
     (
         "1:             \n"
@@ -38,7 +38,7 @@ void spinlock_unlock(spinlock_t* lock)
         :"memory"
     );
     io_mfence();
-    // preempt_enable();
+    preempt_enable();
     return;
 }
 s64 spin_trylock(spinlock_t * lock)
