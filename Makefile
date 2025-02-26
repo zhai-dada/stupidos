@@ -24,7 +24,7 @@ qemu:
 	sudo losetup -D
 	sudo sync
 	rm -r ./tmp
-	sudo qemu-system-x86_64 -bios OVMF.fd -hda $(emulator_dir)/disk.img \
+	sudo qemu-system-x86_64 -bios emulator/OVMF.fd -hda $(emulator_dir)/disk.img \
 	-cpu host -enable-kvm -m 4096 -smp 4 \
 	-net none -netdev tap,id=mytap,ifname=stupidos-tap,script=no,downscript=no -device e1000e,netdev=mytap \
 	-serial stdio
