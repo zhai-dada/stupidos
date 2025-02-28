@@ -59,12 +59,8 @@ apu_code32:
 .code64
 .balign 4
 apu_code64:
-    movq $0x10, %rax
+    movq $0x20, %rax
     movq %rax, %ds
-    movq %rax, %es
-    movq %rax, %fs
-    movq %rax, %ss
-    movq %rax, %gs
 
     movq $0x100000, %rax
     jmpq *%rax
