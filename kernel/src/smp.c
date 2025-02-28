@@ -175,10 +175,10 @@ void start_smp()
     current->preempt_count = 0;
 
     current->flags |= (NEED_SCHEDULE);
-    // task_init();
-    // sti();
+    task_init();
+    sti();
     while(1)
-    {
+    {        
         hlt();
     }
     return;
