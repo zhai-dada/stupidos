@@ -17,7 +17,13 @@ ENTRY(_start)
 
 	lgdt	gdt_pointer(%rip)
 	lidt	idt_pointer(%rip)
-
+	
+	mov	$0x10,	%ax
+	mov	%ax,	%ds
+	mov	%ax,	%es
+	mov	%ax,	%fs
+	mov	%ax,	%gs
+	mov	%ax,	%ss
 
 	movq _stack_start_(%rip), %rsp
 
