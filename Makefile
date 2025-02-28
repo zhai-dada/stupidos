@@ -5,7 +5,8 @@ A=$(shell sudo losetup -fP --show $(shell pwd)/emulator/disk.img)
 
 disk:
 	make -C ./emulator disk
-
+net:
+	make -C ./emulator net
 qemu:
 	make clean
 	make -C ./user user_bin
@@ -31,4 +32,4 @@ qemu:
 clean:
 	rm -rf ./build
 
-.PHONY:kernel user clean
+.PHONY:clean
