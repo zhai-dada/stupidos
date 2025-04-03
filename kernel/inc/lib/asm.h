@@ -1,6 +1,7 @@
 #ifndef __LIB_ASM_H__
 #define __LIB_ASM_H__
 
+#include <stdint.h>
 
 #define nop()       asm volatile ("nop":::"memory")
 #define hlt()       asm volatile ("hlt":::"memory")
@@ -22,5 +23,6 @@
     );                          \
 }
 
+u64 *get_gdt(void);
 
 #endif

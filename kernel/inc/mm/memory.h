@@ -110,22 +110,22 @@ struct zone;
 // 内存管理描述符结构体
 typedef struct mm_descriptor
 {
-    mm_e820_t e820[32];   // E820 内存信息
-    u64 e820_length;           // E820 结构体长度
-    u64* bits_map;             // 位图指针
-    u64 bits_size;             // 位图大小
-    u64 bits_length;           // 位图长度
-    struct page* pages_struct;      // 页面结构体指针
-    u64 pages_size;            // 页面结构体大小
-    u64 pages_length;          // 页面结构体长度
-    struct zone* zones_struct;      // 区域结构体指针
-    u64 zones_size;            // 区域结构体大小
-    u64 zones_length;          // 区域结构体长度
-    u64 start_code, end_code;  // 内核代码段地址范围
-    u64 start_data, end_data;  // 内核数据段地址范围
-    u64 end_rodata;            // 只读数据段结束地址
-    u64 start_brk;             // 内核堆开始地址
-    u64 end_of_struct;         // 描述符结构体结束地址
+    mm_e820_t e820[32];         // E820 内存信息
+    u64 e820_length;            // E820 结构体长度
+    u64* bits_map;              // 位图指针
+    u64 bits_size;              // 位图大小
+    u64 bits_length;            // 位图长度
+    struct page* pages_struct;  // 页面结构体指针
+    u64 pages_size;             // 页面结构体大小
+    u64 pages_length;           // 页面结构体长度
+    struct zone* zones_struct;  // 区域结构体指针
+    u64 zones_size;             // 区域结构体大小
+    u64 zones_length;           // 区域结构体长度
+    u64 start_code, end_code;   // 内核代码段地址范围
+    u64 start_data, end_data;   // 内核数据段地址范围
+    u64 end_rodata;             // 只读数据段结束地址
+    u64 start_brk;              // 内核堆开始地址
+    u64 end_of_struct;          // 描述符结构体结束地址
 } mm_des_t;
 
 // 页面结构体
@@ -153,5 +153,7 @@ typedef struct zone
     u64 total_pages_link;  // 总页面链接数量
 } zone_t;
 
+
+void mm_init(void);
 
 #endif

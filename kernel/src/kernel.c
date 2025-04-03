@@ -7,6 +7,7 @@
 #include <task.h>
 #include <cpu.h>
 #include <assert.h>
+#include <mm/memory.h>
 
 int kernel(void)
 {
@@ -23,6 +24,7 @@ int kernel(void)
     sys_vector_init();
     
     get_cpuinfo();
+    mm_init();
     assert(1 > 0);
     assert(0 > 1);
     while (1)
