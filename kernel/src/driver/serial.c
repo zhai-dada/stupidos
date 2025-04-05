@@ -15,7 +15,7 @@ static s32 serial_recv(u8 *font)
     {
         *font = port_in8(COM1_BASE + RBR);
     }
-    return 0;
+    return SOK;
 }
 static void serial_putchar(u8 font)
 {

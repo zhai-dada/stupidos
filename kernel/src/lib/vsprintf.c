@@ -36,7 +36,7 @@ static s8 *number(s8 *str, s64 num, s32 base, s32 size, s32 precision, s32 type)
     }
     if (base < 2 || base > 36)
     {
-        return 0;
+        return NULL;
     }
     c = (type & ZEROPAD) ? '0' : ' ';
     sign = 0;

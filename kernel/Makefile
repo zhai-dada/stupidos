@@ -18,6 +18,7 @@ obj = 	$(BUILD_KERNEL)/head.o		\
 		$(BUILD_KERNEL)/gate.o		\
 		$(BUILD_KERNEL)/trap.o		\
 		$(BUILD_KERNEL)/memory.o	\
+		$(BUILD_KERNEL)/kmem.o		\
 		$(BUILD_KERNEL)/task.o		\
 		$(BUILD_KERNEL)/kernel.o
 
@@ -66,6 +67,9 @@ $(BUILD_KERNEL)/gate.o:./src/gate.c
 	gcc $(CFLAGS) $< -o $@
 
 $(BUILD_KERNEL)/memory.o:./src/mm/memory.c
+	gcc $(CFLAGS) $< -o $@
+
+$(BUILD_KERNEL)/kmem.o:./src/mm/kmem.c
 	gcc $(CFLAGS) $< -o $@
 
 $(BUILD_KERNEL)/task.o:./src/task.c

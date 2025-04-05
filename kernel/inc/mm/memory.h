@@ -127,6 +127,7 @@ typedef struct mm_descriptor
     u64 start_brk;              // 内核堆开始地址
     u64 end_of_struct;          // 描述符结构体结束地址
 } mm_des_t;
+extern mm_des_t mem_structure;
 
 // 页面结构体
 typedef struct page
@@ -155,5 +156,10 @@ typedef struct zone
 
 
 void mm_init(void);
+
+
+page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags);
+u64 set_page_attribute(page_t* page, u64 flags);
+u64 page_init(page_t *page, u64 flags);
 
 #endif

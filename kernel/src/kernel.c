@@ -8,14 +8,16 @@
 #include <cpu.h>
 #include <assert.h>
 #include <mm/memory.h>
+#include <mm/kmem.h>
 
+extern u64* _start;
 int kernel(void)
 {
     char a[512] = {0};
     memcpy(a, "Hello\n", 7);
     serial_init();
     vbe_init();
-    serial_printf(SFGREEN, SBBLACK, "%s", a);
+    serial_printf(SFGREEN, SBBLACK, "%s\n", a);
     color_printk(YELLOW, BLACK, "%s\n", a);
 
     set_tss_descriptor(10, (void *)&tss[0]); // tss 0 
@@ -25,6 +27,8 @@ int kernel(void)
     
     get_cpuinfo();
     mm_init();
+    kmem_init();
+    
     assert(1 > 0);
     assert(0 > 1);
     while (1)

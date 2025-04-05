@@ -11,18 +11,20 @@ extern s8 _rodata, _erodata;
 extern s8 _bss, _ebss;
 extern s8 _end;
 
-static u64 set_page_attribute(page_t* page, u64 flags)
+u64* cr3;
+
+u64 set_page_attribute(page_t* page, u64 flags)
 {
     if(page == NULL)
     {
         serial_printf(SFGREEN, SBBLACK, "set_page_attribute() ERROR:page == NULL\n");
-        return 0;
+        return SFAIL;
     }
     page->attribute = flags;
-    return 1;
+    return SOK;
 }
 
-static u64 page_init(page_t *page, u64 flags)
+u64 page_init(page_t *page, u64 flags)
 {
     page->attribute |= flags;
     if(!page->reference_count || (page->attribute & PAGE_SHARED))
@@ -30,7 +32,77 @@ static u64 page_init(page_t *page, u64 flags)
         page->reference_count++;
         page->zone_struct->total_pages_link++;
     }
-    return 1;
+    return SOK;
+}
+
+page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags)
+{
+	s32 i;
+	u64 page = 0;
+
+	if(number >= 64 || number <= 0)
+	{
+		serial_printf(SFYELLOW, SBBLACK, "alloc_pages() ERROR: number is invalid\n");
+		return NULL;		
+	}
+    if(zone_select > mem_structure.zones_length)
+    {
+        serial_printf(SFYELLOW, SBBLACK, "alloc_pages() ERROR: zone_select index is invalid\n");
+        return NULL;
+    }
+
+	for(i = zone_select; i <= zone_select; ++i)
+	{
+		struct zone * z;
+		u64 j;
+		u64 start,end;
+		u64 tmp;
+
+		if((mem_structure.zones_struct + i)->page_free_count < number)
+		{
+            continue;
+        }
+		z = mem_structure.zones_struct + i;
+		start = z->zone_start_address >> PAGE_2M_SHIFT;
+		end = z->zone_end_address >> PAGE_2M_SHIFT;
+
+		tmp = 64 - start % 64;
+
+		for(j = start; j < end; j += j % 64 ? tmp : 64)
+		{
+			u64 * p = mem_structure.bits_map + (j >> 6);
+			u64 k = 0;
+			u64 shift = j % 64;
+			
+			u64 num = (1UL << number) - 1;
+			
+			for(k = shift;k < 64;++k)
+			{
+				if( !( (k ? ((*p >> k) | (*(p + 1) << (64 - k))) : *p) & (num) ) )
+				{
+					u64	l;
+					page = j + k - shift;
+					for(l = 0;l < number;l++)
+					{
+						page_t * pageptr = mem_structure.pages_struct + page + l;
+
+						*(mem_structure.bits_map + ((pageptr->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (pageptr->p_address >> PAGE_2M_SHIFT) % 64;
+						z->page_using_count++;
+						z->page_free_count--;
+						pageptr->attribute = PAGE_PT_MAPED;
+					}
+					goto find_free_pages;
+				}
+			}
+		}
+	}
+
+	serial_printf(SFYELLOW, SBBLACK, "alloc_pages() ERROR: no page can alloc\n");
+	return NULL;
+
+find_free_pages:
+
+	return (page_t *)(mem_structure.pages_struct + page);
 }
 
 
@@ -175,7 +247,7 @@ void mm_init(void)
         mem_structure.start_data, mem_structure.end_data, \
         mem_structure.start_brk, mem_structure.end_of_struct);
     i = V_TO_P(mem_structure.end_of_struct) >> PAGE_2M_SHIFT;
-    for (j = 1; j <= i; ++j)
+    for (j = 0; j <= i; ++j)
     {
         page_t* tmp_page = mem_structure.pages_struct + j;
         page_init(tmp_page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
@@ -184,7 +256,7 @@ void mm_init(void)
         tmp_page->zone_struct->page_free_count--;
 
     }
-    u64* cr3 = get_gdt();
+    cr3 = get_gdt();
     serial_printf(SFCYAN, SBBLACK, "cr3:%#018lx\n", cr3);
     serial_printf(SFCYAN, SBBLACK, "*cr3:%#018lx\n", *(u64 *)P_TO_V(cr3) & (~0xff));
     serial_printf(SFCYAN, SBBLACK, "**cr3:%#018lx\n", *(u64 *)P_TO_V(*(u64 *)P_TO_V(cr3) & (~0xff)) & (~0xff));
