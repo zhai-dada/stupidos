@@ -91,11 +91,6 @@ typedef struct
 #define PAGE_ATTR_USER_DIR       (PAGE_ATTR_U_S | PAGE_ATTR_R_W | PAGE_ATTR_PRESENT)       // 用户目录
 #define PAGE_ATTR_USER_PAGE      (PAGE_ATTR_PS  | PAGE_ATTR_U_S | PAGE_ATTR_R_W | PAGE_ATTR_PRESENT) // 用户页面
 
-// 区域选择
-#define ZONE_DMA            (1 << 0)   // DMA区域
-#define ZONE_NORMAL         (1 << 1)   // 普通区域
-#define ZONE_UNMAPED        (1 << 2)   // 未映射区域
-
 // 页属性
 #define PAGE_PT_MAPED       (1 << 0)   // 页表映射
 #define PAGE_KERNEL_INIT    (1 << 1)   // 内核初始化页
@@ -155,11 +150,16 @@ typedef struct zone
 } zone_t;
 
 
+
+
 void mm_init(void);
 
-
 page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags);
-u64 set_page_attribute(page_t* page, u64 flags);
+void free_pages(struct page* page, s32 number);
+
 u64 page_init(page_t *page, u64 flags);
+u64 set_page_attribute(page_t* page, u64 flags);
+u64 get_page_attribute(page_t* page);
+u64 page_clean(page_t* page);
 
 #endif

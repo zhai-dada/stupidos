@@ -24,6 +24,27 @@ u64 set_page_attribute(page_t* page, u64 flags)
     return SOK;
 }
 
+u64 get_page_attribute(page_t* page)
+{
+    if(page == NULL)
+    {
+        serial_printf(SFGREEN, SBBLACK, "get_page_attribute() ERROR:page == NULL\n");
+        return SFAIL;
+    }
+    return (page->attribute);
+}
+
+u64 page_clean(page_t * page)
+{
+    page->reference_count--;
+    page->zone_struct->total_pages_link--;
+    if(!page->reference_count)
+    {
+        page->attribute &= PAGE_PT_MAPED;
+    }
+    return SOK;
+}
+
 u64 page_init(page_t *page, u64 flags)
 {
     page->attribute |= flags;
@@ -105,6 +126,28 @@ find_free_pages:
 	return (page_t *)(mem_structure.pages_struct + page);
 }
 
+void free_pages(page_t* page, s32 number)
+{
+    s32 i = 0;
+    if(page == NULL)
+    {
+        serial_printf(SFRED, SBBLACK, "free_pages()ERROR:page is invalid\n");
+        return;
+    }
+    if(number >= 64 || number <= 0)
+    {
+        serial_printf(SFRED, SBBLACK, "free_pages()ERROR:number is invalid\n");
+        return;
+    }
+    for(i = 0; i < number; ++i, page++)
+    {
+        *(mem_structure.bits_map +((page->p_address >> PAGE_2M_SHIFT) >> 6)) &= ~(1UL << (page->p_address >> PAGE_2M_SHIFT) % 64);
+        page->zone_struct->page_using_count--;
+        page->zone_struct->page_free_count++;
+        page->attribute = 0;
+    }
+    return;
+}
 
 void mm_init(void)
 {
@@ -215,8 +258,8 @@ void mm_init(void)
             *(mem_structure.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) ^= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
         }
     }
+    // 第一个 2M 页面
     mem_structure.pages_struct->zone_struct = mem_structure.zones_struct;
-
     mem_structure.pages_struct->p_address = 0;
     set_page_attribute(mem_structure.pages_struct, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
     mem_structure.pages_struct->reference_count = 1;

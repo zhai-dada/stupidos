@@ -28,7 +28,15 @@ int kernel(void)
     get_cpuinfo();
     mm_init();
     kmem_init();
-    
+    void* tmp = kmalloc(32, 0);
+    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
+    tmp = kmalloc(32, 0);
+    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
+    tmp = kmalloc(32, 0);
+    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
+    kfree(tmp);
+    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
+
     assert(1 > 0);
     assert(0 > 1);
     while (1)

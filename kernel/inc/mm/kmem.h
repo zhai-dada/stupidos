@@ -32,4 +32,7 @@ typedef struct kmem_cache
 
 u64 kmem_init(void);
 
+void* kmalloc(u64 size, u64 flags);
+u64 kfree(void* address);
+
 #endif

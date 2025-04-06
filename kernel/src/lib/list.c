@@ -1,17 +1,5 @@
 #include <lib/list.h>
 
-/**
- * 根据结构体变量内的某个成员变量基地址推导出所在结构的地址
- * ptr是结构体内某个变量的地址
- * ptr_member是成员的变量名
- * struct_type是这个ptr所在结构体的类型
-*/
-#define container_of(ptr, ptr_member, struct_type)                         \
-({                                                                          \
-    typeof(((struct_type *)0)->ptr_member) *p = (ptr);                     \
-    (struct_type *)((u64)p - (u64)&(((struct_type *)0)->ptr_member));      \
-})
-
 // list初始化
 void list_init(list_t* list)
 {
