@@ -12,16 +12,18 @@
 
 extern u64* _start;
 
+extern u64 _text, _etext;
+extern u64 _data, _edata;
+extern u64 _rodata, _erodata;
+extern u64 _bss, _ebss;
+extern u64 _end;
+
 int kernel(void)
 {
     memset((void *)&_erodata, 0, (u64)&_end - (u64)&_erodata);
 
-    char a[512] = {0};
-    memcpy(a, "Hello\n", 7);
     serial_init();
     vbe_init();
-    serial_printf(SFGREEN, SBBLACK, "%s\n", a);
-    color_printk(YELLOW, BLACK, "%s\n", a);
 
     set_tss_descriptor(10, (void *)&tss[0]); // tss 0 
     load_tr(10);
@@ -33,18 +35,6 @@ int kernel(void)
     mm_init();
     kmem_init();
     vbe_buffer_init();
-    color_printk(YELLOW, BLACK, "%s\n", a);
-
-    void* tmp = kmalloc(32, 0);
-    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
-    tmp = kmalloc(32, 0);
-    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
-    tmp = kmalloc(32, 0);
-    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
-    kfree(tmp);
-    serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
-    assert(1 > 0);
-    assert(0 > 1);
 
     while (1)
     {

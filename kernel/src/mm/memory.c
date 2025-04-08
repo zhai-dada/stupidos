@@ -159,7 +159,7 @@ void mm_init(void)
     mem_des.end_data = (u64)&_edata;
     mem_des.start_brk = (u64)&_end;
     mem_des.end_rodata = (u64)&_erodata;
-
+    
     s32 i, j;
     u64 total_mem = 0;
     efi_e820_t *p = NULL;
