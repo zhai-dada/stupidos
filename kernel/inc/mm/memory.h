@@ -9,6 +9,12 @@
 
 extern u64* cr3;
 
+extern u64 _text, _etext;
+extern u64 _data, _edata;
+extern u64 _rodata, _erodata;
+extern u64 _bss, _ebss;
+extern u64 _end;
+
 #define BUFFER_1M_SIZE  0x100000
 #define COUNT_PER_PAGE  512
 

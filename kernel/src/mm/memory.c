@@ -9,12 +9,6 @@ mm_des_t mem_des = {{0}, 0};
 
 u64* cr3;
 
-extern u64 _text, _etext;
-extern u64 _data, _edata;
-extern u64 _rodata, _erodata;
-extern u64 _bss, _ebss;
-extern u64 _end;
-
 u64 set_page_attribute(page_t* page, u64 flags)
 {
     if(page == NULL)

@@ -12,12 +12,6 @@
 
 extern u64* _start;
 
-extern u64 _text, _etext;
-extern u64 _data, _edata;
-extern u64 _rodata, _erodata;
-extern u64 _bss, _ebss;
-extern u64 _end;
-
 int kernel(void)
 {
     memset((void *)&_erodata, 0, (u64)&_end - (u64)&_erodata);
