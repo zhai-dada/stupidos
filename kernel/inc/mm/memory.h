@@ -122,7 +122,7 @@ typedef struct mm_descriptor
     u64 start_brk;              // 内核堆开始地址
     u64 end_of_struct;          // 描述符结构体结束地址
 } mm_des_t;
-extern mm_des_t mem_structure;
+extern mm_des_t mem_des;
 
 // 页面结构体
 typedef struct page
@@ -161,5 +161,8 @@ u64 page_init(page_t *page, u64 flags);
 u64 set_page_attribute(page_t* page, u64 flags);
 u64 get_page_attribute(page_t* page);
 u64 page_clean(page_t* page);
+
+void pagetable_init(void);
+u64 buffer_remap(u64 phaddr, u64 length);
 
 #endif

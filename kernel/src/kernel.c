@@ -11,8 +11,11 @@
 #include <mm/kmem.h>
 
 extern u64* _start;
+
 int kernel(void)
 {
+    memset((void *)&_erodata, 0, (u64)&_end - (u64)&_erodata);
+
     char a[512] = {0};
     memcpy(a, "Hello\n", 7);
     serial_init();
@@ -24,10 +27,14 @@ int kernel(void)
     load_tr(10);
 
     sys_vector_init();
-    
+
     get_cpuinfo();
+
     mm_init();
     kmem_init();
+    vbe_buffer_init();
+    color_printk(YELLOW, BLACK, "%s\n", a);
+
     void* tmp = kmalloc(32, 0);
     serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
     tmp = kmalloc(32, 0);
@@ -36,9 +43,9 @@ int kernel(void)
     serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
     kfree(tmp);
     serial_printf(SFGREEN, SBBLACK, "%p\n", tmp);
-
     assert(1 > 0);
     assert(0 > 1);
+
     while (1)
     {
         ;

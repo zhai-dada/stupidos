@@ -3,6 +3,7 @@
 #include <lib/string.h>
 #include <lib/asm.h>
 #include <uefi.h>
+#include <mm/memory.h>
 
 struct vbe_info pos;
 s8 buf[4096] = {0};
@@ -138,4 +139,9 @@ s32 color_printk(u32 FRcolor, u32 BKcolor, const s8 *fmt, ...)
 	return i;
 }
 
-
+void vbe_buffer_init(void)
+{
+	buffer_remap(boot_info->graphicsinf.bufferbase, boot_info->graphicsinf.buffersize);
+	pos.vbe_base_addr = (u32 *)P_TO_V(boot_info->graphicsinf.bufferbase);
+	return;
+}

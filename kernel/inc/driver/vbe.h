@@ -34,4 +34,6 @@ typedef struct vbe_info
 void vbe_init(void);
 s32 color_printk(u32 FRcolor, u32 BKcolor, const s8 *fmt, ...);
 
+void vbe_buffer_init(void);
+
 #endif
