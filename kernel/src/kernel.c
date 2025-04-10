@@ -1,20 +1,13 @@
-#include <lib/string.h>
-#include <driver/serial.h>
+#include <apic.h>
 #include <driver/vbe.h>
-#include <uefi.h>
-#include <gate.h>
-#include <trap.h>
 #include <task.h>
-#include <cpu.h>
-#include <assert.h>
-#include <mm/memory.h>
-#include <mm/kmem.h>
+#include <trap.h>
 
 extern u64* _start;
 
 int kernel(void)
 {
-    memset((void *)&_erodata, 0, (u64)&_end - (u64)&_erodata);
+    memset((void *)&_bss, 0, (u64)&_end - (u64)&_bss);
 
     serial_init();
     vbe_init();
@@ -29,6 +22,11 @@ int kernel(void)
     mm_init();
     kmem_init();
     vbe_buffer_init();
+
+    apic_ioapic_init();
+    serial_irq_en();
+    serial_printf(SFRED, SBBLACK, "%lx\n", interrupt[4]);
+    sti();
 
     while (1)
     {

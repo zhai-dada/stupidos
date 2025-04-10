@@ -161,7 +161,7 @@ typedef struct zone
 void mm_init(void);
 
 page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags);
-void free_pages(struct page* page, s32 number);
+void free_pages(page_t* page, s32 number);
 
 u64 page_init(page_t *page, u64 flags);
 u64 set_page_attribute(page_t* page, u64 flags);

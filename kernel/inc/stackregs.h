@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct stackregs
+typedef struct
 {
     u64 r15;
     u64 r14;

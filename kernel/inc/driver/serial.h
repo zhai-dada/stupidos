@@ -52,4 +52,6 @@ void serial_init(void);
 // 串口打印
 s32 serial_printf(s8 *front, s8 *back, const s8 *fmt, ...);
 
+void serial_irq_en(void);
+
 #endif
