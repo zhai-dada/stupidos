@@ -158,21 +158,25 @@ void apic_ioapic_init(void)
     port_out8(0x21, 0xff);
     port_out8(0xa1, 0xff);
 
+    // remap
     ioapic_mm_map.physical_address = 0x0fec00000;
     ioapic_mm_map.virtual_index_address = (u8*)P_TO_V(ioapic_mm_map.physical_address);
     ioapic_mm_map.virtual_data_address = (u32*)((u64)ioapic_mm_map.virtual_index_address + 0x10);
     ioapic_mm_map.virtual_eoi_address = (u32*)((u64)ioapic_mm_map.virtual_index_address + 0x40);
     buffer_remap(ioapic_mm_map.physical_address, PAGE_2M_SIZE);
 
+    // 填充中断idt
     for(u32 i = 0x20; i < 0x38; ++i)
     {
         set_intr_gate(i, 2, interrupt[i - 0x20]);
     }
 
+    // 初始化
     local_apic_init();
     ioapic_init();
     io_mfence();
 
+    // 清零
     memset(interrupt_desc, 0, sizeof(irq_desc_t) * IRQ_NR);
 
     io_mfence();

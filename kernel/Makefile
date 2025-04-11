@@ -1,6 +1,6 @@
 BUILD_KERNEL := ../build/kernel
 
-CFLAGS 	:=	-mcmodel=large -fno-builtin -fno-stack-protector -fno-pie -fno-pic -fno-common -nostartfiles -Wno-address-of-packed-member -m64 -I./inc/ -c -Os -DASSERT -DQEMU
+CFLAGS 	:=	-mcmodel=large -fno-builtin -fno-stack-protector -fno-pie -fno-pic -fno-common -nostartfiles -Wno-address-of-packed-member -m64 -I./inc/ -c -O0 -DASSERT -DQEMU
 LDFLAGS :=	-b elf64-x86-64 -z muldefs -z noexecstack
 
 obj = 	$(BUILD_KERNEL)/head.o		\

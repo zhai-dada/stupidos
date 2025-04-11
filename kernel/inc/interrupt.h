@@ -37,8 +37,10 @@
 #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
 
 #define INIT_IRQ(nr)                                    \
-void IRQ_NAME(nr);                                      \
-    asm(                                                \
+    void IRQ_NAME(nr);                                  \
+    asm                                                 \
+    (                                                   \
+        ".section .text\n"                              \
         SYMBOL_NAME_STR(IRQ)#nr"_interrupt:     \n"     \
         "pushq $0x00                            \n"     \
         SAVE_ALL_REGS                                   \
@@ -46,7 +48,8 @@ void IRQ_NAME(nr);                                      \
         "leaq ret_from_intr(%rip), %rax         \n"     \
         "pushq %rax                             \n"     \
         "movq $"#nr", %rsi                      \n"     \
-        "jmp do_irq                             \n");
+        "jmp do_irq                             \n"     \
+    );
 
 #define IRQ_NR 24
 
