@@ -5,7 +5,7 @@
  */
 #include <stdint.h>
 
-typedef struct efi_graphic_info
+typedef struct
 {
     u32 hr;   // 水平分辨率
     u32 vr;   // 垂直分辨率
@@ -14,20 +14,20 @@ typedef struct efi_graphic_info
     u64 buffersize;
 } efi_graphic_info_t;
 
-typedef struct efi_e820
+typedef struct
 {
     u64 address;
     u64 length;
     u32 type;
 } __attribute__((packed)) efi_e820_t;
 
-typedef struct efi_e820_info
+typedef struct
 {
     u32 count;
     efi_e820_t e820_entry[];
 } efi_e820_info_t;
 
-typedef struct kernel_boot_info
+typedef struct
 {
     efi_graphic_info_t graphicsinf;
     efi_e820_info_t e820inf;

@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-typedef struct gdt_struct
+typedef struct
 {
     u64 gdt;
 }__attribute__((packed)) gdt_t;
-typedef struct idt_struct
+typedef struct
 {
     u64 idt_low;
     u64 idt_high;

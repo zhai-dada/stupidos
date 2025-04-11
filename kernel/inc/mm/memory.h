@@ -41,7 +41,7 @@ extern u64 _end;
 #define P_TO_V(addr)        ((u64)(addr) + PAGE_OFFSET)
 
 // 内存分布区域结构体
-typedef struct mm_e820
+typedef struct
 {
     u64 address;       // 区域起始地址
     u64 length;        // 区域长度

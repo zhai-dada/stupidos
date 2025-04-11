@@ -25,7 +25,7 @@ int kernel(void)
 
     apic_ioapic_init();
     serial_irq_en();
-    serial_printf(SFRED, SBBLACK, "%lx\n", interrupt[4]);
+
     sti();
 
     while (1)
