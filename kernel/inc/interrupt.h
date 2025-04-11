@@ -40,7 +40,6 @@
     void IRQ_NAME(nr);                                  \
     asm                                                 \
     (                                                   \
-        ".section .text\n"                              \
         SYMBOL_NAME_STR(IRQ)#nr"_interrupt:     \n"     \
         "pushq $0x00                            \n"     \
         SAVE_ALL_REGS                                   \
@@ -71,9 +70,9 @@ typedef struct
     u64 flags;
 } irq_desc_t;
 
-irq_desc_t interrupt_desc[IRQ_NR] = {0};
-
 extern void (*interrupt[IRQ_NR])(void);
+extern irq_desc_t interrupt_desc[IRQ_NR];
+
 extern void do_irq(stackregs_t* regs, u64 nr);
 
 int register_irq(u64 irq, void* arg, void (*handler)(u64 nr, u64 parameter, stackregs_t* reg), u64 parameter, irq_controller* controler, s8* irq_name);

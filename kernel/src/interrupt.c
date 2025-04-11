@@ -7,6 +7,8 @@ INIT_IRQ(0x2a);INIT_IRQ(0x2b);INIT_IRQ(0x2c);INIT_IRQ(0x2d);INIT_IRQ(0x2e);
 INIT_IRQ(0x2f);INIT_IRQ(0x30);INIT_IRQ(0x31);INIT_IRQ(0x32);INIT_IRQ(0x33);
 INIT_IRQ(0x34);INIT_IRQ(0x35);INIT_IRQ(0x36);INIT_IRQ(0x37);
 
+irq_desc_t interrupt_desc[IRQ_NR] = {0};
+
 void (* interrupt[IRQ_NR])(void) = 
 {
     IRQ0x20_interrupt,
