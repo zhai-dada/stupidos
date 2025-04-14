@@ -47,5 +47,5 @@ int register_irq(u64 irq, void* arg, void (*handler)(u64 nr, u64 parameter, stac
     p->handler = handler;
     p->controler->install(irq, arg);
     p->controler->enable(irq);
-    return 1;
+    return SOK;
 }

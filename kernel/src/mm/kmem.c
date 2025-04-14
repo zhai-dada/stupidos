@@ -263,7 +263,7 @@ u64 kfree(void* address)
                             break;
                     }
                 }
-                return 1;
+                return SOK;
             }
             else
             {

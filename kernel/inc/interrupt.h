@@ -6,6 +6,10 @@
 #include <stackregs.h>
 #include <linkage.h>
 
+#define IRQ_NR 24
+
+#define SERIALCOM_IRQ   0x24
+
 #define SAVE_ALL_REGS               \
     "cld                        \n" \
     "pushq %rax                 \n" \
@@ -49,8 +53,6 @@
         "movq $"#nr", %rsi                      \n"     \
         "jmp do_irq                             \n"     \
     );
-
-#define IRQ_NR 24
 
 typedef struct
 {

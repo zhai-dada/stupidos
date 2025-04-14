@@ -2,7 +2,7 @@
 
 ioapic_mm_map_t ioapic_mm_map = {0};
 
-void local_apic_init()
+static void local_apic_init()
 {
     u64 x = 0;
     u64 y = 0;
@@ -115,7 +115,7 @@ u64 ioapic_rte_read(u8 index)
     return ret;
 }
 
-void ioapic_init()
+static void ioapic_init()
 {
     u64 test = 0;
     u32 i = 0;
@@ -211,7 +211,7 @@ u64 ioapic_install(u64 irq, void * arg)
 {
     ioapic_ret_entry_t *entry = (ioapic_ret_entry_t *)arg;
 	ioapic_rte_write((irq - 0x20) * 2 + 0x10, *(u64 *)entry);
-	return 1;
+	return SOK;
 }
 
 void ioapic_level_ack(u64 irq)

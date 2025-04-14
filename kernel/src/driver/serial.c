@@ -31,7 +31,7 @@ static void serial_putchar(u8 font)
     return;
 }
 
-void serial_string(s8 *str)
+static void serial_string(s8 *str)
 {
     s32 i = 0;
     if (str != NULL)
@@ -130,7 +130,7 @@ void serial_irq_en(void)
     port_out8(COM1_BASE + IER, 0x01);
 
     ioapic_ret_entry_t entry;
-    entry.vector_num = 0x24;
+    entry.vector_num = SERIALCOM_IRQ;
     entry.deliver_mode = IOAPIC_FIXED;
     entry.dest_mode = IOAPIC_DEST_MODE_PHYSICAL;
     entry.deliver_status = IOAPIC_DELI_STATUS_IDLE;
@@ -142,6 +142,6 @@ void serial_irq_en(void)
     entry.destination.physical.reserved1 = 0;
     entry.destination.physical.reserved2 = 0;
     entry.destination.physical.phy_dest = 0;
-    register_irq(0x24, &entry, &serial_interrupt_handler, NULL, &serial_controller, "serial");
+    register_irq(SERIALCOM_IRQ, &entry, &serial_interrupt_handler, NULL, &serial_controller, "serial");
     return;
 }

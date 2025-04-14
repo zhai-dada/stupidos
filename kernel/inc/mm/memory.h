@@ -155,9 +155,6 @@ typedef struct zone
     u64 total_pages_link;  // 总页面链接数量
 } zone_t;
 
-
-
-
 void mm_init(void);
 
 page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags);
