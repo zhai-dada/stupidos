@@ -2,6 +2,9 @@
 #include <stdarg.h>
 #include <apic.h>
 #include <interrupt.h>
+#include <spinlock.h>
+
+spinlock_t seriallock;
 
 static void serial_send(u8 font)
 {
@@ -50,7 +53,7 @@ s32 serial_printf(s8 *front, s8 *back, const s8 *fmt, ...)
     s8 buffer[512] = {0};
     u64 flags = 0;
     s32 i = 0;
-
+    spinlock_lock(&seriallock);
     va_list args;
     va_start(args, fmt);
     i = vsprintf(buffer, fmt, args);
@@ -61,6 +64,7 @@ s32 serial_printf(s8 *front, s8 *back, const s8 *fmt, ...)
     serial_string(buffer);
     serial_string(SRESET);
     
+    spinlock_unlock(&seriallock);
     return i;
 }
 
@@ -86,6 +90,7 @@ void serial_init()
     // 设置DTR、RTS和OUT2
     port_out8(COM1_BASE + MCR, 0x0B);
 
+    spinlock_init(&seriallock);
     return;
 }
 
@@ -130,7 +135,7 @@ void serial_irq_en(void)
     port_out8(COM1_BASE + IER, 0x01);
 
     ioapic_ret_entry_t entry;
-    entry.vector_num = SERIALCOM_IRQ;
+    entry.vector_num = SERIALCOM1_IRQ;
     entry.deliver_mode = IOAPIC_FIXED;
     entry.dest_mode = IOAPIC_DEST_MODE_PHYSICAL;
     entry.deliver_status = IOAPIC_DELI_STATUS_IDLE;
@@ -142,6 +147,6 @@ void serial_irq_en(void)
     entry.destination.physical.reserved1 = 0;
     entry.destination.physical.reserved2 = 0;
     entry.destination.physical.phy_dest = 0;
-    register_irq(SERIALCOM_IRQ, &entry, &serial_interrupt_handler, NULL, &serial_controller, "serial");
+    register_irq(SERIALCOM1_IRQ, &entry, &serial_interrupt_handler, NULL, &serial_controller, "serial");
     return;
 }

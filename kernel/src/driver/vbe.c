@@ -23,6 +23,8 @@ void vbe_init(void)
 	pos.vbe_base_addr = addr;
 	pos.vbe_buffer_length = boot_info->graphicsinf.buffersize;
 	memset(pos.vbe_base_addr, 0, pos.vbe_buffer_length);
+
+	spinlock_init(&pos.vbelock);
 }
 
 static void vbe_putchar(u32 *fb, s32 x_size, s32 x, s32 y, u32 FRcolor, u32 BKcolor, u8 font)
@@ -80,6 +82,8 @@ s32 color_printk(u32 FRcolor, u32 BKcolor, const s8 *fmt, ...)
 	s32 line = 0;
 	u64 flags = 0;
 
+	spinlock_lock(&pos.vbelock);
+
 	va_list args;
 	va_start(args, fmt);
 	i = vsprintf(buf, fmt, args);
@@ -136,6 +140,7 @@ s32 color_printk(u32 FRcolor, u32 BKcolor, const s8 *fmt, ...)
 			pos.y_position--;
 		}
 	}
+	spinlock_unlock(&pos.vbelock);
 	return i;
 }
 

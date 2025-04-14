@@ -8,7 +8,8 @@
 
 #define IRQ_NR 24
 
-#define SERIALCOM_IRQ   0x24
+#define HPET_IRQ        0x22
+#define SERIALCOM1_IRQ   0x24
 
 #define SAVE_ALL_REGS               \
     "cld                        \n" \

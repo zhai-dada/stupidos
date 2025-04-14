@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <lib/libfont.h>
+#include <spinlock.h>
 
 // UEFI设置的分辨率为 1024 * 768
 
@@ -29,6 +30,8 @@ typedef struct vbe_info
 
     u32 *vbe_base_addr;
     u64 vbe_buffer_length;
+
+    spinlock_t vbelock;
 } vbe_info_t;
 
 void vbe_init(void);

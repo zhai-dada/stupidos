@@ -23,6 +23,27 @@
     );                          \
 }
 
+#define local_irq_save(x)   \
+    asm volatile            \
+    (                       \
+        "pushfq     \n"     \
+        "popq %0    \n"     \
+        "cli        \n"     \
+        : "=g"(x)           \
+        :                   \
+        : "memory"          \
+    );
+
+#define local_irq_restore(x)\
+    asm volatile            \
+    (                       \
+        "pushq %0   \n"     \
+        "popfq      \n"     \
+        :                   \
+        : "g"(x)            \
+        : "memory"          \
+    );
+
 u64 *get_gdt(void);
 
 #endif
