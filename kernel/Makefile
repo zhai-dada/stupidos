@@ -20,6 +20,7 @@ obj = 	$(BUILD_KERNEL)/head.o		\
 		$(BUILD_KERNEL)/serial.o	\
 		$(BUILD_KERNEL)/vbe.o		\
 		$(BUILD_KERNEL)/cpu.o		\
+		$(BUILD_KERNEL)/cmos.o		\
 		$(BUILD_KERNEL)/spinlock.o 	\
 		$(BUILD_KERNEL)/gate.o		\
 		$(BUILD_KERNEL)/task.o		\
@@ -61,6 +62,9 @@ $(BUILD_KERNEL)/uefi.o:./src/uefi.c
 	gcc $(CFLAGS) $< -o $@
 
 $(BUILD_KERNEL)/cpu.o:./src/cpu.c
+	gcc $(CFLAGS) $< -o $@
+
+$(BUILD_KERNEL)/cmos.o:./src/driver/cmos.c
 	gcc $(CFLAGS) $< -o $@
 
 $(BUILD_KERNEL)/spinlock.o:./src/spinlock.c
