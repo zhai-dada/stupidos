@@ -2,10 +2,11 @@
 #include <driver/vbe.h>
 #include <task.h>
 #include <trap.h>
-#include <driver/cmos.h>
+#include <driver/hpet.h>
 
 extern u64* _start;
 time_t time;
+
 int kernel(void)
 {
     memset((void *)&_bss, 0, (u64)&_end - (u64)&_bss);
@@ -26,9 +27,8 @@ int kernel(void)
 
     apic_ioapic_init();
     serial_irq_en();
-
-    get_cmos_time(&time);
-    serial_printf(SFYELLOW, SBBLACK, "%x:%x:%x:%x:%x:%x\n", time.year, time.month, time.day, time.hour, time.minute, time.second);
+    
+    hpet_init();
     
     sti();
 
