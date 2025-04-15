@@ -6,8 +6,9 @@
 #define SYMBOL_NAME_STR(X) #X
 #define SYMBOL_NAME_LABEL(X) X##:
 
-#define ENTRY(name)            \
-    .global SYMBOL_NAME(name); \
+#define ENTRY(name)                     \
+    .global SYMBOL_NAME(name);          \
+    .type SYMBOL_NAME(name), @function; \
     SYMBOL_NAME_LABEL(name)
 
 #endif

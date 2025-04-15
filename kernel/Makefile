@@ -22,6 +22,7 @@ obj = 	$(BUILD_KERNEL)/head.o		\
 		$(BUILD_KERNEL)/cpu.o		\
 		$(BUILD_KERNEL)/cmos.o		\
 		$(BUILD_KERNEL)/hpet.o		\
+		$(BUILD_KERNEL)/softirq.o 	\
 		$(BUILD_KERNEL)/spinlock.o 	\
 		$(BUILD_KERNEL)/gate.o		\
 		$(BUILD_KERNEL)/task.o		\
@@ -72,6 +73,9 @@ $(BUILD_KERNEL)/hpet.o:./src/driver/hpet.c
 	gcc $(CFLAGS) $< -o $@
 
 $(BUILD_KERNEL)/spinlock.o:./src/spinlock.c
+	gcc $(CFLAGS) $< -o $@
+
+$(BUILD_KERNEL)/softirq.o:./src/softirq.c
 	gcc $(CFLAGS) $< -o $@
 
 $(BUILD_KERNEL)/interrupt.o:./src/interrupt.c

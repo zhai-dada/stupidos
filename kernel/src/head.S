@@ -147,4 +147,10 @@ idt_pointer:
 idt_limit:	.word	idt_end - idt_table - 1
 idt_base:	.quad	idt_table
 
-
+// jiffies
+.global jiffies
+.type jiffies, @object
+.align 8
+.size jiffies, 8
+jiffies:
+	.quad 0

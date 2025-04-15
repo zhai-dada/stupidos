@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <interrupt.h>
 #include <driver/cmos.h>
+#include <softirq.h>
 
 extern time_t time;
 
@@ -17,8 +18,7 @@ irq_controller hpet_controller =
 
 void hpet_handler(u64 nr, u64 parameter, stackregs_t* reg)
 {
-    get_cmos_time(&time);
-    serial_printf(SFYELLOW, SBBLACK, "%x:%x:%x:%x:%x:%x\n", time.year, time.month, time.day, time.hour, time.minute, time.second);
+    jiffies++;
 }
 
 void hpet_init(void)

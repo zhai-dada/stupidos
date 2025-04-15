@@ -132,7 +132,7 @@ static void ioapic_init()
 
     serial_printf(SFCYAN, SBBLACK, "ioapic id : %#x rte num : %d apic version : %#x\n", ioapic_id, ioapic_rtenum, apic_version);
 
-    for(i = 0x10; i < 0x10 + ioapic_rtenum; i = i + 2) // 我感觉qemu模拟的RTE的数量
+    for(i = 0x10; i < 0x10 + ioapic_rtenum; i = i + 2) // 我qemu模拟的RTE的数量
 	{
         ioapic_rte_write(i, 0x10020 + ((i - 0x10) >> 1)); // 屏蔽中断
     }

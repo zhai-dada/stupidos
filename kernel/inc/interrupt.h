@@ -41,6 +41,7 @@
 #define IRQ_NAME2(nr) nr##_interrupt(void)
 #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
 
+// push 0x00 占位错误码
 #define INIT_IRQ(nr)                                    \
     void IRQ_NAME(nr);                                  \
     asm                                                 \
