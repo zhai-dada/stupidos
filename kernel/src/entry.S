@@ -54,6 +54,12 @@ restore_all:
 
 ret_from_exception:
 ENTRY(ret_from_intr)
+    movq $-1, %rcx
+    testq softirq_status(%rip), %rcx // 如果存在需要执行的软中断 -> softirq_handle
+    jnz softirq_handle
+    jmp restore_all
+softirq_handle:
+    callq do_softirq
     jmp restore_all
 
 error_code:

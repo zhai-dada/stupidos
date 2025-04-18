@@ -5,7 +5,7 @@
 #include <driver/cmos.h>
 #include <softirq.h>
 
-extern time_t time;
+time_t time;
 
 irq_controller hpet_controller = 
 {
@@ -19,6 +19,7 @@ irq_controller hpet_controller =
 void hpet_handler(u64 nr, u64 parameter, stackregs_t* reg)
 {
     jiffies++;
+    set_softirq_status(TIMER_S_IRQ);
 }
 
 void hpet_init(void)

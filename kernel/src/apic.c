@@ -165,7 +165,7 @@ void apic_ioapic_init(void)
     ioapic_mm_map.virtual_eoi_address = (u32*)((u64)ioapic_mm_map.virtual_index_address + 0x40);
     buffer_remap(ioapic_mm_map.physical_address, PAGE_2M_SIZE);
 
-    // 填充中断idt
+    // 填充中断idt  外设统一使用ist2作为栈
     for(u32 i = 0x20; i < 0x38; ++i)
     {
         set_intr_gate(i, 2, interrupt[i - 0x20]);

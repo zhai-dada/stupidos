@@ -3,9 +3,7 @@
 #include <task.h>
 #include <trap.h>
 #include <driver/hpet.h>
-
-extern u64* _start;
-time_t time;
+#include <softirq.h>
 
 int kernel(void)
 {
@@ -27,8 +25,12 @@ int kernel(void)
 
     apic_ioapic_init();
     serial_irq_en();
-    
+
+    softirq_init();
+
     hpet_init();
+
+    
     
     sti();
 
