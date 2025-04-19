@@ -44,7 +44,7 @@ void do_softirq(void)
     s32 i = 0;
     for(i = 0; i < 64 && softirq_status; i++)
     {
-        if(softirq_status & (1 << i))
+        if(softirq_status & (1 << i) && softirq_vector[i].action != NULL)
         {
             softirq_vector[i].action(softirq_vector[i].data);
             softirq_status &= ~(1 << i);
