@@ -25,6 +25,11 @@ SECTIONS
 		*(.rodata)
 		_erodata = .;
 	}
+	. = ALIGN(32768);
+	.data.inittask_stack :
+	{
+		*(.data.inittask_stack)
+	}
 	.bss :
 	{
 		_bss = .;

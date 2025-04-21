@@ -30,7 +30,7 @@ int kernel(void)
 
     hpet_init();
 
-    
+
     
     sti();
 
