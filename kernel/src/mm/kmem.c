@@ -1,7 +1,7 @@
 #include <mm/memory.h>
 #include <mm/kmem.h>
 #include <lib/list.h>
-#include <driver/serial.h>
+#include <debug.h>
 
 kmem_cache_t kmalloc_cache_size[16] = 
 {
@@ -55,17 +55,17 @@ u64 kmem_init(void)
         *(mem_des.bits_map + ((page->p_address >> PAGE_2M_SHIFT) >> 6)) |= 1UL << (page->p_address >> PAGE_2M_SHIFT) % 64;
         page->zone_struct->page_using_count++;
         page->zone_struct->page_free_count--;
-        serial_printf(SFGREEN, SBBLACK, "free count %018ld\n", page->zone_struct->page_free_count);
+        printk("free count %018ld\n", page->zone_struct->page_free_count);
         page_init(page, PAGE_PT_MAPED | PAGE_KERNEL_INIT | PAGE_KERNEL);
     }
-    serial_printf(SFYELLOW, SBBLACK, "2.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_des.bits_map, mem_des.zones_struct->page_using_count, mem_des.zones_struct->page_free_count);
-    serial_printf(SFGREEN, SBBLACK, "%018lx\n", mem_des.end_of_struct);
+    printk("2.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_des.bits_map, mem_des.zones_struct->page_using_count, mem_des.zones_struct->page_free_count);
+    printk("%018lx\n", mem_des.end_of_struct);
 
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[0].page_using_count, mem_des.zones_struct[0].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[1].page_using_count, mem_des.zones_struct[1].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[2].page_using_count, mem_des.zones_struct[2].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[3].page_using_count, mem_des.zones_struct[3].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_des.start_code, mem_des.end_code, mem_des.start_data, mem_des.end_data, mem_des.start_brk, mem_des.end_of_struct);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[0].page_using_count, mem_des.zones_struct[0].page_free_count);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[1].page_using_count, mem_des.zones_struct[1].page_free_count);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[2].page_using_count, mem_des.zones_struct[2].page_free_count);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[3].page_using_count, mem_des.zones_struct[3].page_free_count);
+    printk("start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_des.start_code, mem_des.end_code, mem_des.start_data, mem_des.end_data, mem_des.start_brk, mem_des.end_of_struct);
 
     for(i = 0; i < 16; ++i)
     {
@@ -73,11 +73,11 @@ u64 kmem_init(void)
         kmalloc_cache_size[i].cache_pool->page = page;
         kmalloc_cache_size[i].cache_pool->vaddress = (void *)P_TO_V(page->p_address);
     }
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[0].page_using_count, mem_des.zones_struct[0].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[1].page_using_count, mem_des.zones_struct[1].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[2].page_using_count, mem_des.zones_struct[2].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[3].page_using_count, mem_des.zones_struct[3].page_free_count);
-    serial_printf(SFYELLOW, SBBLACK, "start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_des.start_code, mem_des.end_code, mem_des.start_data, mem_des.end_data, mem_des.start_brk, mem_des.end_of_struct);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[0].page_using_count, mem_des.zones_struct[0].page_free_count);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[1].page_using_count, mem_des.zones_struct[1].page_free_count);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[2].page_using_count, mem_des.zones_struct[2].page_free_count);
+    printk("3.bits_map:%#018lx\tzone_struct->page_using:%ld\tzone_struct->page_free:%ld\n", *mem_des.bits_map, mem_des.zones_struct[3].page_using_count, mem_des.zones_struct[3].page_free_count);
+    printk("start_code:%#018lx end_code:%#018lx start_data:%#018lx end_data:%#018lx start_brk:%#018lx end_of_struct:%#018lx\n", mem_des.start_code, mem_des.end_code, mem_des.start_data, mem_des.end_data, mem_des.start_brk, mem_des.end_of_struct);
     pagetable_init();
     return SOK;
 }
@@ -92,7 +92,7 @@ static kmem_t* kmalloc_create(u64 size)
     page = alloc_pages(1, 1, 0);
     if(page == NULL)
     {
-        serial_printf(SFRED, SBBLACK, "kmalloc_create()->page_alloc() ERROR page = NULL\n");
+        printk(SFRED, SBBLACK, "kmalloc_create()->page_alloc() ERROR page = NULL\n");
         return NULL;
     }
     page_init(page, PAGE_KERNEL | PAGE_PT_MAPED);
@@ -147,7 +147,7 @@ static kmem_t* kmalloc_create(u64 size)
             }
             break;
         default:
-            serial_printf(SFYELLOW, SBBLACK, "kmalloc_create() ERROR:wrong size%08d\n", size);
+            printk("kmalloc_create() ERROR:wrong size%08d\n", size);
             free_pages(page, 1);
             return NULL;
     }
@@ -162,7 +162,7 @@ void* kmalloc(u64 size, u64 flags)
     //1048576 = 1MB
     if(size > 1048576)
     {
-        serial_printf(SFYELLOW, SBBLACK, "kmalloc() ERROR:kmalloc size too s64:%08d\n", size);
+        printk("kmalloc() ERROR:kmalloc size too s64:%08d\n", size);
         return NULL;
     }
     for(i = 0; i < 16; i++)
@@ -192,11 +192,11 @@ void* kmalloc(u64 size, u64 flags)
         kmem = kmalloc_create(kmalloc_cache_size[i].size);
         if(kmem == NULL)
         {
-            serial_printf(SFYELLOW, SBBLACK, "kmalloc()->kmalloc_create()->kmem == NULL\n");
+            printk("kmalloc()->kmalloc_create()->kmem == NULL\n");
             return NULL;
         }
         kmalloc_cache_size[i].total_free += kmem->color_count;
-        serial_printf(SFRED, SBBLACK, "kmalloc()->kmalloc_create() <= size:%#010x\n", kmalloc_cache_size[i].size);
+        printk(SFRED, SBBLACK, "kmalloc()->kmalloc_create() <= size:%#010x\n", kmalloc_cache_size[i].size);
         list_add_before(&kmalloc_cache_size[i].cache_pool->list, &kmem->list);
     }
     for(j = 0; j < kmem->color_count; ++j)
@@ -216,7 +216,7 @@ void* kmalloc(u64 size, u64 flags)
             return (void *)((u64)kmem->vaddress + kmalloc_cache_size[i].size * j);
         }
     }
-    serial_printf(SFYELLOW, SBBLACK, "kmalloc() ERROR: no memory call alloc\n");
+    printk("kmalloc() ERROR: no memory call alloc\n");
     return NULL;
 }
 
@@ -271,6 +271,6 @@ u64 kfree(void* address)
             }
         }while(kmem != kmalloc_cache_size[i].cache_pool);
     }
-    serial_printf(SFYELLOW, SBBLACK, "kfree() ERROR:can't free memory\n");
+    printk("kfree() ERROR:can't free memory\n");
     return SFAIL;
 }

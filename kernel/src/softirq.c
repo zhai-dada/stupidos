@@ -1,6 +1,6 @@
 #include <softirq.h>
 #include <lib/asm.h>
-#include <driver/serial.h>
+#include <debug.h>
 
 u64 volatile softirq_status = 0;
 softirq_t softirq_vector[64] = {0};

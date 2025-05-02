@@ -1,11 +1,12 @@
 #include <mm/memory.h>
 #include <uefi.h>
 #include <lib/asm.h>
-#include <driver/serial.h>
 #include <mm/kmem.h>
 #include <driver/vbe.h>
+#include <mm/cache.h>
+#include <debug.h>
 
-mm_des_t mem_des = {{0}, 0};
+mm_des_t mem_des __align_to_cache = {{0}, 0};
 
 u64* cr3;
 
@@ -13,7 +14,7 @@ u64 set_page_attribute(page_t* page, u64 flags)
 {
     if(page == NULL)
     {
-        serial_printf(SFGREEN, SBBLACK, "set_page_attribute() ERROR:page == NULL\n");
+        printk("set_page_attribute() ERROR:page == NULL\n");
         return SFAIL;
     }
     page->attribute = flags;
@@ -24,7 +25,7 @@ u64 get_page_attribute(page_t* page)
 {
     if(page == NULL)
     {
-        serial_printf(SFGREEN, SBBLACK, "get_page_attribute() ERROR:page == NULL\n");
+        printk("get_page_attribute() ERROR:page == NULL\n");
         return SFAIL;
     }
     return (page->attribute);
@@ -59,12 +60,12 @@ page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags)
 
 	if(number >= 64 || number <= 0)
 	{
-		serial_printf(SFYELLOW, SBBLACK, "alloc_pages() ERROR: number is invalid\n");
+		printk("alloc_pages() ERROR: number is invalid\n");
 		return NULL;		
 	}
     if(zone_select > mem_des.zones_length)
     {
-        serial_printf(SFYELLOW, SBBLACK, "alloc_pages() ERROR: zone_select index is invalid\n");
+        printk("alloc_pages() ERROR: zone_select index is invalid\n");
         return NULL;
     }
 
@@ -114,7 +115,7 @@ page_t * alloc_pages(s32 zone_select, s32 number, u64 page_flags)
 		}
 	}
 
-	serial_printf(SFYELLOW, SBBLACK, "alloc_pages() ERROR: no page can alloc\n");
+	printk("alloc_pages() ERROR: no page can alloc\n");
 	return NULL;
 
 find_free_pages:
@@ -127,12 +128,12 @@ void free_pages(page_t* page, s32 number)
     s32 i = 0;
     if(page == NULL)
     {
-        serial_printf(SFRED, SBBLACK, "free_pages()ERROR:page is invalid\n");
+        printk("free_pages()ERROR:page is invalid\n");
         return;
     }
     if(number >= 64 || number <= 0)
     {
-        serial_printf(SFRED, SBBLACK, "free_pages()ERROR:number is invalid\n");
+        printk("free_pages()ERROR:number is invalid\n");
         return;
     }
     for(i = 0; i < number; ++i, page++)
@@ -194,7 +195,7 @@ void mm_init(void)
         }
 		total_mem += (end - start) >> PAGE_2M_SHIFT;
 	}
-    serial_printf(SFGREEN, SBBLACK, "total effective 2MB pages:%#010x = %#010d\n", total_mem, total_mem);
+    printk("total effective 2MB pages:%#010x = %#010d\n", total_mem, total_mem);
     total_mem = mem_des.e820[mem_des.e820_length].address + mem_des.e820[mem_des.e820_length].length;
     // brk之后Bitsmap
     mem_des.bits_map = (u64 *)PAGE_4K_ALIGN(mem_des.start_brk);
@@ -256,15 +257,15 @@ void mm_init(void)
     mem_des.pages_struct->reference_count = 1;
     mem_des.pages_struct->age = 0;
     mem_des.zones_length = (mem_des.zones_size * sizeof(zone_t) + sizeof(s64) - 1) & (~(sizeof(s64) - 1));
-    serial_printf(SFCYAN, SBBLACK, "bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_des.bits_map, mem_des.bits_size, mem_des.bits_length);
-    serial_printf(SFCYAN, SBBLACK, "pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_des.pages_struct, mem_des.pages_size, mem_des.pages_length);
-    serial_printf(SFCYAN, SBBLACK, "zones_struct:%#018lx zones_size:%#018lx zones_length:%#018lx\n", mem_des.zones_struct, mem_des.zones_size, mem_des.zones_length);
+    printk("bits_map:%#018lx bits_size:%#018lx bits_length:%#018lx\n", *mem_des.bits_map, mem_des.bits_size, mem_des.bits_length);
+    printk("pages_struct:%#018lx pages_size:%#018lx pages_length:%#018lx\n", mem_des.pages_struct, mem_des.pages_size, mem_des.pages_length);
+    printk("zones_struct:%#018lx zones_size:%#018lx zones_length:%#018lx\n", mem_des.zones_struct, mem_des.zones_size, mem_des.zones_length);
 
     s32 tmpc = 0, tmpd = 0;
     for (i = 0; i < mem_des.zones_size; ++i)
     {
         zone_t *z = mem_des.zones_struct + i;
-        serial_printf(SFYELLOW, SBBLACK, \
+        printk(\
             "zone_start_address:%#018lx zone_end_address:%#018lx \
             zone_length:%#018lx pages_group:%#018lx \
             pages_length:%#018lx pages_freecount:%#018lx\n", \
@@ -273,7 +274,7 @@ void mm_init(void)
             z->pages_length, z->page_free_count);
     }
     mem_des.end_of_struct = (u64)((u64)mem_des.zones_struct + mem_des.zones_length + sizeof(s64) * 32) & (~(sizeof(s64) - 1));
-    serial_printf(SFCYAN, SBBLACK, \
+    printk(\
         "start_code:%#018lx end_code:%#018lx \
         start_data:%#018lx end_data:%#018lx \
         start_brk:%#018lx end_of_struct:%#018lx\n", \
@@ -291,10 +292,10 @@ void mm_init(void)
 
     }
     cr3 = get_gdt();
-    serial_printf(SFCYAN, SBBLACK, "cr3:%#018lx\n", cr3);
-    serial_printf(SFCYAN, SBBLACK, "*cr3:%#018lx\n", *(u64 *)P_TO_V(cr3) & (~0xff));
-    serial_printf(SFCYAN, SBBLACK, "**cr3:%#018lx\n", *(u64 *)P_TO_V(*(u64 *)P_TO_V(cr3) & (~0xff)) & (~0xff));
-    serial_printf(SFCYAN, SBBLACK, "1.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_des.bits_map, mem_des.zones_struct->page_using_count, mem_des.zones_struct->page_free_count);
+    printk("cr3:%#018lx\n", cr3);
+    printk("*cr3:%#018lx\n", *(u64 *)P_TO_V(cr3) & (~0xff));
+    printk("**cr3:%#018lx\n", *(u64 *)P_TO_V(*(u64 *)P_TO_V(cr3) & (~0xff)) & (~0xff));
+    printk("1.bits_map:%#018lx\tzone_struct->page_using:%d\tzone_struct->page_free:%d\n", *mem_des.bits_map, mem_des.zones_struct->page_using_count, mem_des.zones_struct->page_free_count);
     flush_cr3();
     return;
 }
@@ -307,11 +308,11 @@ void pagetable_init()
     u64* virtual;
     cr3 = get_gdt();
     tmp = (u64*)(((u64)P_TO_V((u64)cr3 & (~0xfffUL))) + 8 * 256);
-    serial_printf(SFYELLOW, SBBLACK, "1:%#018lx\t%#018lx\n", (u64)tmp, *tmp);
+    printk("1:%#018lx\t%#018lx\n", (u64)tmp, *tmp);
     tmp = (u64*)P_TO_V(*tmp & (~0xfffUL));
-    serial_printf(SFYELLOW, SBBLACK, "2:%#018lx\t%#018lx\n", (u64)tmp, *tmp);
+    printk("2:%#018lx\t%#018lx\n", (u64)tmp, *tmp);
     tmp = (u64*)P_TO_V(*tmp & (~0xfffUL));
-    serial_printf(SFYELLOW, SBBLACK, "3:%#018lx\t%#018lx\n", (u64)tmp, *tmp);
+    printk("3:%#018lx\t%#018lx\n", (u64)tmp, *tmp);
     for(i = 0; i < mem_des.zones_size; ++i)
     {
         zone_t* z = mem_des.zones_struct + i;

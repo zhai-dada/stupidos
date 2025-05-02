@@ -1,5 +1,5 @@
 #include <driver/vbe.h>
-#include <driver/serial.h>
+#include <debug.h>
 #include <lib/string.h>
 #include <lib/asm.h>
 #include <uefi.h>

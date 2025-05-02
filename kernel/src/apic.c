@@ -130,7 +130,7 @@ static void ioapic_init()
     u32 ioapic_rtenum = (((*ioapic_mm_map.virtual_data_address) >> 16) & 0xff) + 1;
     u8 apic_version = ((*ioapic_mm_map.virtual_data_address) >> 0) & 0xf;
 
-    serial_printf(SFCYAN, SBBLACK, "ioapic id : %#x rte num : %d apic version : %#x\n", ioapic_id, ioapic_rtenum, apic_version);
+    printk("ioapic id : %#x rte num : %d apic version : %#x\n", ioapic_id, ioapic_rtenum, apic_version);
 
     for(i = 0x10; i < 0x10 + ioapic_rtenum; i = i + 2) // 我qemu模拟的RTE的数量
 	{
@@ -246,7 +246,7 @@ void do_irq(stackregs_t* regs, u64 nr)
         }
         default:
         {
-            serial_printf(SFRED, SBBLACK, "irq:%d\n", nr);
+            printk("irq:%d\n", nr);
             break;
         }
     }

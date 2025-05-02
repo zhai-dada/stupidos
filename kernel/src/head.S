@@ -77,7 +77,7 @@ ignore_int:
 /*
 * 初始的内存分页 2MB大小
 */
-.align 8
+.align 64
 .org	0x1000
 __PML4E:
 	.quad	0x102003
@@ -118,7 +118,7 @@ __PDE:
 
 .section .data
 
-.align 8
+.align 64
 .globl gdt_table
 gdt_table:
 	.quad	0x0000000000000000			/*0	NULL descriptor		       			00*/
@@ -138,7 +138,7 @@ gdt_pointer:
 gdt_limit:	.word	gdt_end - gdt_table - 1
 gdt_base:	.quad	gdt_table
 
-.align 8
+.align 64
 .globl idt_table
 idt_table:
 	.fill  512,8,0

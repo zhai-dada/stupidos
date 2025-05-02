@@ -8,7 +8,7 @@
 #include <mm/memory.h>
 #include <mm/kmem.h>
 #include <lib/libio.h>
-#include <driver/serial.h>
+#include <debug.h>
 
 // 交付模式
 #define IOAPIC_FIXED                0 // 固定
