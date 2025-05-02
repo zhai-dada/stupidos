@@ -29,11 +29,8 @@ int kernel(void)
     softirq_init();
 
     hpet_init();
-
-
     
     sti();
-
     while (1)
     {
         ;
