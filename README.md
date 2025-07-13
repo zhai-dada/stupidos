@@ -1,0 +1,2 @@
+# stupidos
+a stupid os
