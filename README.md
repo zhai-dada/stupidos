@@ -1,2 +1,0 @@
-# stupidos
-a stupid os
