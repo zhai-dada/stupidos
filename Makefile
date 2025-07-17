@@ -26,6 +26,7 @@ DEP_FILES = $(OBJ:%.o=%.d)
 -include $(DEP_FILES)
 
 $(BUILD_DIR)/boot.o:$(PRJ_DIR)/boot/boot.S
+	@mkdir -p $(BUILD_DIR)
 	$(CC) $(ASMFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/mm.o:$(PRJ_DIR)/mm/mm.S
