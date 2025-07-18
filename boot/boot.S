@@ -5,11 +5,12 @@ _start:
 	mrs	x0, mpidr_el1		// mpidr_el1 表示CPU的编号
 	and	x0, x0, #0xFF		// 检查处理器核心ID
  	cbz	x0, master		    // 除了CPU0其他CPU都会在这里死循环等待
-	b	proc_hang
+	b proc_hang
 
-proc_hang: 
-	b 	kernel_main
+proc_hang:
+	b proc_hang
 
 master:
-	b 	proc_hang
+	mov sp, #0x10000
+	b kernel_main
 
