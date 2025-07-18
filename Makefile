@@ -7,9 +7,13 @@ CC := $(CROSS_COMPILE)gcc
 LD := $(CROSS_COMPILE)ld
 STRIP := $(CROSS_COMPILE)strip
 OBJCOPY := $(CROSS_COMPILE)objcopy
+GDB := gdb-multiarch
+GDBSCRIPT := debug/debug.gdb
+
 
 CFLAGS += -g -Wall -nostdlib -nostdinc -Iinclude -MMD
 ASMFLAGS += -g -Iinclude -MMD
+GDBFLAGS += --tui stupidos.elf -x $(GDBSCRIPT)
 
 QEMUFLAGS += -nographic -machine raspi4b
 QEMUFLAGS += -m 2048
@@ -48,10 +52,12 @@ run:stupidos.bin
 	$(QEMU) $(QEMUFLAGS) -kernel $<
 
 debug:stupidos.bin
-	$(QEMU) $(QEMUFLAGS) -kernel $< -S -s
+	$(QEMU) $(QEMUFLAGS) -kernel $< -S -s &
+	$(GDB) $(GDBFLAGS)
+	killall $(QEMU)
 
 clean:
 	rm -rf $(BUILD_DIR)/* *.bin *.elf
 
-.PHONY:clean
+.PHONY:clean debug
 	
