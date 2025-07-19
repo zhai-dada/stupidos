@@ -22,15 +22,21 @@ LINKER ?= $(shell pwd)/boot/raspi4b.lds
 BUILD_DIR := $(shell pwd)/build
 PRJ_DIR := $(shell pwd)
 
-OBJ += 	$(BUILD_DIR)/boot.o \
-		$(BUILD_DIR)/mm.o	\
+OBJ += 	$(BUILD_DIR)/boot.o 		\
+		$(BUILD_DIR)/early_uart.o 	\
+		$(BUILD_DIR)/mm.o			\
 		$(BUILD_DIR)/kernel.o
 
 DEP_FILES = $(OBJ:%.o=%.d)
 -include $(DEP_FILES)
 
-$(BUILD_DIR)/boot.o:$(PRJ_DIR)/boot/boot.S
+builddir:
 	@mkdir -p $(BUILD_DIR)
+
+$(BUILD_DIR)/boot.o:$(PRJ_DIR)/boot/boot.S
+	$(CC) $(ASMFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/early_uart.o:$(PRJ_DIR)/boot/early_uart.S
 	$(CC) $(ASMFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/mm.o:$(PRJ_DIR)/mm/mm.S
@@ -41,9 +47,8 @@ $(BUILD_DIR)/kernel.o:$(PRJ_DIR)/kernel/kernel.c
 
 all:stupidos.bin
 
-stupidos.elf:$(OBJ) $(LINKER)
+stupidos.elf:builddir $(OBJ) $(LINKER)
 	$(LD) -T $(LINKER) -o $@ $(OBJ)
-# 	$(STRIP) $@
 
 stupidos.bin:stupidos.elf
 	$(OBJCOPY) stupidos.elf -O binary $@
@@ -57,7 +62,6 @@ debug:stupidos.bin
 	killall $(QEMU)
 
 clean:
-	rm -rf $(BUILD_DIR)/* *.bin *.elf
+	rm -rf $(BUILD_DIR) *.bin *.elf
 
-.PHONY:clean debug
-	
+.PHONY:clean debug builddir
