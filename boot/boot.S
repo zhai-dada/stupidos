@@ -12,5 +12,15 @@ proc_hang:
 
 master:
 	mov sp, #0x10000
+	bl early_uart_init
+
+	ldr x0, =myteststr
+	bl early_uart_put_string
+
 	b kernel_main
 
+.section ".data"
+
+.align 3
+myteststr:
+	.string "Hello AARCH64\r\n\0" 

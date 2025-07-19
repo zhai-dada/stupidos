@@ -1,3 +1,8 @@
+/*
+	x0 基地址
+	x1 长度
+	void memzero(void* x0, u64 x1)
+*/
 .globl memzero
 .type memzero, @function	// x0 基地址  x1 长度
 memzero:
