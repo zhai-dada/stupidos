@@ -1,9 +1,18 @@
-#ifndef __BASE_H
-#define __BASE_H
+#ifndef __ASM_BASE_H
+#define __ASM_BASE_H
 
 #define PBASE 0xFE000000
 #define PBASE_END 0x100000000
 
-#define ARM_LOCAL_BASE 0xff800000
+#define ARM_LOCAL_BASE 0xFF800000
+
+#define GPIO_BASE   (PBASE + 0x200000)
+
+// PL011
+#define UART0_BASE  (PBASE + 0x201000)
+#define UART2_BASE  (PBASE + 0x201400)
+#define UART3_BASE  (PBASE + 0x201600)
+#define UART4_BASE  (PBASE + 0x201800)
+#define UART5_BASE  (PBASE + 0x201A00)
 
 #endif

@@ -1,0 +1,48 @@
+#ifndef __ASM_GPIO_H
+#define __ASM_GPIO_H
+
+#include <asm/base.h>
+
+#define GPFSEL0     (GPIO_BASE + 0x00000000)
+#define GPFSEL1     (GPIO_BASE + 0x00000004)
+#define GPFSEL2     (GPIO_BASE + 0x00000008)
+#define GPFSEL3     (GPIO_BASE + 0x0000000c)
+#define GPFSEL4     (GPIO_BASE + 0x00000010)
+#define GPFSEL5     (GPIO_BASE + 0x00000014)
+
+#define GPSET0      (GPIO_BASE + 0x0000001C)
+#define GPSET1      (GPIO_BASE + 0x00000020)
+
+#define GPCLR0      (GPIO_BASE + 0x00000028)
+#define GPCLR1      (GPIO_BASE + 0x0000002C)
+
+#define GPLEV0      (GPIO_BASE + 0x00000034)
+#define GPLEV1      (GPIO_BASE + 0x00000038)
+
+#define GPEDS0      (GPIO_BASE + 0x00000040)
+#define GPEDS1      (GPIO_BASE + 0x00000044)
+
+#define GPREN0      (GPIO_BASE + 0x0000004C)
+#define GPREN1      (GPIO_BASE + 0x00000050)
+
+#define GPFEN0      (GPIO_BASE + 0x00000058)
+#define GPFEN1      (GPIO_BASE + 0x0000005C)
+
+#define GPHEN0      (GPIO_BASE + 0x00000064)
+#define GPHEN1      (GPIO_BASE + 0x00000068)
+
+#define GPLEN0      (GPIO_BASE + 0x00000070)
+#define GPLEN1      (GPIO_BASE + 0x00000074)
+
+#define GPAREN0     (GPIO_BASE + 0x0000007C)
+#define GPAREN1     (GPIO_BASE + 0x00000080)
+
+#define GPAFEN0     (GPIO_BASE + 0x00000088)
+#define GPAFEN1     (GPIO_BASE + 0x0000008C)
+
+#define GPUPDNCTRL0 (GPIO_BASE + 0x000000E4)
+#define GPUPDNCTRL1 (GPIO_BASE + 0x000000E8)
+#define GPUPDNCTRL2 (GPIO_BASE + 0x000000EC)
+#define GPUPDNCTRL3 (GPIO_BASE + 0x000000F0)
+
+#endif
