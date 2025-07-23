@@ -53,10 +53,6 @@ early_uart_init:
     bfi x2, x3, #8, #2
     str w2, [x1]
 
-    // test data
-    ldr x1, =UART_DATA(UART0_BASE)
-    mov x2, #0x60
-
     isb
     ret
 
