@@ -11,16 +11,21 @@ proc_hang:
 	b proc_hang
 
 master:
-	mov sp, #0x10000
+	adr	x0, bss_start
+	adr	x1, bss_end
+	sub	x1, x1, x0
+	bl 	memzero
+
+	mov sp, #0x40000
 	bl early_uart_init
 
 	ldr x0, =myteststr
 	bl early_uart_put_string
 
-	b kernel_main
+	bl kernel_main
 
 .section ".data"
 
 .align 3
 myteststr:
-	.string "Hello AARCH64\r\n\0" 
+	.string "[test early_uart] : Hello AARCH64\r\n" 
