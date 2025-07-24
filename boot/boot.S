@@ -16,12 +16,12 @@ master:
 	sub	x1, x1, x0
 	bl 	memzero
 
-	mov sp, #0x40000
 	bl early_uart_init
 
 	ldr x0, =myteststr
 	bl early_uart_put_string
 
+	mov sp, #0x100000	// 1MB
 	bl kernel_main
 
 .section ".data"
