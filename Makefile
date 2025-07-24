@@ -81,6 +81,6 @@ debug_openocd:stupidos.bin
 	$(GDB) $(GDB_OPENOCD_FLAGS)
 
 clean:
-	rm -rf $(BUILD_DIR) *.bin *.elf
+	rm -rf $(BUILD_DIR) *.bin *.elf *.map
 
 .PHONY:clean builddir
