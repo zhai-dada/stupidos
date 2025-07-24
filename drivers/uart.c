@@ -20,7 +20,9 @@ static void uart_set_baudrate(u64 uart_base, u32 baud)
     u32 ibd = UART_CLK / 16 / UART_BAUD;
     writel(ibd, UART_IBRD(uart_base));
 
-    u32 fbd = ((48000000.0 / 16 / baud) - ibd) * 64 + 0.5;
+    // u32 fbd = ((48000000.0 / 16 / baud) - ibd) * 64 + 0.5;
+    // 换一种方式，不使用浮点计算
+    u32 fbd = ((UART_CLK % (16 * baud)) * 64 + (16 * baud / 2)) / (16 * baud);
     writel(fbd, UART_FBRD(uart_base));
     
     return;
@@ -87,7 +89,7 @@ static void uart_irq_enable(u64 uart_base, u32 type)
     return;
 }
 
-void uart_send(u8 c)
+static void uart_send(u8 c)
 {
 	/* wait for transmit FIFO to have an available slot*/
 	while (readl(UART_FR(UART0_BASE)) & (1 << 5))
@@ -97,7 +99,7 @@ void uart_send(u8 c)
 	writel(c, UART_DATA(UART0_BASE));
 }
 
-u8 uart_recv(void)
+static u8 uart_recv(void)
 {
 	/* wait for receive FIFO to have data to read */
 	while (readl(UART_FR(UART0_BASE)) & (1 << 4))
@@ -107,16 +109,28 @@ u8 uart_recv(void)
 	return(readl(UART_DATA(UART0_BASE)) & 0xFF);
 }
 
+void uart_putchar(u8 c)
+{
+    if(c == '\n')
+    {
+        uart_send('\r');
+    }
+    uart_send(c);
+    return;
+}
+
+u8 uart_getchar(void)
+{
+    return uart_recv();
+}
+
 void uart_send_string(u8 *str)
 {
 	for (int i = 0; str[i] != '\0'; i++)
 	{
-        if(str[i] == '\n')
-        {
-            uart_send((u8)'\r');
-        }
-        uart_send((u8)str[i]);
+        uart_putchar(str[i]);
     }
+    return;
 }
 
 void uart_init(u64 uart_base)

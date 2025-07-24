@@ -9,8 +9,9 @@
 
 void uart_init(u64 uart_base);
 
-void uart_send(u8 c);
-u8 uart_recv(void);
+void uart_putchar(u8 c);
+u8 uart_getchar(void);
+
 void uart_send_string(u8 *str);
 
 #endif
