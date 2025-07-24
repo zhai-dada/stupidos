@@ -12,7 +12,7 @@ GDBSCRIPT := debug/debug.gdb
 GDBOPENOCD := debug/openocd.gdb
 
 
-CFLAGS += -g -Wall -nostdlib -nostdinc -Iinclude -MMD -O0
+CFLAGS += -g -nostdlib -fno-builtin -Iinclude -MMD -mgeneral-regs-only
 ASMFLAGS += -g -Iinclude -MMD
 GDB_QEMU_FLAGS += --tui stupidos.elf -x $(GDBSCRIPT)
 GDB_OPENOCD_FLAGS += --tui stupidos.elf -x $(GDBOPENOCD)
@@ -31,6 +31,7 @@ OBJ += 	$(BUILD_DIR)/boot.o 		\
 		$(BUILD_DIR)/mm.o			\
 		$(BUILD_DIR)/uart.o			\
 		$(BUILD_DIR)/printk.o		\
+		$(BUILD_DIR)/string.o		\
 		$(BUILD_DIR)/kernel.o
 
 DEP_FILES = $(OBJ:%.o=%.d)
@@ -49,10 +50,13 @@ $(BUILD_DIR)/early_uart.o:$(PRJ_DIR)/boot/early_uart.S
 	$(CC) $(ASMFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/uart.o:$(PRJ_DIR)/drivers/uart.c
-	$(CC) $(ASMFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/printk.o:$(PRJ_DIR)/kernel/printk.c
-	$(CC) $(ASMFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/string.o:$(PRJ_DIR)/kernel/string.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/kernel.o:$(PRJ_DIR)/kernel/kernel.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -60,7 +64,7 @@ $(BUILD_DIR)/kernel.o:$(PRJ_DIR)/kernel/kernel.c
 all:stupidos.bin
 
 stupidos.elf:builddir $(OBJ) $(LINKER)
-	$(LD) -o $@ $(OBJ) -T $(LINKER) -e $(ENTRY)
+	$(LD) -o $@ $(OBJ) -T $(LINKER) -e $(ENTRY) -Map stupidos.map
 
 stupidos.bin:stupidos.elf
 	$(OBJCOPY) stupidos.elf -O binary $@
