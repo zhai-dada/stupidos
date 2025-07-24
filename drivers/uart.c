@@ -121,7 +121,12 @@ void uart_putchar(u8 c)
 
 u8 uart_getchar(void)
 {
-    return uart_recv();
+    s8 c = uart_recv();
+    if(c == '\r')
+    {
+        uart_putchar('\n');
+    }
+    return c;
 }
 
 void uart_send_string(u8 *str)
