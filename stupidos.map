@@ -44,52 +44,52 @@ LOAD /home/zhai/myspace/stupidos/build/kernel.o
 .iplt           0x0000000000081ad8        0x0
  .iplt          0x0000000000081ad8        0x0 /home/zhai/myspace/stupidos/build/boot.o
 
-.rodata         0x0000000000081ad8       0xa1
+.rodata         0x0000000000081ad8       0xda
  *(.rodata)
  .rodata        0x0000000000081ad8       0x4d /home/zhai/myspace/stupidos/build/printk.o
  *fill*         0x0000000000081b25        0x3 
- .rodata        0x0000000000081b28       0x51 /home/zhai/myspace/stupidos/build/kernel.o
+ .rodata        0x0000000000081b28       0x8a /home/zhai/myspace/stupidos/build/kernel.o
 
-.eh_frame       0x0000000000081b80      0x29c
- .eh_frame      0x0000000000081b80      0x1d0 /home/zhai/myspace/stupidos/build/uart.o
- .eh_frame      0x0000000000081d50       0x98 /home/zhai/myspace/stupidos/build/printk.o
+.eh_frame       0x0000000000081bb8      0x29c
+ .eh_frame      0x0000000000081bb8      0x1d0 /home/zhai/myspace/stupidos/build/uart.o
+ .eh_frame      0x0000000000081d88       0x98 /home/zhai/myspace/stupidos/build/printk.o
                                          0xb0 (size before relaxing)
- .eh_frame      0x0000000000081de8       0x18 /home/zhai/myspace/stupidos/build/string.o
+ .eh_frame      0x0000000000081e20       0x18 /home/zhai/myspace/stupidos/build/string.o
                                          0x30 (size before relaxing)
- .eh_frame      0x0000000000081e00       0x1c /home/zhai/myspace/stupidos/build/kernel.o
+ .eh_frame      0x0000000000081e38       0x1c /home/zhai/myspace/stupidos/build/kernel.o
                                          0x30 (size before relaxing)
 
-.rela.dyn       0x0000000000081e20        0x0
+.rela.dyn       0x0000000000081e58        0x0
  .rela.text.boot
-                0x0000000000081e20        0x0 /home/zhai/myspace/stupidos/build/boot.o
- .rela.iplt     0x0000000000081e20        0x0 /home/zhai/myspace/stupidos/build/boot.o
+                0x0000000000081e58        0x0 /home/zhai/myspace/stupidos/build/boot.o
+ .rela.iplt     0x0000000000081e58        0x0 /home/zhai/myspace/stupidos/build/boot.o
 
-.data           0x0000000000081e20       0x24
+.data           0x0000000000081e58       0x24
  *(.data)
- .data          0x0000000000081e20       0x24 /home/zhai/myspace/stupidos/build/boot.o
- .data          0x0000000000081e44        0x0 /home/zhai/myspace/stupidos/build/early_uart.o
- .data          0x0000000000081e44        0x0 /home/zhai/myspace/stupidos/build/mm.o
- .data          0x0000000000081e44        0x0 /home/zhai/myspace/stupidos/build/uart.o
- .data          0x0000000000081e44        0x0 /home/zhai/myspace/stupidos/build/printk.o
- .data          0x0000000000081e44        0x0 /home/zhai/myspace/stupidos/build/string.o
- .data          0x0000000000081e44        0x0 /home/zhai/myspace/stupidos/build/kernel.o
+ .data          0x0000000000081e58       0x24 /home/zhai/myspace/stupidos/build/boot.o
+ .data          0x0000000000081e7c        0x0 /home/zhai/myspace/stupidos/build/early_uart.o
+ .data          0x0000000000081e7c        0x0 /home/zhai/myspace/stupidos/build/mm.o
+ .data          0x0000000000081e7c        0x0 /home/zhai/myspace/stupidos/build/uart.o
+ .data          0x0000000000081e7c        0x0 /home/zhai/myspace/stupidos/build/printk.o
+ .data          0x0000000000081e7c        0x0 /home/zhai/myspace/stupidos/build/string.o
+ .data          0x0000000000081e7c        0x0 /home/zhai/myspace/stupidos/build/kernel.o
 
-.igot.plt       0x0000000000081e48        0x0
- .igot.plt      0x0000000000081e48        0x0 /home/zhai/myspace/stupidos/build/boot.o
-                0x0000000000081e48                . = ALIGN (0x8)
-                0x0000000000081e48                bss_start = .
+.igot.plt       0x0000000000081e80        0x0
+ .igot.plt      0x0000000000081e80        0x0 /home/zhai/myspace/stupidos/build/boot.o
+                0x0000000000081e80                . = ALIGN (0x8)
+                0x0000000000081e80                bss_start = .
 
-.bss            0x0000000000081e48     0x1000
+.bss            0x0000000000081e80     0x1000
  *(.bss*)
- .bss           0x0000000000081e48        0x0 /home/zhai/myspace/stupidos/build/boot.o
- .bss           0x0000000000081e48        0x0 /home/zhai/myspace/stupidos/build/early_uart.o
- .bss           0x0000000000081e48        0x0 /home/zhai/myspace/stupidos/build/mm.o
- .bss           0x0000000000081e48        0x0 /home/zhai/myspace/stupidos/build/uart.o
- .bss           0x0000000000081e48     0x1000 /home/zhai/myspace/stupidos/build/printk.o
-                0x0000000000081e48                printk_buffer
- .bss           0x0000000000082e48        0x0 /home/zhai/myspace/stupidos/build/string.o
- .bss           0x0000000000082e48        0x0 /home/zhai/myspace/stupidos/build/kernel.o
-                0x0000000000082e48                bss_end = .
+ .bss           0x0000000000081e80        0x0 /home/zhai/myspace/stupidos/build/boot.o
+ .bss           0x0000000000081e80        0x0 /home/zhai/myspace/stupidos/build/early_uart.o
+ .bss           0x0000000000081e80        0x0 /home/zhai/myspace/stupidos/build/mm.o
+ .bss           0x0000000000081e80        0x0 /home/zhai/myspace/stupidos/build/uart.o
+ .bss           0x0000000000081e80     0x1000 /home/zhai/myspace/stupidos/build/printk.o
+                0x0000000000081e80                printk_buffer
+ .bss           0x0000000000082e80        0x0 /home/zhai/myspace/stupidos/build/string.o
+ .bss           0x0000000000082e80        0x0 /home/zhai/myspace/stupidos/build/kernel.o
+                0x0000000000082e80                bss_end = .
 OUTPUT(stupidos.elf elf64-littleaarch64)
 LOAD linker stubs
 

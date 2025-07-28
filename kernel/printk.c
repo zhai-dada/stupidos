@@ -336,7 +336,7 @@ static s32 vsprintf(s8 *buf, const s8 *fmt, va_list args)
 			break;
 
         case 'b': // binary
-            u32 num = va_arg(args, unsigned long);
+            u32 num = va_arg(args, u64);
             str = number(str, num, 2, field_width, precision, flags);
             break;
 
@@ -345,7 +345,7 @@ static s32 vsprintf(s8 *buf, const s8 *fmt, va_list args)
             u8* ptr = va_arg(args, u8 *);
             for (u32 t = 0; t < 6; t++, ptr++)
             {
-                int num = *ptr;
+                s32 num = *ptr;
                 str = number(str, num, 16, 2, precision, flags);
                 *str = ':';
                 str++;

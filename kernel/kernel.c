@@ -8,10 +8,10 @@ typedef u8 ip_addr_t[4];
 s32 kernel_main(void)
 {
     uart_init(UART0_BASE);
-    uart_send_string((u8*)"hello stupidos\n");
+    uart_send_string((u8*)"[test uart_pl01\t] : hello stupidos\n");
 
     s8 buffer[512];
-    sprintf(buffer, "Hello %s %#018lx\n", "str", 0x55aa55aa);
+    sprintf(buffer, "[test sprintf\t] : Hello %s %#018lx\n", "str", 0x55aa55aa);
     eth_addr_t mac;
     ip_addr_t ip;
     mac[0] = 0x55;
@@ -20,7 +20,7 @@ s32 kernel_main(void)
     ip[1] = 168;
     ip[2] = 1;
     ip[3] = 0;
-    printk("hello %p %d %x %#018lx %m %b %r\n", buffer, 10, 0xff, 0x55aa55aa, mac, 0x5a, ip);
+    printk("[test printk\t] : hello %p %d %x %#018lx %m %b %r\n", buffer, 10, 0xff, 0x55aa55aa, mac, 0x5a, ip);
 
     while(1)
     {

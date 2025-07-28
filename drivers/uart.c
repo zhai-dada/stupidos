@@ -131,7 +131,7 @@ u8 uart_getchar(void)
 
 void uart_send_string(u8 *str)
 {
-	for (int i = 0; str[i] != '\0'; i++)
+	for (u64 i = 0; str[i] != '\0'; i++)
 	{
         uart_putchar(str[i]);
     }
