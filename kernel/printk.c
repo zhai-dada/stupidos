@@ -288,7 +288,7 @@ static s32 vsprintf(s8 *buf, const s8 *fmt, va_list args)
 			if (field_width == -1)
 			{
 				field_width = 2 * sizeof(void *);
-				flags |= ZEROPAD;
+				flags = flags | SMALL | ZEROPAD;
 			}
 
 			str = number(str, (u64)va_arg(args, void *), 16, field_width, precision, flags);
