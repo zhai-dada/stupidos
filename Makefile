@@ -27,7 +27,9 @@ PRJ_DIR := $(shell pwd)
 ENTRY := _start
 
 OBJ += 	$(BUILD_DIR)/boot.o 		\
+		$(BUILD_DIR)/entry.o 		\
 		$(BUILD_DIR)/early_uart.o 	\
+		$(BUILD_DIR)/trap.o			\
 		$(BUILD_DIR)/mm.o			\
 		$(BUILD_DIR)/uart.o			\
 		$(BUILD_DIR)/printk.o		\
@@ -43,11 +45,17 @@ builddir:
 $(BUILD_DIR)/boot.o:$(PRJ_DIR)/boot/boot.S
 	$(CC) $(ASMFLAGS) -c $< -o $@
 
+$(BUILD_DIR)/entry.o:$(PRJ_DIR)/boot/entry.S
+	$(CC) $(ASMFLAGS) -c $< -o $@
+
 $(BUILD_DIR)/mm.o:$(PRJ_DIR)/mm/mm.S
 	$(CC) $(ASMFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/early_uart.o:$(PRJ_DIR)/boot/early_uart.S
 	$(CC) $(ASMFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/trap.o:$(PRJ_DIR)/kernel/trap.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/uart.o:$(PRJ_DIR)/drivers/uart.c
 	$(CC) $(CFLAGS) -c $< -o $@

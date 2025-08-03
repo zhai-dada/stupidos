@@ -9,7 +9,7 @@ typedef u8 ip_addr_t[4];
 s8 buffer[512];
 eth_addr_t mac;
 ip_addr_t ip;
-
+extern void trigger_alignment();
 s32 kernel_main(void)
 {
     uart_init(UART0_BASE);
@@ -26,7 +26,7 @@ s32 kernel_main(void)
 
     u64 cval = read_sysreg(CurrentEL);
     printk("[current EL\t] : current el is %d\n", cval >> 2);
-
+    trigger_alignment();
     while (1)
     {
         uart_putchar(uart_getchar());

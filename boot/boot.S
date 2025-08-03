@@ -47,6 +47,11 @@ el2_entry:
 el1_entry:
 	bl print_el
 
+	/* 设置异常向量表基地址到vbar寄存器 */
+	ldr     x5, =vectors
+	msr     vbar_el1, x5
+	isb
+
 	// bss memset to 0
 	adr	x0, bss_start
 	adr	x1, bss_end
@@ -88,3 +93,6 @@ getcurrentel:
 .align 3
 nextline:
 	.string "\r\n"
+.global testerror
+testerror:
+	.string "t"
