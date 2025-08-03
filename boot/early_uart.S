@@ -59,6 +59,7 @@ early_uart_init:
 /*
     void early_uart_put_char(char w0)
 */
+.global early_uart_put_char
 .type early_uart_put_char, @function
 early_uart_put_char:
 	ldr x1, =UART_FR(UART0_BASE)

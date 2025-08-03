@@ -1,7 +1,7 @@
 #include <mm/mm.h>
 #include <drivers/uart.h>
 #include <printk.h>
-#include <asm/asm.h>
+#include <asm.h>
 
 typedef u8 eth_addr_t[6]; // MAC
 typedef u8 ip_addr_t[4];
@@ -25,7 +25,7 @@ s32 kernel_main(void)
     printk("[test printk\t] : hello %#p %d %x %#018lx %m %b %r\n", buffer, 10, 0xff, 0x55aa55aa, mac, 0x5a, ip);
 
     u64 cval = read_sysreg(CurrentEL);
-    printk("[current EL\t] : %d\n", cval >> 2);
+    printk("[current EL\t] : current el is %d\n", cval >> 2);
 
     while (1)
     {
